@@ -169,7 +169,7 @@ export default async function handler(req, res) {
     try {
       await postJson("https://api.resend.com/emails", {
         from: "Tanta Pulse <noreply@tantaholdings.com>",
-        to: "jedwards@tanta-holdings.com",
+        to: "hello@tantapulse.com",
         reply_to: email,
         subject: `[Tanta Pulse] Sample request: ${niche} in ${city}`,
         html: renderInternalHtml({ name, email, niche, city, cadence, notes }),
