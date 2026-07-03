@@ -1,12 +1,17 @@
 # Tanta Pulse
 
-Lead-intelligence landing page repo.
+Fresh local leads, ranked and delivered weekly.
 
-## Hosting path
-- **Repo root:** `/`
-- **Public entry file:** `index.html`
-- **Primary CTA:** `Request a sample`
+## Live stack
+- **Hosting:** Vercel
+- **Domain:** tantapulse.com
+- **Capture:** `/api/sample-request`
+- **Follow-up sender:** `/api/lead-feed/send`
+- **Data sink:** Supabase `newsletter_subscribers` + `email_sequence`
+- **Email:** Resend using the shared THOS secrets mirrored into the Vercel project
 
-## Brand
-- Product: Tanta Pulse
-- Domain: tantapulse.com
+## CTA
+Use **Request a sample** only.
+
+## Deploy notes
+The Vercel project is linked to this repo and the apex domain is attached.
