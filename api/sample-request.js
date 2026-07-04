@@ -194,11 +194,48 @@ export default async function handler(req, res) {
     const maxCrawledPlaces = Number.parseInt(process.env.APIFY_MAX_CRAWLED_PLACES || "10", 10) || 10;
     const apify = await startApifySearch({ niche, city, maxCrawledPlaces });
     if (apify?.ok) {
+      const runId = apify.json?.data?.id || null;
+      const defaultDatasetId = apify.json?.data?.defaultDatasetId || null;
       result.apify = {
         queued: true,
-        runId: apify.json?.data?.id || null,
-        defaultDatasetId: apify.json?.data?.defaultDatasetId || null,
+        runId,
+        defaultDatasetId,
       };
+
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const runRecord = [{
+            request_name: name,
+            request_email: email,
+            niche,
+            city,
+            cadence,
+            notes,
+            source,
+            status: "queued",
+            apify_run_id: runId,
+            apify_dataset_id: defaultDatasetId,
+            requested_at: timestamp,
+          }];
+          const runInsert = await postJson(`${supabaseUrl}/rest/v1/lead_feed_runs`, runRecord, {
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          });
+          if (runInsert.ok) {
+            result.pipeline = { queued: true };
+          } else {
+            result.pipeline = {
+              queued: false,
+              status: runInsert.status,
+              error: "lead_feed_runs insert failed",
+            };
+            console.error("[Tanta Pulse] lead_feed_runs insert failed:", runInsert.status, runInsert.text);
+          }
+        } catch (runErr) {
+          console.error("[Tanta Pulse] lead_feed_runs insert failed:", runErr);
+        }
+      }
     }
   } catch (err) {
     console.error("[Tanta Pulse] apify queue failed:", err);

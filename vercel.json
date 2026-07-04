@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/lead-feed/process",
+      "schedule": "10 9 * * *"
+    },
+    {
       "path": "/api/lead-feed/send",
       "schedule": "0 9 * * *"
     }
