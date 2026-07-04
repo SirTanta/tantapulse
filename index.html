@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b1020" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
     <title>Tanta Pulse | Fresh local leads, ranked and delivered weekly</title>
     <meta
       name="description"
@@ -71,14 +71,17 @@
         height: 46px;
         border-radius: 16px;
         overflow: hidden;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex: none;
-        background: linear-gradient(135deg, var(--gold), #fff2c9);
+        background: #fbf4e4;
         box-shadow: 0 8px 22px rgba(0,0,0,0.24);
       }
       .mark img {
-        width: 100%;
-        height: 100%;
+        width: 78%;
+        height: 78%;
+        object-fit: contain;
         display: block;
       }
       .brand h1 {
@@ -264,23 +267,23 @@
     <div class="wrap">
       <header class="topbar">
         <div class="brand">
-          <div class="mark"><img src="/logo.svg" alt="Tanta Pulse logo" /></div>
+          <div class="mark"><img src="/logo.png" alt="Tanta Pulse logo" /></div>
           <div>
             <h1>Tanta Pulse</h1>
             <p>Fresh local leads, ranked and delivered weekly</p>
           </div>
         </div>
-        <div class="pill">Built for SEO agencies • Separate brand • Request a sample</div>
+        <div class="pill">A Tanta Holdings company</div>
       </header>
 
       <main>
         <section class="hero">
           <div>
-            <div class="pill" style="margin-bottom:16px;">Public data in • usable feed out</div>
+            <div class="pill" style="margin-bottom:16px;">Built for local SEO agencies</div>
             <h2>Fresh local leads, ranked and delivered weekly.</h2>
             <p class="lead">
-              Tanta Pulse turns public business data into a clean, ranked lead feed for local SEO agencies.
-              We collect it, clean it, score it, and deliver it on a schedule you can sell.
+              Tanta Pulse finds, scores, and delivers local business leads on a weekly cadence, ready for your
+              team to sell against instead of a raw scrape you have to clean up yourself.
             </p>
             <div class="actions">
               <a class="btn btn-primary" href="#request">Request a sample</a>
@@ -296,8 +299,8 @@
                 <span>Cleaned, deduped, and scored before it hits your inbox.</span>
               </div>
               <div class="stat">
-                <strong>Request a sample</strong>
-                <span>Show the value before anyone commits to a subscription.</span>
+                <strong>No lock-in</strong>
+                <span>Try a free sample before you subscribe to anything.</span>
               </div>
             </div>
           </div>
@@ -314,7 +317,7 @@
               <li>optional follow-up sequence</li>
             </ul>
             <div style="margin-top:18px; padding:16px; border-radius:18px; background: rgba(241,198,106,0.08); border: 1px solid rgba(241,198,106,0.18);">
-              <strong style="display:block; margin-bottom:6px;">CTA</strong>
+              <strong style="display:block; margin-bottom:6px;">Ready to see it in action?</strong>
               <span style="color:var(--muted);">Request a sample. If it fits, we turn it into a recurring feed.</span>
             </div>
           </aside>
@@ -325,15 +328,15 @@
           <div class="section-grid">
             <div class="card">
               <h4>1. Collect</h4>
-              <p>We pull public business data for a niche and geography that matters.</p>
+              <p>Tell us a niche and a market, and we pull the public business data behind it.</p>
             </div>
             <div class="card">
               <h4>2. Rank</h4>
-              <p>We clean, dedupe, and score the best-fit prospects before delivery.</p>
+              <p>Duplicates get merged, junk gets dropped, and what's left is scored by fit.</p>
             </div>
             <div class="card">
               <h4>3. Deliver</h4>
-              <p>We send a simple feed that is ready to use, reuse, or resell.</p>
+              <p>Your feed lands on schedule, ready to hand straight to sales.</p>
             </div>
           </div>
         </section>
@@ -392,7 +395,7 @@
             <form id="sample-form">
               <label>
                 Your name
-                <input name="name" autocomplete="name" placeholder="Jon Edwards" required />
+                <input name="name" autocomplete="name" placeholder="Alex Rivera" required />
               </label>
               <label>
                 Email
@@ -425,14 +428,14 @@
           <div class="form-card">
             <h3>What happens next</h3>
             <ul>
-              <li>Your request is saved to Supabase.</li>
-              <li>We start the collection workflow for your niche and city.</li>
-              <li>Jon gets a notification with your niche and market.</li>
-              <li>You receive a confirmation email right away.</li>
+              <li>We save your request and start building your sample feed.</li>
+              <li>Our team reviews your niche and market.</li>
+              <li>You get a confirmation email right away.</li>
+              <li>Your sample feed lands in your inbox once it's ready.</li>
             </ul>
             <div style="margin-top:18px; padding:16px; border-radius:18px; background: rgba(102, 209, 158, 0.08); border: 1px solid rgba(102, 209, 158, 0.18);">
-              <strong style="display:block; margin-bottom:6px;">Automation path</strong>
-              <span style="color:var(--muted);">Collection runs are kept internal; Supabase stores requests and Resend delivers the email loop.</span>
+              <strong style="display:block; margin-bottom:6px;">No manual busywork on your end</strong>
+              <span style="color:var(--muted);">We handle the collection and delivery. You just review the leads.</span>
             </div>
             <p class="fineprint" style="margin-top:18px;">
               Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
@@ -442,7 +445,7 @@
       </main>
 
       <div class="footer">
-        Tanta Pulse is a separate brand under Tanta Holdings. CTA: <strong>Request a sample</strong>.
+        &copy; 2026 Tanta Pulse, a Tanta Holdings company.
       </div>
     </div>
 
