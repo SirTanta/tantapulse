@@ -80,31 +80,35 @@ function buildRunSummary(run, batch, notes = []) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "GET" && req.method !== "POST") {
-    res.setHeader("Allow", "GET, POST");
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  try {
+    if (req.method !== "GET" && req.method !== "POST") {
+      res.setHeader("Allow", "GET, POST");
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;
-  const apifyToken = process.env.APIFY_TOKEN;
-  const rawTable = process.env.TANTAPULSE_RAW_TABLE || "lead_feed_raw_items";
-  const leadsTable = process.env.TANTAPULSE_LEADS_TABLE || "lead_feed_leads";
-  const runsTable = process.env.TANTAPULSE_RUNS_TABLE || "lead_feed_runs";
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;
+    const apifyToken = process.env.APIFY_TOKEN;
+    const rawTable = process.env.TANTAPULSE_RAW_TABLE || "lead_feed_raw_items";
+    const leadsTable = process.env.TANTAPULSE_LEADS_TABLE || "lead_feed_leads";
+    const runsTable = process.env.TANTAPULSE_RUNS_TABLE || "lead_feed_runs";
 
-  const body = req.method === "POST" && req.body ? (typeof req.body === "string" ? JSON.parse(req.body) : req.body) : {};
-  const manualItems = Array.isArray(body.items) ? body.items : Array.isArray(body.raw_items) ? body.raw_items : [];
-  const context = {
-    niche: normalizeText(body.niche || body.segment || body.searchString || ""),
-    city: normalizeText(body.city || body.location || ""),
-    source: normalizeText(body.source || "apify"),
-    collectedAt: body.collectedAt || new Date().toISOString(),
-  };
+    let body = {};
+    if (req.method === "POST" && req.body) {
+      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    }
+    const manualItems = Array.isArray(body.items) ? body.items : Array.isArray(body.raw_items) ? body.raw_items : [];
+    const context = {
+      niche: normalizeText(body.niche || body.segment || body.searchString || ""),
+      city: normalizeText(body.city || body.location || ""),
+      source: normalizeText(body.source || "apify"),
+      collectedAt: body.collectedAt || new Date().toISOString(),
+    };
 
-  const outputs = [];
-  const notes = [];
+    const outputs = [];
+    const notes = [];
 
-  async function persistBatch(run, batch, sourceLabel = "manual") {
+    async function persistBatch(run, batch, sourceLabel = "manual") {
     if (!supabaseUrl || !supabaseKey) return { persisted: false, reason: "missing_supabase_env" };
     const headers = {
       apikey: supabaseKey,
@@ -236,5 +240,9 @@ export default async function handler(req, res) {
     });
   }
 
-  return res.status(200).json({ ok: true, mode: "queue", processed: outputs.length, outputs, notes });
+    return res.status(200).json({ ok: true, mode: "queue", processed: outputs.length, outputs, notes });
+  } catch (err) {
+    console.error("[Tanta Pulse] lead-feed processor failed:", err);
+    return res.status(200).json({ ok: false, mode: "error", error: "lead-feed processor failed" });
+  }
 }
