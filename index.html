@@ -19,11 +19,33 @@
         --beige: #ede4d3;
         --navy: #0f2044;
         --charcoal: #3d3d3d;
-        --muted: #7a7568;
+        --muted: #6b6558;
         --gold: #d6a847;
         --gold-light: #f0c96a;
+        --gold-text: #7a5518;
+        --success: #2f6b48;
+        --danger: #a83f2e;
         --line: rgba(15, 32, 68, 0.12);
         --gold-line: rgba(214, 168, 71, 0.35);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #16172a;
+          --beige: #1e2036;
+          --navy: #f3eee1;
+          --charcoal: #d8d3c5;
+          --muted: #a9a294;
+          --gold-text: #f0c96a;
+          --success: #6fcf97;
+          --danger: #e88a76;
+          --line: rgba(243, 238, 225, 0.14);
+          --gold-line: rgba(240, 201, 106, 0.4);
+        }
+        .panel, .form-card, .price { background: #1b1c30; }
+        input, select, textarea { background: #1b1c30; }
+        .btn-gold { color: #16172a; }
+        .price.featured::before { color: #16172a; }
       }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
@@ -45,7 +67,7 @@
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.18em;
-        color: var(--gold);
+        color: var(--gold-text);
         font-weight: 600;
       }
       .rule-gold {
@@ -197,16 +219,17 @@
       .record:first-child { border-top: 0; }
       .record .num {
         font-family: "JetBrains Mono", monospace;
-        color: var(--gold);
+        color: var(--gold-text);
         font-weight: 600;
         font-size: 0.9rem;
         padding-top: 3px;
       }
-      .record h4 {
+      .record h3 {
         font-family: "Bricolage Grotesque", sans-serif;
         font-size: 1.05rem;
         color: var(--navy);
         margin: 0 0 6px;
+        font-weight: 700;
       }
       .record p { margin: 0; color: var(--charcoal); line-height: 1.6; max-width: 60ch; }
 
@@ -216,11 +239,12 @@
       }
       .who-grid > div { padding: 4px 24px; border-left: 1px solid var(--line); }
       .who-grid > div:first-child { border-left: 0; padding-left: 0; }
-      .who-grid h4 {
+      .who-grid h3 {
         font-family: "Bricolage Grotesque", sans-serif;
         color: var(--navy);
         font-size: 1.02rem;
         margin: 0 0 8px;
+        font-weight: 700;
       }
       .who-grid p { margin: 0; color: var(--charcoal); line-height: 1.6; font-size: 0.94rem; }
 
@@ -248,7 +272,7 @@
       }
       .price .tier {
         font-family: "JetBrains Mono", monospace;
-        color: var(--gold);
+        color: var(--gold-text);
         font-size: 0.78rem;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -282,7 +306,7 @@
       input::placeholder, textarea::placeholder { color: rgba(122,117,104,0.6); }
       input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(214,168,71,0.18); }
       .fineprint { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
-      .message { min-height: 1.4em; color: #3f7d5a; font-weight: 600; font-size: 0.92rem; }
+      .message { min-height: 1.4em; color: var(--success); font-weight: 600; font-size: 0.92rem; }
 
       .footer {
         padding: 30px 0 50px;
@@ -370,21 +394,21 @@
           <div class="record">
             <div class="num">01</div>
             <div>
-              <h4>Collect</h4>
+              <h3>Collect</h3>
               <p>Tell us a niche and a market, and we pull the public business data behind it.</p>
             </div>
           </div>
           <div class="record">
             <div class="num">02</div>
             <div>
-              <h4>Rank</h4>
+              <h3>Rank</h3>
               <p>Duplicates get merged, junk gets dropped, and what's left is scored by fit.</p>
             </div>
           </div>
           <div class="record">
             <div class="num">03</div>
             <div>
-              <h4>Deliver</h4>
+              <h3>Deliver</h3>
               <p>Your feed lands on schedule, ready to hand straight to sales.</p>
             </div>
           </div>
@@ -396,9 +420,9 @@
       <section class="block wrap">
         <h2>Who it's for</h2>
         <div class="who-grid">
-          <div><h4>SEO agencies</h4><p>They already buy prospecting lists. We make them better.</p></div>
-          <div><h4>Local service operators</h4><p>Keep pipeline full without manual research.</p></div>
-          <div><h4>Small teams</h4><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
+          <div><h3>SEO agencies</h3><p>They already buy prospecting lists. We make them better.</p></div>
+          <div><h3>Local service operators</h3><p>Keep pipeline full without manual research.</p></div>
+          <div><h3>Small teams</h3><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
         </div>
       </section>
 
@@ -512,7 +536,7 @@
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         message.textContent = 'Sending...';
-        message.style.color = '#d6a847';
+        message.style.color = 'var(--gold-text)';
         const data = Object.fromEntries(new FormData(form).entries());
         try {
           const res = await fetch('/api/sample-request', {
@@ -524,10 +548,10 @@
           if (!res.ok) throw new Error(json.error || 'Request failed');
           form.reset();
           message.textContent = 'Request received. We queued your sample and the follow-up sequence.';
-          message.style.color = '#3f7d5a';
+          message.style.color = 'var(--success)';
         } catch (err) {
           message.textContent = err.message || 'Something went wrong.';
-          message.style.color = '#c0503f';
+          message.style.color = 'var(--danger)';
         }
       });
     </script>
