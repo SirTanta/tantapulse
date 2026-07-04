@@ -52,7 +52,32 @@ async function deleteJson(url, headers = {}) {
   return { ok: res.ok, status: res.status, text };
 }
 
-function renderInternalHtml({ name, email, niche, city, cadence, notes }) {
+async function startApifySearch({ niche, city, maxCrawledPlaces = 10 }) {
+  const token = process.env.APIFY_TOKEN;
+  if (!token) return { enabled: false };
+
+  const actorId = process.env.APIFY_GOOGLE_PLACES_ACTOR_ID || "nwua9Gu5YrADL7ZDj";
+  const payload = {
+    searchString: `${niche} in ${city}`,
+    proxyConfig: { useApifyProxy: true },
+    maxCrawledPlaces,
+  };
+
+  const res = await fetch(
+    `https://api.apify.com/v2/acts/${actorId}/runs?token=${encodeURIComponent(token)}&waitForFinish=0`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  return { ok: res.ok, status: res.status, text, json };
+}
+
+function renderInternalHtml({ name, email, niche, city, cadence, notes, apifyRunId }) {
   return `<!doctype html><html><head><meta charset="utf-8"></head>
 <body style="font-family:system-ui,-apple-system,sans-serif;background:#0b1020;margin:0;padding:0">
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px">
@@ -163,6 +188,20 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("[Tanta Pulse] email_sequence write failed:", err);
     }
+  }
+
+  try {
+    const maxCrawledPlaces = Number.parseInt(process.env.APIFY_MAX_CRAWLED_PLACES || "10", 10) || 10;
+    const apify = await startApifySearch({ niche, city, maxCrawledPlaces });
+    if (apify?.ok) {
+      result.apify = {
+        queued: true,
+        runId: apify.json?.data?.id || null,
+        defaultDatasetId: apify.json?.data?.defaultDatasetId || null,
+      };
+    }
+  } catch (err) {
+    console.error("[Tanta Pulse] apify queue failed:", err);
   }
 
   if (resendKey) {
