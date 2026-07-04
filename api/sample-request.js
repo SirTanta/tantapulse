@@ -52,6 +52,44 @@ async function deleteJson(url, headers = {}) {
   return { ok: res.ok, status: res.status, text };
 }
 
+const APIFY_RATE_ACTION = "tantapulse_apify_run";
+
+async function checkAndReserveApifyRun({ supabaseUrl, supabaseKey, email }) {
+  const dailyCap = Number.parseInt(process.env.APIFY_DAILY_RUN_CAP || "20", 10) || 20;
+  if (!supabaseUrl || !supabaseKey) return { allowed: true };
+
+  const headers = {
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    Prefer: "return=minimal",
+  };
+  const windowStart = new Date();
+  windowStart.setUTCHours(0, 0, 0, 0);
+  const windowIso = windowStart.toISOString();
+
+  const query = new URLSearchParams({
+    select: "identifier,count",
+    action: `eq.${APIFY_RATE_ACTION}`,
+    window_start: `eq.${windowIso}`,
+  });
+  const { ok, json } = await apiGet(`${supabaseUrl}/rest/v1/rate_limits?${query.toString()}`, headers);
+  const rows = ok && Array.isArray(json) ? json : [];
+
+  const globalCount = rows.filter((r) => r.identifier === "global").reduce((sum, r) => sum + Number(r.count || 0), 0);
+  const alreadyRunToday = rows.some((r) => r.identifier === email);
+
+  if (globalCount >= dailyCap || alreadyRunToday) {
+    return { allowed: false, reason: alreadyRunToday ? "email_already_ran_today" : "daily_cap_reached" };
+  }
+
+  await postJson(`${supabaseUrl}/rest/v1/rate_limits?on_conflict=identifier,action,window_start`, [
+    { identifier: "global", action: APIFY_RATE_ACTION, window_start: windowIso, count: globalCount + 1 },
+    { identifier: email, action: APIFY_RATE_ACTION, window_start: windowIso, count: 1 },
+  ], { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" });
+
+  return { allowed: true };
+}
+
 async function startApifySearch({ niche, city, maxCrawledPlaces = 10 }) {
   const token = process.env.APIFY_TOKEN;
   if (!token) return { enabled: false };
@@ -191,6 +229,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    const reservation = await checkAndReserveApifyRun({ supabaseUrl, supabaseKey, email });
+    if (!reservation.allowed) {
+      result.apify = { queued: false, reason: reservation.reason };
+      throw new Error("apify_capped");
+    }
+
     const maxCrawledPlaces = Number.parseInt(process.env.APIFY_MAX_CRAWLED_PLACES || "10", 10) || 10;
     const apify = await startApifySearch({ niche, city, maxCrawledPlaces });
     if (apify?.ok) {
