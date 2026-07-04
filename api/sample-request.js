@@ -52,42 +52,55 @@ async function deleteJson(url, headers = {}) {
   return { ok: res.ok, status: res.status, text };
 }
 
+async function apiGet(url, headers = {}) {
+  const res = await fetch(url, { headers });
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  return { ok: res.ok, status: res.status, text, json };
+}
+
 const APIFY_RATE_ACTION = "tantapulse_apify_run";
 
 async function checkAndReserveApifyRun({ supabaseUrl, supabaseKey, email }) {
   const dailyCap = Number.parseInt(process.env.APIFY_DAILY_RUN_CAP || "20", 10) || 20;
   if (!supabaseUrl || !supabaseKey) return { allowed: true };
 
-  const headers = {
-    apikey: supabaseKey,
-    Authorization: `Bearer ${supabaseKey}`,
-    Prefer: "return=minimal",
-  };
-  const windowStart = new Date();
-  windowStart.setUTCHours(0, 0, 0, 0);
-  const windowIso = windowStart.toISOString();
+  try {
+    const headers = {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      Prefer: "return=minimal",
+    };
+    const windowStart = new Date();
+    windowStart.setUTCHours(0, 0, 0, 0);
+    const windowIso = windowStart.toISOString();
 
-  const query = new URLSearchParams({
-    select: "identifier,count",
-    action: `eq.${APIFY_RATE_ACTION}`,
-    window_start: `eq.${windowIso}`,
-  });
-  const { ok, json } = await apiGet(`${supabaseUrl}/rest/v1/rate_limits?${query.toString()}`, headers);
-  const rows = ok && Array.isArray(json) ? json : [];
+    const query = new URLSearchParams({
+      select: "identifier,count",
+      action: `eq.${APIFY_RATE_ACTION}`,
+      window_start: `eq.${windowIso}`,
+    });
+    const { ok, json } = await apiGet(`${supabaseUrl}/rest/v1/rate_limits?${query.toString()}`, headers);
+    const rows = ok && Array.isArray(json) ? json : [];
 
-  const globalCount = rows.filter((r) => r.identifier === "global").reduce((sum, r) => sum + Number(r.count || 0), 0);
-  const alreadyRunToday = rows.some((r) => r.identifier === email);
+    const globalCount = rows.filter((r) => r.identifier === "global").reduce((sum, r) => sum + Number(r.count || 0), 0);
+    const alreadyRunToday = rows.some((r) => r.identifier === email);
 
-  if (globalCount >= dailyCap || alreadyRunToday) {
-    return { allowed: false, reason: alreadyRunToday ? "email_already_ran_today" : "daily_cap_reached" };
+    if (globalCount >= dailyCap || alreadyRunToday) {
+      return { allowed: false, reason: alreadyRunToday ? "email_already_ran_today" : "daily_cap_reached" };
+    }
+
+    await postJson(`${supabaseUrl}/rest/v1/rate_limits?on_conflict=identifier,action,window_start`, [
+      { identifier: "global", action: APIFY_RATE_ACTION, window_start: windowIso, count: globalCount + 1 },
+      { identifier: email, action: APIFY_RATE_ACTION, window_start: windowIso, count: 1 },
+    ], { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" });
+
+    return { allowed: true };
+  } catch (err) {
+    console.error("[Tanta Pulse] rate limit check failed, failing open:", err);
+    return { allowed: true };
   }
-
-  await postJson(`${supabaseUrl}/rest/v1/rate_limits?on_conflict=identifier,action,window_start`, [
-    { identifier: "global", action: APIFY_RATE_ACTION, window_start: windowIso, count: globalCount + 1 },
-    { identifier: email, action: APIFY_RATE_ACTION, window_start: windowIso, count: 1 },
-  ], { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" });
-
-  return { allowed: true };
 }
 
 async function startApifySearch({ niche, city, maxCrawledPlaces = 10 }) {
