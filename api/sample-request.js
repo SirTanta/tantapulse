@@ -62,8 +62,31 @@ async function apiGet(url, headers = {}) {
 
 const APIFY_RATE_ACTION = "tantapulse_apify_run";
 
+async function getApifyMonthlyUsageUsd(token) {
+  if (!token) return null;
+  const { ok, json } = await apiGet("https://api.apify.com/v2/users/me/limits", {
+    Authorization: `Bearer ${token}`,
+  });
+  const usage = ok ? json?.data?.current?.monthlyUsageUsd : null;
+  return typeof usage === "number" ? usage : null;
+}
+
 async function checkAndReserveApifyRun({ supabaseUrl, supabaseKey, email }) {
   const dailyCap = Number.parseInt(process.env.APIFY_DAILY_RUN_CAP || "20", 10) || 20;
+  const budgetCapUsd = Number.parseFloat(process.env.APIFY_MONTHLY_BUDGET_USD || "25");
+  const apifyToken = process.env.APIFY_TOKEN;
+
+  if (apifyToken && Number.isFinite(budgetCapUsd)) {
+    try {
+      const usageUsd = await getApifyMonthlyUsageUsd(apifyToken);
+      if (usageUsd !== null && usageUsd >= budgetCapUsd) {
+        return { allowed: false, reason: "monthly_budget_reached", usageUsd, budgetCapUsd };
+      }
+    } catch (err) {
+      console.error("[Tanta Pulse] apify budget check failed, failing open:", err);
+    }
+  }
+
   if (!supabaseUrl || !supabaseKey) return { allowed: true };
 
   try {
