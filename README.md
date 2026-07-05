@@ -198,3 +198,25 @@ supabase cron, etc.) as a separate decision.
 LANE2_APIFY_BUDGET=0.01 curl "https://your-host/api/lane2/test-cap?budget=0.01&estCost=0.10"
 # Expected: allowed=false, state="capped"
 ```
+
+---
+
+## Sales Discovery Registry
+
+The sales-discovery lane is the unified extension layer for sales signals. Existing lanes remain the source adapters; the new registry deduplicates across them and keeps the filing path idempotent.
+
+### Runtime pieces
+
+- `GET|POST /api/sales-discovery/process` — hourly reconcile plus manual intake
+- `POST /api/sales-discovery/trigger` — optional Apify launcher with the shared $25 account cap
+- `lib/sales-discovery-core.mjs` — shared normalization, canonical keying, scoring, and merge logic
+- `supabase/sales-discovery-schema.sql` — durable registry, raw queue, candidate table, and dead-letter table
+
+### Behavior
+
+- lead-feed rows are mirrored into the unified registry
+- dedup happens on canonical key, then url, then entity/geo/signal fallback
+- duplicate source rows update the existing canonical record instead of creating a second filing candidate
+- the processor returns triage-card payloads for every file-worthy canonical opportunity so downstream routing can file triage-only cards without re-creating duplicates
+- secrets are read only from runtime env vars that are populated by Infisical
+- Apify launches are blocked once the shared account cap reaches $25/month

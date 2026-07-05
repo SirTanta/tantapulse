@@ -20,9 +20,7 @@ import crypto from "node:crypto";
 import { checkAndReserveApifyRun, SPEND_STATES } from "../../lib/lane2-spend-guard.mjs";
 
 function genId() {
-  // Node 18 compatible UUID generation (global crypto.randomUUID is Node 19+)
-  try { return crypto.randomUUID(); } catch { /* fallback below */ }
-  // Fallback for Node 18
+  try { return crypto.randomUUID(); } catch { /* Node 18 fallback */ }
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.webcrypto?.getRandomValues?.(new Uint8Array(1))?.[0] ?? Math.random() * 256 & 15 >> c / 4).toString(16)
   );
@@ -59,40 +57,21 @@ export default async function handler(req, res) {
         : `insufficient_remaining:${effectiveRunCost.toFixed(4)}>${protectedBudget.toFixed(4)}`;
     }
 
-    return res.status(allowed ? 200 : 200).json(
-      allowed
-        ? {
-            ok: true,
-            mode: "simulated",
-            params: { budgetCap, estRunCost, overheadPct },
-            result: {
-              allowed,
-              state,
-              budget_current_usd:    budgetCap - protectedBudget,
-              budget_remaining_usd: protectedBudget - effectiveRunCost,
-              estimated_run_cost_usd: estRunCost,
-              reservation_id: "sim-" + genId(),
-              reason: null,
-              note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
-            },
-          }
-        : {
-            ok: false,
-            mode: "simulated",
-            params: { budgetCap, estRunCost, overheadPct },
-            error: reason,
-            result: {
-              allowed,
-              state,
-              budget_current_usd:    budgetCap - protectedBudget,
-              budget_remaining_usd: protectedBudget - effectiveRunCost,
-              estimated_run_cost_usd: estRunCost,
-              reservation_id: null,
-              reason,
-              note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
-            },
-          }
-    );
+    return res.status(200).json({
+      ok: true,
+      mode: "simulated",
+      params: { budgetCap, estRunCost, overheadPct },
+      result: {
+        allowed,
+        state,
+        budget_current_usd:  budgetCap - protectedBudget,
+        budget_remaining_usd: protectedBudget - effectiveRunCost,
+        estimated_run_cost_usd: estRunCost,
+        reservation_id: allowed ? "sim-" + genId() : null,
+        reason,
+        note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
+      },
+    });
   }
 
   // Live Apify limits check

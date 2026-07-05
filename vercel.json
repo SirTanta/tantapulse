@@ -7,6 +7,10 @@
     {
       "path": "/api/lead-feed/send",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/sales-discovery/process",
+      "schedule": "0 * * * *"
     }
   ]
 }

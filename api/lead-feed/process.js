@@ -1,3 +1,5 @@
+import { persistSalesDiscoverySignals } from "../../lib/sales-discovery-core.mjs";
+
 function normalizeText(value) {
   return String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -223,7 +225,23 @@ export default async function handler(req, res) {
             duplicate_rate: batch.counts.duplicate_rate,
           }, headers)
         : { ok: true, status: 204 };
-      return { persisted: Boolean(rawInsert.ok && leadInsert.ok && summaryUpdate.ok), rawInsert: { ok: rawInsert.ok, status: rawInsert.status }, leadInsert: { ok: leadInsert.ok, status: leadInsert.status }, summaryUpdate: { ok: summaryUpdate.ok, status: summaryUpdate.status } };
+      const salesDiscoveryMirror = await persistSalesDiscoverySignals({
+        supabaseUrl,
+        supabaseKey,
+        items: batch.items,
+        context: {
+          source_lane: `lead-feed.${normalizeText(run.niche || context.niche || "global")}.${normalizeText(run.city || context.city || "global")}`,
+          source_class: "scheduled_query",
+          source_name: "lead-feed",
+          source_id: String(run.id || ""),
+          source_context: { source: "lead_feed_leads mirror" },
+        },
+        sourceLane: `lead-feed.${normalizeText(run.niche || context.niche || "global")}.${normalizeText(run.city || context.city || "global")}`,
+        sourceClass: "scheduled_query",
+        sourceName: "lead-feed",
+        sourceId: String(run.id || ""),
+      });
+      return { persisted: Boolean(rawInsert.ok && leadInsert.ok && summaryUpdate.ok && salesDiscoveryMirror.persisted !== false), rawInsert: { ok: rawInsert.ok, status: rawInsert.status }, leadInsert: { ok: leadInsert.ok, status: leadInsert.status }, summaryUpdate: { ok: summaryUpdate.ok, status: summaryUpdate.status }, salesDiscoveryMirror: { persisted: salesDiscoveryMirror.persisted, counts: salesDiscoveryMirror.counts, inserted: salesDiscoveryMirror.inserted, updated: salesDiscoveryMirror.updated, failures: salesDiscoveryMirror.failures, triage_cards: salesDiscoveryMirror.triage_cards || [] } };
     }
 
     if (manualItems.length) {
