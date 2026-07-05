@@ -122,7 +122,7 @@ export default async function handler(req, res) {
     const emailRes = await apiSend("https://api.resend.com/emails", {
       from: "Tanta Pulse <noreply@tantaholdings.com>",
       to: row.email,
-      reply_to: "jedwards@tanta-holdings.com",
+      reply_to: "hello@tantapulse.com",
       subject: entry.subject,
       html: renderHtml({ step, name, email: row.email, body }),
     }, { Authorization: `Bearer ${resendKey}` });
