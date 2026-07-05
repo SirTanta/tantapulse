@@ -3,301 +3,366 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0b1020" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#fdf9f2" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
     <title>Tanta Pulse | Fresh local leads, ranked and delivered weekly</title>
     <meta
       name="description"
       content="Tanta Pulse turns public business data into ranked local lead feeds for SEO agencies and service businesses. Request a sample and get a clean feed built for action."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
     <style>
       :root {
-        --bg: #0b1020;
-        --panel: rgba(18, 24, 48, 0.82);
-        --panel-2: rgba(255, 255, 255, 0.04);
-        --text: #f4f7fb;
-        --muted: rgba(244, 247, 251, 0.72);
-        --line: rgba(255, 255, 255, 0.1);
-        --gold: #f1c66a;
-        --gold-2: #d6a847;
-        --green: #66d19e;
-        --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
-        --radius: 24px;
+        --cream: #fdf9f2;
+        --beige: #ede4d3;
+        --navy: #0f2044;
+        --charcoal: #3d3d3d;
+        --muted: #6b6558;
+        --gold: #d6a847;
+        --gold-light: #f0c96a;
+        --gold-text: #7a5518;
+        --success: #2f6b48;
+        --danger: #a83f2e;
+        --line: rgba(15, 32, 68, 0.12);
+        --gold-line: rgba(214, 168, 71, 0.35);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #16172a;
+          --beige: #1e2036;
+          --navy: #f3eee1;
+          --charcoal: #d8d3c5;
+          --muted: #a9a294;
+          --gold-text: #f0c96a;
+          --success: #6fcf97;
+          --danger: #e88a76;
+          --line: rgba(243, 238, 225, 0.14);
+          --gold-line: rgba(240, 201, 106, 0.4);
+        }
+        .panel, .form-card, .price { background: #1b1c30; }
+        input, select, textarea { background: #1b1c30; }
+        .btn-gold { color: #16172a; }
+        .price.featured::before { color: #16172a; }
       }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
       body {
         margin: 0;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top left, rgba(241, 198, 106, 0.14), transparent 30%),
-          radial-gradient(circle at top right, rgba(102, 209, 158, 0.12), transparent 30%),
-          linear-gradient(180deg, #0b1020 0%, #0f1730 50%, #0b1020 100%);
+        font-family: "Inter Tight", Inter, ui-sans-serif, system-ui, sans-serif;
+        color: var(--charcoal);
+        background: var(--cream);
       }
       a { color: inherit; }
-      .wrap {
-        width: min(1120px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 28px 0 64px;
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+      .display {
+        font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+        color: var(--navy);
+        letter-spacing: -0.02em;
       }
-      .topbar,
-      .hero,
-      .grid,
-      .section,
-      .form-card {
-        border: 1px solid var(--line);
-        background: var(--panel);
-        backdrop-filter: blur(14px);
-        box-shadow: var(--shadow);
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--gold-text);
+        font-weight: 600;
       }
-      .topbar {
-        border-radius: 999px;
-        padding: 14px 18px;
+      .rule-gold {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-line) 20%, var(--gold-line) 80%, transparent);
+        border: 0;
+        margin: 0;
+      }
+
+      nav.topbar {
+        border-bottom: 1px solid var(--line);
+        background: var(--cream);
+      }
+      .topbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
+        gap: 20px;
+        padding: 18px 0;
       }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand img { height: 34px; width: auto; display: block; }
+      .brand span {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--navy);
+        letter-spacing: -0.01em;
       }
-      .mark {
-        width: 46px;
-        height: 46px;
-        border-radius: 16px;
-        overflow: hidden;
-        display: block;
-        flex: none;
-        background: linear-gradient(135deg, var(--gold), #fff2c9);
-        box-shadow: 0 8px 22px rgba(0,0,0,0.24);
+      .brand-meta {
+        display: none;
       }
-      .mark img {
-        width: 100%;
-        height: 100%;
-        display: block;
+      @media (min-width: 640px) {
+        .brand-meta {
+          display: inline-block;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 0.68rem;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--muted);
+          border-left: 1px solid var(--line);
+          padding-left: 14px;
+          margin-left: 2px;
+        }
       }
-      .brand h1 {
-        margin: 0;
-        font-size: 0.98rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-      }
-      .brand p { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 0.88rem;
-        white-space: nowrap;
-      }
-      .hero {
-        border-radius: 32px;
-        padding: 34px;
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 26px;
-        margin-bottom: 22px;
-      }
-      h2 {
-        margin: 0 0 14px;
-        font-size: clamp(2.6rem, 5vw, 4.6rem);
-        line-height: 0.95;
-        letter-spacing: -0.06em;
-      }
-      .lead {
-        font-size: clamp(1.08rem, 1.7vw, 1.28rem);
-        line-height: 1.65;
-        color: var(--muted);
-        max-width: 62ch;
-        margin: 0 0 24px;
-      }
-      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        border: 0;
+        gap: 8px;
         border-radius: 999px;
-        padding: 14px 20px;
-        font-weight: 800;
+        padding: 13px 22px;
+        font-weight: 700;
+        font-size: 0.95rem;
         text-decoration: none;
         cursor: pointer;
+        border: 0;
+        font-family: inherit;
+        transition: transform 0.25s cubic-bezier(.16,1,.3,1), box-shadow 0.25s cubic-bezier(.16,1,.3,1);
       }
-      .btn-primary {
-        background: linear-gradient(135deg, var(--gold-2), var(--gold));
-        color: #0b1020;
+      .btn-gold {
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+        color: var(--navy);
       }
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text);
-        border: 1px solid var(--line);
+      .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(214,168,71,0.35); }
+      .btn-ghost {
+        background: transparent;
+        color: var(--navy);
+        border: 1.5px solid var(--gold);
       }
-      .stats {
+      .btn-ghost:hover { background: var(--gold); color: var(--navy); }
+
+      .hero { padding: 64px 0 40px; }
+      .hero h1 {
+        font-size: clamp(2.4rem, 4.6vw, 3.9rem);
+        line-height: 1.02;
+        font-weight: 700;
+        margin: 18px 0 20px;
+      }
+      .hero .lead {
+        font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+        line-height: 1.6;
+        color: var(--charcoal);
+        max-width: 56ch;
+        margin: 0 0 30px;
+      }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 44px; }
+
+      .stat-strip {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
       }
-      .stat {
-        padding: 16px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--line);
+      .stat-strip > div {
+        padding: 20px 24px;
+        border-left: 1px solid var(--line);
       }
-      .stat strong { display: block; font-size: 1.15rem; margin-bottom: 6px; }
-      .stat span { color: var(--muted); font-size: 0.94rem; line-height: 1.5; }
+      .stat-strip > div:first-child { border-left: 0; padding-left: 0; }
+      .stat-strip strong {
+        display: block;
+        font-family: "Bricolage Grotesque", sans-serif;
+        color: var(--navy);
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+      }
+      .stat-strip span { color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
+
+      section.block { padding: 46px 0; }
+      section.block h2 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 28px;
+      }
+
       .panel {
-        border-radius: 28px;
-        padding: 24px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-        border: 1px solid var(--line);
-      }
-      .panel h3,
-      .section h3,
-      .form-card h3 {
-        margin: 0 0 12px;
-        font-size: 1.25rem;
-        letter-spacing: -0.03em;
-      }
-      .panel ul,
-      .section ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
-      .panel li + li,
-      .section li + li { margin-top: 6px; }
-      .section {
-        border-radius: 28px;
-        padding: 24px;
-        margin-top: 18px;
-      }
-      .section-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-      }
-      .card {
-        padding: 18px;
+        border: 1px solid var(--gold-line);
         border-radius: 20px;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid var(--line);
+        padding: 26px;
+        background: #fff;
       }
-      .card h4 { margin: 0 0 10px; font-size: 1rem; }
-      .card p { margin: 0; color: var(--muted); line-height: 1.6; }
-      .pricing {
+      .panel h3, .form-card h3 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1.2rem;
+        color: var(--navy);
+        margin: 0 0 14px;
+      }
+      .panel ul { margin: 0; padding-left: 18px; line-height: 1.8; color: var(--charcoal); }
+      .panel-cta {
+        margin-top: 20px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        background: var(--beige);
+      }
+      .panel-cta strong { display: block; margin-bottom: 4px; color: var(--navy); }
+      .panel-cta span { color: var(--muted); font-size: 0.92rem; }
+
+      .hero-grid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 40px; align-items: start; }
+
+      .records { }
+      .record {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 20px;
+        padding: 22px 0;
+        border-top: 1px solid var(--line);
+      }
+      .record:first-child { border-top: 0; }
+      .record .num {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--gold-text);
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding-top: 3px;
+      }
+      .record h3 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1.05rem;
+        color: var(--navy);
+        margin: 0 0 6px;
+        font-weight: 700;
+      }
+      .record p { margin: 0; color: var(--charcoal); line-height: 1.6; max-width: 60ch; }
+
+      .who-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
       }
+      .who-grid > div { padding: 4px 24px; border-left: 1px solid var(--line); }
+      .who-grid > div:first-child { border-left: 0; padding-left: 0; }
+      .who-grid h3 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        color: var(--navy);
+        font-size: 1.02rem;
+        margin: 0 0 8px;
+        font-weight: 700;
+      }
+      .who-grid p { margin: 0; color: var(--charcoal); line-height: 1.6; font-size: 0.94rem; }
+
+      .pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
       .price {
-        padding: 18px;
-        border-radius: 20px;
-        background: rgba(255,255,255,0.04);
+        padding: 24px;
+        border-radius: 18px;
         border: 1px solid var(--line);
+        background: #fff;
       }
-      .price.featured {
-        border-color: rgba(241, 198, 106, 0.45);
-        box-shadow: inset 0 0 0 1px rgba(241, 198, 106, 0.12);
+      .price.featured { border-color: var(--gold); border-width: 2px; position: relative; }
+      .price.featured::before {
+        content: "Most popular";
+        position: absolute;
+        top: -12px; left: 24px;
+        background: var(--gold);
+        color: var(--navy);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
       }
-      .price .tier { color: var(--gold); font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; }
-      .price .amount { font-size: 2rem; font-weight: 900; margin: 10px 0 8px; letter-spacing: -0.05em; }
-      .price p, .price li { color: var(--muted); line-height: 1.7; }
-      .price ul { padding-left: 18px; margin: 12px 0 0; }
-      .form-wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        margin-top: 18px;
+      .price .tier {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--gold-text);
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 700;
       }
-      .form-card { border-radius: 28px; padding: 24px; }
-      form { display: grid; gap: 12px; }
-      label { display: grid; gap: 8px; font-size: 0.95rem; color: var(--muted); }
+      .price .amount {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 10px 0 10px;
+      }
+      .price p { color: var(--muted); margin: 0 0 14px; }
+      .price ul { padding-left: 18px; margin: 0; color: var(--charcoal); line-height: 1.8; }
+
+      .form-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .form-card { border: 1px solid var(--line); border-radius: 20px; padding: 26px; background: #fff; }
+      form { display: grid; gap: 14px; }
+      label { display: grid; gap: 6px; font-size: 0.92rem; color: var(--muted); font-weight: 500; }
       input, select, textarea {
         width: 100%;
-        border-radius: 14px;
+        border-radius: 10px;
         border: 1px solid var(--line);
-        background: rgba(255,255,255,0.04);
-        color: var(--text);
-        padding: 14px 15px;
+        background: var(--cream);
+        color: var(--navy);
+        padding: 12px 14px;
         font: inherit;
         outline: none;
       }
-      textarea { min-height: 118px; resize: vertical; }
-      input::placeholder, textarea::placeholder { color: rgba(244,247,251,0.42); }
-      input:focus, select:focus, textarea:focus { border-color: rgba(241,198,106,0.5); box-shadow: 0 0 0 4px rgba(241,198,106,0.1); }
-      .fineprint { color: rgba(244,247,251,0.58); font-size: 0.9rem; line-height: 1.6; }
-      .message {
-        min-height: 1.4em;
-        color: var(--green);
-        font-weight: 700;
-      }
+      textarea { min-height: 100px; resize: vertical; }
+      input::placeholder, textarea::placeholder { color: rgba(122,117,104,0.6); }
+      input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(214,168,71,0.18); }
+      .fineprint { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+      .message { min-height: 1.4em; color: var(--success); font-weight: 600; font-size: 0.92rem; }
+
       .footer {
-        margin-top: 20px;
-        padding: 18px 10px 0;
-        color: rgba(244,247,251,0.5);
-        font-size: 0.92rem;
+        padding: 30px 0 50px;
+        color: var(--muted);
+        font-size: 0.88rem;
         text-align: center;
       }
       .nowrap { white-space: nowrap; }
-      @media (max-width: 900px) {
-        .hero, .form-wrap, .section-grid, .pricing, .stats { grid-template-columns: 1fr; }
-        .topbar { border-radius: 28px; }
-      }
-      @media (max-width: 640px) {
-        .wrap { width: min(100% - 20px, 1120px); padding-top: 10px; }
-        .hero { padding: 22px; border-radius: 24px; }
-        .section, .form-card { padding: 18px; border-radius: 22px; }
-        h2 { font-size: clamp(2.2rem, 12vw, 3.2rem); }
-        .stats { grid-template-columns: 1fr; }
-        .topbar { flex-direction: column; align-items: flex-start; border-radius: 24px; }
+
+      @media (max-width: 860px) {
+        .hero-grid, .form-wrap { grid-template-columns: 1fr; }
+        .stat-strip, .who-grid, .pricing { grid-template-columns: 1fr; }
+        .stat-strip > div, .who-grid > div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 18px; }
+        .stat-strip > div:first-child, .who-grid > div:first-child { border-top: 0; padding-top: 0; }
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <header class="topbar">
+    <nav class="topbar">
+      <div class="wrap topbar-inner">
         <div class="brand">
-          <div class="mark"><img src="/logo.svg" alt="Tanta Pulse logo" /></div>
-          <div>
-            <h1>Tanta Pulse</h1>
-            <p>Fresh local leads, ranked and delivered weekly</p>
-          </div>
+          <img src="/logo.png" alt="Tanta Pulse" />
+          <span>Tanta Pulse</span>
+          <span class="brand-meta">A Tanta Holdings company</span>
         </div>
-        <div class="pill">Built for SEO agencies • Separate brand • Request a sample</div>
-      </header>
+        <a class="btn btn-ghost" href="#request">Request a sample</a>
+      </div>
+    </nav>
 
-      <main>
-        <section class="hero">
+    <main>
+      <section class="hero wrap">
+        <div class="hero-grid">
           <div>
-            <div class="pill" style="margin-bottom:16px;">Public data in • usable feed out</div>
-            <h2>Fresh local leads, ranked and delivered weekly.</h2>
+            <div class="eyebrow">Built for local SEO agencies</div>
+            <h1 class="display">Fresh local leads, ranked and delivered weekly.</h1>
             <p class="lead">
-              Tanta Pulse turns public business data into a clean, ranked lead feed for local SEO agencies.
-              We collect it, clean it, score it, and deliver it on a schedule you can sell.
+              Tanta Pulse finds, scores, and delivers local business leads on a weekly cadence, ready for your
+              team to sell against instead of a raw scrape you have to clean up yourself.
             </p>
             <div class="actions">
-              <a class="btn btn-primary" href="#request">Request a sample</a>
-              <a class="btn btn-secondary" href="#how-it-works">How it works</a>
+              <a class="btn btn-gold" href="#request">Request a sample</a>
+              <a class="btn btn-ghost" href="#how-it-works">How it works</a>
             </div>
-            <div class="stats">
-              <div class="stat">
+            <hr class="rule-gold" />
+            <div class="stat-strip">
+              <div>
                 <strong>Weekly delivery</strong>
-                <span>Fresh feed cadence. No stale spreadsheet dumps.</span>
+                <span>Fresh feed cadence, no stale spreadsheet dumps.</span>
               </div>
-              <div class="stat">
+              <div>
                 <strong>Ranked, not raw</strong>
                 <span>Cleaned, deduped, and scored before it hits your inbox.</span>
               </div>
-              <div class="stat">
-                <strong>Request a sample</strong>
-                <span>Show the value before anyone commits to a subscription.</span>
+              <div>
+                <strong>No lock-in</strong>
+                <span>Try a free sample before you subscribe to anything.</span>
               </div>
             </div>
           </div>
@@ -313,86 +378,105 @@
               <li>lead score and contact notes</li>
               <li>optional follow-up sequence</li>
             </ul>
-            <div style="margin-top:18px; padding:16px; border-radius:18px; background: rgba(241,198,106,0.08); border: 1px solid rgba(241,198,106,0.18);">
-              <strong style="display:block; margin-bottom:6px;">CTA</strong>
-              <span style="color:var(--muted);">Request a sample. If it fits, we turn it into a recurring feed.</span>
+            <div class="panel-cta">
+              <strong>Ready to see it in action?</strong>
+              <span>Request a sample. If it fits, we turn it into a recurring feed.</span>
             </div>
           </aside>
-        </section>
+        </div>
+      </section>
 
-        <section class="section" id="how-it-works">
-          <h3>How it works</h3>
-          <div class="section-grid">
-            <div class="card">
-              <h4>1. Collect</h4>
-              <p>We pull public business data for a niche and geography that matters.</p>
-            </div>
-            <div class="card">
-              <h4>2. Rank</h4>
-              <p>We clean, dedupe, and score the best-fit prospects before delivery.</p>
-            </div>
-            <div class="card">
-              <h4>3. Deliver</h4>
-              <p>We send a simple feed that is ready to use, reuse, or resell.</p>
+      <hr class="rule-gold" />
+
+      <section class="block wrap" id="how-it-works">
+        <h2>How it works</h2>
+        <div class="records">
+          <div class="record">
+            <div class="num">01</div>
+            <div>
+              <h3>Collect</h3>
+              <p>Tell us a niche and a market, and we pull the public business data behind it.</p>
             </div>
           </div>
-        </section>
-
-        <section class="section">
-          <h3>Who it’s for</h3>
-          <div class="section-grid">
-            <div class="card"><h4>SEO agencies</h4><p>They already buy prospecting lists. We make them better.</p></div>
-            <div class="card"><h4>Local service operators</h4><p>Keep pipeline full without manual research.</p></div>
-            <div class="card"><h4>Small teams</h4><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
-          </div>
-        </section>
-
-        <section class="section">
-          <h3>Pricing</h3>
-          <div class="pricing">
-            <div class="price">
-              <div class="tier">Starter</div>
-              <div class="amount">$49/mo</div>
-              <p>One niche, one geography, weekly feed.</p>
-              <ul>
-                <li>sample feed</li>
-                <li>weekly refresh</li>
-                <li>simple delivery</li>
-              </ul>
-            </div>
-            <div class="price featured">
-              <div class="tier">Pro</div>
-              <div class="amount">$149/mo</div>
-              <p>More filters, more volume, tighter ranking.</p>
-              <ul>
-                <li>multi-filter feed</li>
-                <li>enrichment</li>
-                <li>priority updates</li>
-              </ul>
-            </div>
-            <div class="price">
-              <div class="tier">Agency</div>
-              <div class="amount">$399/mo</div>
-              <p>Multiple cities and custom delivery windows.</p>
-              <ul>
-                <li>multi-city delivery</li>
-                <li>custom cadence</li>
-                <li>done-with-you setup</li>
-              </ul>
+          <div class="record">
+            <div class="num">02</div>
+            <div>
+              <h3>Rank</h3>
+              <p>Duplicates get merged, junk gets dropped, and what's left is scored by fit.</p>
             </div>
           </div>
-        </section>
+          <div class="record">
+            <div class="num">03</div>
+            <div>
+              <h3>Deliver</h3>
+              <p>Your feed lands on schedule, ready to hand straight to sales.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <section class="form-wrap" id="request">
+      <hr class="rule-gold" />
+
+      <section class="block wrap">
+        <h2>Who it's for</h2>
+        <div class="who-grid">
+          <div><h3>SEO agencies</h3><p>They already buy prospecting lists. We make them better.</p></div>
+          <div><h3>Local service operators</h3><p>Keep pipeline full without manual research.</p></div>
+          <div><h3>Small teams</h3><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
+        </div>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <section class="block wrap">
+        <h2>Pricing</h2>
+        <div class="pricing">
+          <div class="price">
+            <div class="tier">Starter</div>
+            <div class="amount">$49/mo</div>
+            <p>One niche, one geography, weekly feed.</p>
+            <ul>
+              <li>sample feed</li>
+              <li>weekly refresh</li>
+              <li>simple delivery</li>
+            </ul>
+          </div>
+          <div class="price featured">
+            <div class="tier">Pro</div>
+            <div class="amount">$149/mo</div>
+            <p>More filters, more volume, tighter ranking.</p>
+            <ul>
+              <li>multi-filter feed</li>
+              <li>enrichment</li>
+              <li>priority updates</li>
+            </ul>
+          </div>
+          <div class="price">
+            <div class="tier">Agency</div>
+            <div class="amount">$399/mo</div>
+            <p>Multiple cities and custom delivery windows.</p>
+            <ul>
+              <li>multi-city delivery</li>
+              <li>custom cadence</li>
+              <li>done-with-you setup</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <section class="block wrap" id="request">
+        <h2>Request a sample</h2>
+        <div class="form-wrap">
           <div class="form-card">
-            <h3>Request a sample</h3>
-            <p class="fineprint">
-              Tell us your niche and city. We’ll send a sample feed and start the follow-up sequence automatically.
+            <p class="fineprint" style="margin-top:0;">
+              Tell us your niche and city. We'll send a sample feed and start the follow-up sequence automatically.
             </p>
             <form id="sample-form">
               <label>
                 Your name
-                <input name="name" autocomplete="name" placeholder="Jon Edwards" required />
+                <input name="name" autocomplete="name" placeholder="Alex Rivera" required />
               </label>
               <label>
                 Email
@@ -418,32 +502,32 @@
                 Notes
                 <textarea name="notes" placeholder="Anything we should know about your ideal sample feed?"></textarea>
               </label>
-              <button class="btn btn-primary" type="submit">Request a sample</button>
+              <button class="btn btn-gold" type="submit">Request a sample</button>
               <div class="message" id="form-message" aria-live="polite"></div>
             </form>
           </div>
           <div class="form-card">
             <h3>What happens next</h3>
-            <ul>
-              <li>Your request is saved to Supabase.</li>
-              <li>We start the collection workflow for your niche and city.</li>
-              <li>Jon gets a notification with your niche and market.</li>
-              <li>You receive a confirmation email right away.</li>
+            <ul style="padding-left:18px; line-height:1.9; color:var(--charcoal); margin:0;">
+              <li>We save your request and start building your sample feed.</li>
+              <li>Our team reviews your niche and market.</li>
+              <li>You get a confirmation email right away.</li>
+              <li>Your sample feed lands in your inbox once it's ready.</li>
             </ul>
-            <div style="margin-top:18px; padding:16px; border-radius:18px; background: rgba(102, 209, 158, 0.08); border: 1px solid rgba(102, 209, 158, 0.18);">
-              <strong style="display:block; margin-bottom:6px;">Automation path</strong>
-              <span style="color:var(--muted);">Collection runs are kept internal; Supabase stores requests and Resend delivers the email loop.</span>
+            <div class="panel-cta">
+              <strong>No manual busywork on your end</strong>
+              <span>We handle the collection and delivery. You just review the leads.</span>
             </div>
-            <p class="fineprint" style="margin-top:18px;">
+            <p class="fineprint" style="margin-top:18px; margin-bottom:0;">
               Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
             </p>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+    </main>
 
-      <div class="footer">
-        Tanta Pulse is a separate brand under Tanta Holdings. CTA: <strong>Request a sample</strong>.
-      </div>
+    <div class="footer">
+      &copy; 2026 Tanta Pulse, a Tanta Holdings company.
     </div>
 
     <script>
@@ -452,7 +536,7 @@
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         message.textContent = 'Sending...';
-        message.style.color = '#f1c66a';
+        message.style.color = 'var(--gold-text)';
         const data = Object.fromEntries(new FormData(form).entries());
         try {
           const res = await fetch('/api/sample-request', {
@@ -464,10 +548,10 @@
           if (!res.ok) throw new Error(json.error || 'Request failed');
           form.reset();
           message.textContent = 'Request received. We queued your sample and the follow-up sequence.';
-          message.style.color = '#66d19e';
+          message.style.color = 'var(--success)';
         } catch (err) {
           message.textContent = err.message || 'Something went wrong.';
-          message.style.color = '#ff8b8b';
+          message.style.color = 'var(--danger)';
         }
       });
     </script>
