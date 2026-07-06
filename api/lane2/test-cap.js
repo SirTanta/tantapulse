@@ -57,21 +57,40 @@ export default async function handler(req, res) {
         : `insufficient_remaining:${effectiveRunCost.toFixed(4)}>${protectedBudget.toFixed(4)}`;
     }
 
-    return res.status(200).json({
-      ok: true,
-      mode: "simulated",
-      params: { budgetCap, estRunCost, overheadPct },
-      result: {
-        allowed,
-        state,
-        budget_current_usd:  budgetCap - protectedBudget,
-        budget_remaining_usd: protectedBudget - effectiveRunCost,
-        estimated_run_cost_usd: estRunCost,
-        reservation_id: allowed ? "sim-" + genId() : null,
-        reason,
-        note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
-      },
-    });
+    return res.status(allowed ? 200 : 200).json(
+      allowed
+        ? {
+            ok: true,
+            mode: "simulated",
+            params: { budgetCap, estRunCost, overheadPct },
+            result: {
+              allowed,
+              state,
+              budget_current_usd:    budgetCap - protectedBudget,
+              budget_remaining_usd: protectedBudget - effectiveRunCost,
+              estimated_run_cost_usd: estRunCost,
+              reservation_id: "sim-" + genId(),
+              reason: null,
+              note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
+            },
+          }
+        : {
+            ok: false,
+            mode: "simulated",
+            params: { budgetCap, estRunCost, overheadPct },
+            error: reason,
+            result: {
+              allowed,
+              state,
+              budget_current_usd:    budgetCap - protectedBudget,
+              budget_remaining_usd: protectedBudget - effectiveRunCost,
+              estimated_run_cost_usd: estRunCost,
+              reservation_id: null,
+              reason,
+              note: "No APIFY_TOKEN set — using simulated budget arithmetic. Set APIFY_TOKEN for live Apify limits check.",
+            },
+          }
+    );
   }
 
   // Live Apify limits check
