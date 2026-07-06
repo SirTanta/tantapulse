@@ -1,0 +1,2 @@
+# Exclude sales-discovery from Vercel deployment to stay under Hobby 12-function limit
+api/sales-discovery
