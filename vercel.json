@@ -12,5 +12,8 @@
       "path": "/api/sales-discovery/process",
       "schedule": "0 10 * * *"
     }
+  ],
+  "rewrites": [
+    { "source": "/unsubscribe", "destination": "/unsubscribe.html" }
   ]
 }
