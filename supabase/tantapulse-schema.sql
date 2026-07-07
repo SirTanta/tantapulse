@@ -84,3 +84,10 @@ create table if not exists public.lead_feed_alerts (
   payload jsonb not null default '{}'::jsonb,
   delivered_at timestamptz
 );
+
+-- CAN-SPAM compliance: unsubscribe opt-out table
+create table if not exists public.lead_feed_unsubscribes (
+  email text primary key,
+  unsubscribed_at timestamptz not null default now(),
+  source text not null default 'web'
+);

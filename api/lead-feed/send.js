@@ -67,7 +67,7 @@ function renderHtml({ step, name, email, body }) {
         <p style="margin:0;color:rgba(255,255,255,0.75);font-size:15px;line-height:1.7">${body}</p>
       </td></tr>
       <tr><td style="padding:16px 28px 28px;color:rgba(255,255,255,0.48);font-size:12px;line-height:1.6">
-        Reply to this email if you want to narrow the niche or change the market.
+        Tanta Holdings LLC &middot; <a href="https://tantapulse.com/unsubscribe" style="color:rgba(241,198,106,0.7)">Unsubscribe</a> &middot; <a href="mailto:hello@tantapulse.com" style="color:rgba(255,255,255,0.35)">hello@tantapulse.com</a>
       </td></tr>
     </table>
   </td></tr></table>
@@ -125,6 +125,10 @@ export default async function handler(req, res) {
       reply_to: "hello@tantapulse.com",
       subject: entry.subject,
       html: renderHtml({ step, name, email: row.email, body }),
+      headers: {
+        "List-Unsubscribe": "<mailto:hello@tantapulse.com?subject=unsubscribe>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     }, { Authorization: `Bearer ${resendKey}` });
 
     if (emailRes.ok) {

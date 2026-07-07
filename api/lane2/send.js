@@ -77,10 +77,9 @@ function renderHtml({ step, name, email, body }) {
         </tr>
         <tr>
           <td style="padding:16px 28px 28px;color:rgba(255,255,255,0.48);font-size:12px;line-height:1.6">
-            Lane 2 &middot; Austin HVAC &middot; Tanta Pulse<br>
-            <a href="mailto:hello@tantapulse.com" style="color:rgba(241,198,106,0.7)">hello@tantapulse.com</a>
+            Tanta Holdings LLC &middot; <a href="https://tantapulse.com/unsubscribe" style="color:rgba(241,198,106,0.7)">Unsubscribe</a>
             &nbsp;&middot;&nbsp;
-            <a href="https://tantapulse.com/unsubscribe" style="color:rgba(255,255,255,0.35)">Unsubscribe</a>
+            <a href="mailto:hello@tantapulse.com" style="color:rgba(255,255,255,0.35)">hello@tantapulse.com</a>
           </td>
         </tr>
       </table>
@@ -183,6 +182,10 @@ export default async function handler(req, res) {
         to:      row.email,
         subject: entry.subject,
         html:    renderHtml({ step, name, email: row.email, body }),
+        headers: {
+          "List-Unsubscribe": "<mailto:hello@tantapulse.com?subject=unsubscribe>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       }),
     });
 
