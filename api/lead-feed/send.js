@@ -106,8 +106,24 @@ export default async function handler(req, res) {
   }
 
   const rows = Array.isArray(json) ? json : [];
+
+  // Fetch opted-out emails so we don't send to unsubscribed addresses
+  const unsubRes = await apiGet(
+    `${supabaseUrl}/rest/v1/lead_feed_unsubscribes?select=email`,
+    headers
+  );
+  const unsubscribed = new Set(
+    Array.isArray(unsubRes.json) ? unsubRes.json.map((u) => u.email.toLowerCase()) : []
+  );
+
   let sent = 0;
   for (const row of rows) {
+    if (unsubscribed.has((row.email || "").toLowerCase())) {
+      // Remove from queue — don't send to opted-out addresses
+      await apiDelete(`${supabaseUrl}/rest/v1/email_sequence?id=eq.${encodeURIComponent(row.id)}`, headers);
+      continue;
+    }
+
     const step = Number(row.step) || 0;
     const name = row.name || row.email || "there";
     const entry = STEP_COPY[step] || STEP_COPY[0];
