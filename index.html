@@ -3,540 +3,847 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fdf9f2" />
+    <meta name="theme-color" content="#0b0c0f" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <title>Tanta Pulse | Fresh local leads, ranked and delivered weekly</title>
     <meta
       name="description"
-      content="Tanta Pulse turns public business data into ranked local lead feeds for SEO agencies and service businesses. Request a sample and get a clean feed built for action."
+      content="Tanta Pulse turns public business data into ranked local lead feeds for SEO agencies and service businesses. Every lead scored 0 to 100 on a weighted model. Request a free sample."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
       :root {
-        --cream: #fdf9f2;
-        --beige: #ede4d3;
-        --navy: #0f2044;
-        --charcoal: #3d3d3d;
-        --muted: #6b6558;
-        --gold: #d6a847;
-        --gold-light: #f0c96a;
-        --gold-text: #7a5518;
-        --success: #2f6b48;
-        --danger: #a83f2e;
-        --line: rgba(15, 32, 68, 0.12);
-        --gold-line: rgba(214, 168, 71, 0.35);
-        color-scheme: light dark;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --cream: #16172a;
-          --beige: #1e2036;
-          --navy: #f3eee1;
-          --charcoal: #d8d3c5;
-          --muted: #a9a294;
-          --gold-text: #f0c96a;
-          --success: #6fcf97;
-          --danger: #e88a76;
-          --line: rgba(243, 238, 225, 0.14);
-          --gold-line: rgba(240, 201, 106, 0.4);
-        }
-        .panel, .form-card, .price { background: #1b1c30; }
-        input, select, textarea { background: #1b1c30; }
-        .btn-gold { color: #16172a; }
-        .price.featured::before { color: #16172a; }
+        --bg: #0b0c0f;
+        --raised: #101216;
+        --raised-2: #14161c;
+        --line: rgba(237, 239, 243, 0.09);
+        --line-strong: rgba(237, 239, 243, 0.16);
+        --text: #edeff3;
+        --body: #b7bdc8;
+        --muted: #8b919c;
+        --amber: #f0b33e;
+        --amber-dim: rgba(240, 179, 62, 0.14);
+        --amber-line: rgba(240, 179, 62, 0.35);
+        --green: #57c785;
+        --red: #e5715b;
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        --sans: "Inter Tight", Inter, ui-sans-serif, system-ui, sans-serif;
+        color-scheme: dark;
       }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
       body {
         margin: 0;
-        font-family: "Inter Tight", Inter, ui-sans-serif, system-ui, sans-serif;
-        color: var(--charcoal);
-        background: var(--cream);
+        font-family: var(--sans);
+        color: var(--body);
+        background: var(--bg);
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
       }
+      ::selection { background: var(--amber); color: var(--bg); }
       a { color: inherit; }
-      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-      .display {
-        font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
-        color: var(--navy);
-        letter-spacing: -0.02em;
-      }
-      .eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        color: var(--gold-text);
+      :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        background: var(--amber);
+        color: var(--bg);
+        padding: 10px 16px;
         font-weight: 600;
+        z-index: 100;
       }
-      .rule-gold {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--gold-line) 20%, var(--gold-line) 80%, transparent);
-        border: 0;
+      .skip-link:focus { left: 0; }
+
+      /* Structural frame: hairline rails on wide screens */
+      .frame {
+        max-width: 1180px;
+        margin: 0 auto;
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        min-height: 100vh;
+      }
+      .wrap { padding: 0 clamp(20px, 4vw, 48px); }
+
+      h1, h2, h3 {
+        font-family: var(--sans);
+        color: var(--text);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
         margin: 0;
       }
+      .mono {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .idx { color: var(--amber); }
 
-      nav.topbar {
+      /* ---------- nav ---------- */
+      .topbar {
         border-bottom: 1px solid var(--line);
-        background: var(--cream);
+        position: sticky;
+        top: 0;
+        background: rgba(11, 12, 15, 0.88);
+        backdrop-filter: blur(12px);
+        z-index: 50;
       }
       .topbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 20px;
-        padding: 18px 0;
+        padding: 14px clamp(20px, 4vw, 48px);
       }
-      .brand { display: flex; align-items: center; gap: 12px; }
-      .brand img { height: 34px; width: auto; display: block; }
-      .brand span {
-        font-family: "Bricolage Grotesque", sans-serif;
+      .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+      .brand img { height: 30px; width: auto; display: block; }
+      .brand strong {
         font-weight: 700;
-        font-size: 1.15rem;
-        color: var(--navy);
+        font-size: 1.05rem;
+        color: var(--text);
         letter-spacing: -0.01em;
+        white-space: nowrap;
       }
       .brand-meta {
         display: none;
+        color: var(--muted);
+        border-left: 1px solid var(--line-strong);
+        padding-left: 13px;
       }
-      @media (min-width: 640px) {
-        .brand-meta {
-          display: inline-block;
-          font-family: "JetBrains Mono", monospace;
-          font-size: 0.68rem;
-          text-transform: uppercase;
-          letter-spacing: 0.14em;
-          color: var(--muted);
-          border-left: 1px solid var(--line);
-          padding-left: 14px;
-          margin-left: 2px;
-        }
+      .nav-links { display: none; align-items: center; gap: 26px; }
+      .nav-links a {
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+      .nav-links a:hover { color: var(--text); }
+      @media (min-width: 760px) {
+        .nav-links { display: flex; }
+        .brand-meta { display: inline-block; }
       }
 
+      /* ---------- buttons ---------- */
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        border-radius: 999px;
-        padding: 13px 22px;
-        font-weight: 700;
-        font-size: 0.95rem;
+        border-radius: 3px;
+        padding: 12px 22px;
+        font-weight: 600;
+        font-size: 0.93rem;
         text-decoration: none;
         cursor: pointer;
-        border: 0;
+        border: 1px solid transparent;
         font-family: inherit;
-        transition: transform 0.25s cubic-bezier(.16,1,.3,1), box-shadow 0.25s cubic-bezier(.16,1,.3,1);
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
       }
-      .btn-gold {
-        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-        color: var(--navy);
-      }
-      .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(214,168,71,0.35); }
-      .btn-ghost {
-        background: transparent;
-        color: var(--navy);
-        border: 1.5px solid var(--gold);
-      }
-      .btn-ghost:hover { background: var(--gold); color: var(--navy); }
+      .btn-solid { background: var(--amber); color: var(--bg); }
+      .btn-solid:hover { background: #f6c463; }
+      .btn-ghost { background: transparent; color: var(--text); border-color: var(--line-strong); }
+      .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+      .btn-sm { padding: 9px 16px; font-size: 0.86rem; }
 
-      .hero { padding: 64px 0 40px; }
-      .hero h1 {
-        font-size: clamp(2.4rem, 4.6vw, 3.9rem);
-        line-height: 1.02;
-        font-weight: 700;
-        margin: 18px 0 20px;
+      /* ---------- hero ---------- */
+      .hero { padding: clamp(56px, 9vw, 104px) 0 0; }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        gap: clamp(32px, 5vw, 64px);
+        align-items: start;
       }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--amber);
+      }
+      .pulse-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--amber);
+        position: relative;
+        flex: none;
+      }
+      .pulse-dot::after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 1px solid var(--amber);
+        animation: pulse 2.4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+        opacity: 0;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.5); opacity: 0.9; }
+        70% { transform: scale(1.7); opacity: 0; }
+        100% { opacity: 0; }
+      }
+      .hero h1 {
+        font-size: clamp(2.5rem, 5.4vw, 4.1rem);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.03;
+        margin: 20px 0 22px;
+        max-width: 15ch;
+      }
+      .hero h1 em { font-style: normal; color: var(--amber); }
       .hero .lead {
-        font-size: clamp(1.05rem, 1.4vw, 1.2rem);
-        line-height: 1.6;
-        color: var(--charcoal);
-        max-width: 56ch;
+        font-size: clamp(1.02rem, 1.4vw, 1.16rem);
+        line-height: 1.65;
+        max-width: 52ch;
         margin: 0 0 30px;
       }
-      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 44px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
-      .stat-strip {
+      .facts {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-      .stat-strip > div {
-        padding: 20px 24px;
-        border-left: 1px solid var(--line);
-      }
-      .stat-strip > div:first-child { border-left: 0; padding-left: 0; }
-      .stat-strip strong {
-        display: block;
-        font-family: "Bricolage Grotesque", sans-serif;
-        color: var(--navy);
-        font-size: 1.1rem;
-        margin-bottom: 6px;
-      }
-      .stat-strip span { color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
-
-      section.block { padding: 46px 0; }
-      section.block h2 {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: clamp(1.5rem, 2.4vw, 2.1rem);
-        font-weight: 700;
-        color: var(--navy);
-        margin: 0 0 28px;
-      }
-
-      .panel {
-        border: 1px solid var(--gold-line);
-        border-radius: 20px;
-        padding: 26px;
-        background: #fff;
-      }
-      .panel h3, .form-card h3 {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: 1.2rem;
-        color: var(--navy);
-        margin: 0 0 14px;
-      }
-      .panel ul { margin: 0; padding-left: 18px; line-height: 1.8; color: var(--charcoal); }
-      .panel-cta {
-        margin-top: 20px;
-        padding: 16px 18px;
-        border-radius: 14px;
-        background: var(--beige);
-      }
-      .panel-cta strong { display: block; margin-bottom: 4px; color: var(--navy); }
-      .panel-cta span { color: var(--muted); font-size: 0.92rem; }
-
-      .hero-grid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 40px; align-items: start; }
-
-      .records { }
-      .record {
-        display: grid;
-        grid-template-columns: 48px 1fr;
-        gap: 20px;
-        padding: 22px 0;
         border-top: 1px solid var(--line);
+        margin-top: clamp(40px, 6vw, 64px);
       }
-      .record:first-child { border-top: 0; }
-      .record .num {
-        font-family: "JetBrains Mono", monospace;
-        color: var(--gold-text);
-        font-weight: 600;
-        font-size: 0.9rem;
-        padding-top: 3px;
-      }
-      .record h3 {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: 1.05rem;
-        color: var(--navy);
-        margin: 0 0 6px;
-        font-weight: 700;
-      }
-      .record p { margin: 0; color: var(--charcoal); line-height: 1.6; max-width: 60ch; }
+      .facts > div { padding: 22px 24px 26px; border-left: 1px solid var(--line); }
+      .facts > div:first-child { border-left: 0; padding-left: 0; }
+      .facts .mono { color: var(--muted); display: block; margin-bottom: 8px; }
+      .facts strong { display: block; color: var(--text); font-size: 1.02rem; font-weight: 600; margin-bottom: 5px; }
+      .facts span { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
 
-      .who-grid {
+      /* ---------- schema panel ---------- */
+      .schema {
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background:
+          radial-gradient(rgba(237, 239, 243, 0.05) 1px, transparent 1px) 0 0 / 22px 22px,
+          var(--raised);
+        overflow: hidden;
+      }
+      .schema-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 18px;
+        border-bottom: 1px solid var(--line);
+        background: var(--raised-2);
+      }
+      .schema-head .mono { color: var(--muted); }
+      .schema-head .mono b { color: var(--text); font-weight: 600; }
+      .schema-rows { padding: 6px 0; }
+      .schema-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 7px 18px;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+      }
+      .schema-row .k { color: var(--text); }
+      .schema-row .t { color: var(--muted); }
+      .schema-row.hl .k, .schema-row.hl .t { color: var(--amber); }
+      .schema-bands {
+        border-top: 1px solid var(--line);
+        padding: 14px 18px 16px;
+        display: grid;
+        gap: 8px;
+      }
+      .band {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        font-family: var(--mono);
+        font-size: 0.76rem;
+      }
+      .band .range { color: var(--muted); min-width: 7ch; }
+      .band .label { font-weight: 600; }
+      .band .desc { color: var(--muted); font-family: var(--sans); font-size: 0.82rem; }
+      .band-high .label { color: var(--green); }
+      .band-mid .label { color: var(--amber); }
+      .band-low .label { color: var(--muted); }
+      .schema-foot {
+        border-top: 1px solid var(--line);
+        padding: 13px 18px;
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.55;
+      }
+      .schema-foot a { color: var(--amber); text-decoration: none; }
+      .schema-foot a:hover { text-decoration: underline; }
+
+      /* ---------- sections ---------- */
+      section.block { border-top: 1px solid var(--line); padding: clamp(52px, 7vw, 84px) 0; }
+      .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: clamp(28px, 4vw, 44px); }
+      .sec-head .mono { color: var(--muted); flex: none; }
+      .sec-head h2 { font-size: clamp(1.55rem, 2.6vw, 2.15rem); font-weight: 700; letter-spacing: -0.03em; }
+      .sec-intro { max-width: 58ch; margin: -14px 0 36px; color: var(--body); }
+
+      /* pipeline */
+      .stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .stage { border-left: 1px solid var(--line); padding: 26px 26px 30px; position: relative; }
+      .stage:first-child { border-left: 0; padding-left: 0; }
+      .stage .mono { color: var(--amber); display: block; margin-bottom: 16px; }
+      .stage h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 10px; }
+      .stage p { margin: 0 0 16px; font-size: 0.94rem; line-height: 1.6; max-width: 38ch; }
+      .stage code {
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        color: var(--muted);
+        background: var(--raised);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 5px 9px;
+        display: inline-block;
+      }
+
+      /* scoring */
+      .score-table { border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+      .score-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 20px;
+        padding: 20px 22px;
+        border-top: 1px solid var(--line);
+        background: var(--raised);
+      }
+      .score-row:first-child { border-top: 0; }
+      .score-dim strong { display: block; color: var(--text); font-weight: 600; font-size: 1rem; }
+      .score-dim .mono { color: var(--amber); }
+      .score-bar-track {
+        height: 6px;
+        background: rgba(237, 239, 243, 0.07);
+        border-radius: 2px;
+        margin: 7px 0 12px;
+        overflow: hidden;
+      }
+      .score-bar {
+        height: 100%;
+        background: var(--amber);
+        border-radius: 2px;
+        width: 0;
+        transition: width 0.9s cubic-bezier(0.2, 0.7, 0.3, 1);
+      }
+      .signals { display: flex; flex-wrap: wrap; gap: 6px; }
+      .signals span {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 3px 8px;
+        letter-spacing: 0.02em;
+      }
+      .bands-strip {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
       }
-      .who-grid > div { padding: 4px 24px; border-left: 1px solid var(--line); }
-      .who-grid > div:first-child { border-left: 0; padding-left: 0; }
-      .who-grid h3 {
-        font-family: "Bricolage Grotesque", sans-serif;
-        color: var(--navy);
-        font-size: 1.02rem;
-        margin: 0 0 8px;
-        font-weight: 700;
-      }
-      .who-grid p { margin: 0; color: var(--charcoal); line-height: 1.6; font-size: 0.94rem; }
-
-      .pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-      .price {
-        padding: 24px;
-        border-radius: 18px;
+      .band-card {
         border: 1px solid var(--line);
-        background: #fff;
+        border-radius: 6px;
+        padding: 16px 18px;
+        background: var(--raised);
       }
-      .price.featured { border-color: var(--gold); border-width: 2px; position: relative; }
-      .price.featured::before {
-        content: "Most popular";
+      .band-card .mono { display: block; margin-bottom: 8px; }
+      .band-card p { margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+      .band-card.b-high .mono { color: var(--green); }
+      .band-card.b-mid .mono { color: var(--amber); }
+      .band-card.b-low .mono { color: var(--muted); }
+
+      /* who */
+      .who-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+      .who-grid > div { padding: 24px 26px 8px; border-left: 1px solid var(--line); }
+      .who-grid > div:first-child { border-left: 0; padding-left: 0; }
+      .who-grid h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; }
+      .who-grid p { margin: 0; font-size: 0.93rem; line-height: 1.6; color: var(--muted); max-width: 36ch; }
+
+      /* pricing */
+      .pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .price {
+        padding: 26px 26px 28px;
+        border-radius: 6px;
+        border: 1px solid var(--line-strong);
+        background: var(--raised);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .price.featured { border-color: var(--amber-line); background: var(--raised-2); }
+      .price .tag {
         position: absolute;
-        top: -12px; left: 24px;
-        background: var(--gold);
-        color: var(--navy);
-        font-family: "JetBrains Mono", monospace;
+        top: -11px;
+        left: 24px;
+        background: var(--amber);
+        color: var(--bg);
+        font-family: var(--mono);
         font-size: 0.62rem;
         text-transform: uppercase;
         letter-spacing: 0.12em;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 999px;
+        font-weight: 600;
+        padding: 4px 9px;
+        border-radius: 3px;
       }
-      .price .tier {
-        font-family: "JetBrains Mono", monospace;
-        color: var(--gold-text);
-        font-size: 0.78rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        font-weight: 700;
-      }
+      .price .tier { color: var(--amber); display: block; }
       .price .amount {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: 2rem;
+        font-size: 2.1rem;
         font-weight: 700;
-        color: var(--navy);
-        margin: 10px 0 10px;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        margin: 12px 0 4px;
       }
-      .price p { color: var(--muted); margin: 0 0 14px; }
-      .price ul { padding-left: 18px; margin: 0; color: var(--charcoal); line-height: 1.8; }
+      .price .amount small { font-size: 0.95rem; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+      .price > p { color: var(--muted); margin: 0 0 18px; font-size: 0.92rem; line-height: 1.55; }
+      .price ul { padding: 0; margin: 0 0 24px; list-style: none; display: grid; gap: 8px; }
+      .price li {
+        font-size: 0.9rem;
+        color: var(--body);
+        padding-left: 18px;
+        position: relative;
+      }
+      .price li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.62em;
+        width: 8px;
+        height: 1px;
+        background: var(--amber);
+      }
+      .price .btn { margin-top: auto; }
 
-      .form-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-      .form-card { border: 1px solid var(--line); border-radius: 20px; padding: 26px; background: #fff; }
-      form { display: grid; gap: 14px; }
-      label { display: grid; gap: 6px; font-size: 0.92rem; color: var(--muted); font-weight: 500; }
+      /* request */
+      .form-wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+      .form-card {
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        padding: 26px;
+        background: var(--raised);
+      }
+      form { display: grid; gap: 15px; }
+      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+      label { display: grid; gap: 7px; font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+      label .mono { letter-spacing: 0.1em; font-size: 0.68rem; }
       input, select, textarea {
         width: 100%;
-        border-radius: 10px;
-        border: 1px solid var(--line);
-        background: var(--cream);
-        color: var(--navy);
-        padding: 12px 14px;
+        border-radius: 3px;
+        border: 1px solid var(--line-strong);
+        background: var(--bg);
+        color: var(--text);
+        padding: 11px 13px;
         font: inherit;
+        font-size: 0.94rem;
         outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
-      textarea { min-height: 100px; resize: vertical; }
-      input::placeholder, textarea::placeholder { color: rgba(122,117,104,0.6); }
-      input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(214,168,71,0.18); }
-      .fineprint { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
-      .message { min-height: 1.4em; color: var(--success); font-weight: 600; font-size: 0.92rem; }
+      textarea { min-height: 96px; resize: vertical; }
+      input::placeholder, textarea::placeholder { color: rgba(139, 145, 156, 0.55); }
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--amber);
+        box-shadow: 0 0 0 3px var(--amber-dim);
+      }
+      .message { min-height: 1.4em; color: var(--green); font-weight: 600; font-size: 0.9rem; }
+      .fineprint { color: var(--muted); font-size: 0.86rem; line-height: 1.6; }
+      .fineprint a { color: var(--amber); text-decoration: none; }
+      .fineprint a:hover { text-decoration: underline; }
+      .form-intro { margin-top: 0; }
+      .form-contact { margin: 20px 0 0; }
+      .next-title { font-size: 1.05rem; font-weight: 600; margin: 0 0 18px; }
 
-      .footer {
-        padding: 30px 0 50px;
+      .next-steps { display: grid; gap: 0; counter-reset: step; margin: 0; padding: 0; list-style: none; }
+      .next-steps li {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 14px;
+        padding: 13px 0;
+        border-top: 1px solid var(--line);
+        font-size: 0.92rem;
+        line-height: 1.55;
+        color: var(--body);
+      }
+      .next-steps li:first-child { border-top: 0; padding-top: 0; }
+      .next-steps li::before {
+        counter-increment: step;
+        content: "0" counter(step);
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        color: var(--amber);
+        padding-top: 3px;
+      }
+
+      /* footer */
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 28px clamp(20px, 4vw, 48px) 44px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 28px;
+        align-items: center;
+        justify-content: space-between;
         color: var(--muted);
-        font-size: 0.88rem;
-        text-align: center;
+        font-size: 0.86rem;
       }
-      .nowrap { white-space: nowrap; }
+      footer a { color: var(--muted); text-decoration: none; }
+      footer a:hover { color: var(--amber); }
 
-      @media (max-width: 860px) {
+      /* reveal motion */
+      .reveal { opacity: 0; transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1); }
+      .reveal.in { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .reveal { opacity: 1; transform: none; transition: none; }
+        .pulse-dot::after { animation: none; }
+        .score-bar { transition: none; }
+      }
+
+      /* responsive */
+      @media (max-width: 900px) {
         .hero-grid, .form-wrap { grid-template-columns: 1fr; }
-        .stat-strip, .who-grid, .pricing { grid-template-columns: 1fr; }
-        .stat-strip > div, .who-grid > div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 18px; }
-        .stat-strip > div:first-child, .who-grid > div:first-child { border-top: 0; padding-top: 0; }
+        .score-row { grid-template-columns: 1fr; gap: 12px; }
+      }
+      @media (max-width: 700px) {
+        .facts, .stages, .who-grid, .pricing, .bands-strip { grid-template-columns: 1fr; }
+        .facts > div, .who-grid > div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+        .facts > div:first-child, .who-grid > div:first-child { border-top: 0; }
+        .stage { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+        .stage:first-child { border-top: 0; }
+        .field-row { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
-    <nav class="topbar">
-      <div class="wrap topbar-inner">
-        <div class="brand">
-          <img src="/logo.png" alt="Tanta Pulse" />
-          <span>Tanta Pulse</span>
-          <span class="brand-meta">A Tanta Holdings company</span>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="frame">
+      <nav class="topbar" aria-label="Main">
+        <div class="topbar-inner">
+          <a class="brand" href="/">
+            <img src="/logo.png" alt="" width="30" height="30" />
+            <strong>Tanta Pulse</strong>
+            <span class="brand-meta mono">A Tanta Holdings company</span>
+          </a>
+          <div class="nav-links">
+            <a href="#pipeline">Pipeline</a>
+            <a href="#scoring">Scoring</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <a class="btn btn-solid btn-sm" href="#request">Request a sample</a>
         </div>
-        <a class="btn btn-ghost" href="#request">Request a sample</a>
-      </div>
-    </nav>
+      </nav>
 
-    <main>
-      <section class="hero wrap">
-        <div class="hero-grid">
-          <div>
-            <div class="eyebrow">Built for local SEO agencies</div>
-            <h1 class="display">Fresh local leads, ranked and delivered weekly.</h1>
-            <p class="lead">
-              Tanta Pulse finds, scores, and delivers local business leads on a weekly cadence, ready for your
-              team to sell against instead of a raw scrape you have to clean up yourself.
-            </p>
-            <div class="actions">
-              <a class="btn btn-gold" href="#request">Request a sample</a>
-              <a class="btn btn-ghost" href="#how-it-works">How it works</a>
-            </div>
-            <hr class="rule-gold" />
-            <div class="stat-strip">
-              <div>
-                <strong>Weekly delivery</strong>
-                <span>Fresh feed cadence, no stale spreadsheet dumps.</span>
-              </div>
-              <div>
-                <strong>Ranked, not raw</strong>
-                <span>Cleaned, deduped, and scored before it hits your inbox.</span>
-              </div>
-              <div>
-                <strong>No lock-in</strong>
-                <span>Try a free sample before you subscribe to anything.</span>
+      <main id="main">
+        <section class="hero wrap">
+          <div class="hero-grid">
+            <div>
+              <p class="eyebrow mono"><span class="pulse-dot" aria-hidden="true"></span>Lead feeds for local SEO agencies</p>
+              <h1>Fresh local leads, <em>ranked</em> and delivered weekly.</h1>
+              <p class="lead">
+                Tanta Pulse pulls the public business data behind your niche and market, scores every
+                lead 0 to 100 on a weighted model, and delivers a clean ranked feed on schedule.
+                No raw scrape to clean up. No manual research.
+              </p>
+              <div class="actions">
+                <a class="btn btn-solid" href="#request">Request a free sample</a>
+                <a class="btn btn-ghost" href="#scoring">See the scoring model</a>
               </div>
             </div>
+
+            <aside class="schema reveal" aria-label="Feed record schema">
+              <div class="schema-head">
+                <span class="mono"><b>lead_feed</b> / record</span>
+                <span class="mono">per lead</span>
+              </div>
+              <div class="schema-rows">
+                <div class="schema-row"><span class="k">business_name</span><span class="t">text</span></div>
+                <div class="schema-row"><span class="k">category</span><span class="t">text</span></div>
+                <div class="schema-row"><span class="k">niche_fit</span><span class="t">text</span></div>
+                <div class="schema-row"><span class="k">website</span><span class="t">url</span></div>
+                <div class="schema-row"><span class="k">phone</span><span class="t">text</span></div>
+                <div class="schema-row"><span class="k">address</span><span class="t">text</span></div>
+                <div class="schema-row"><span class="k">rating</span><span class="t">float</span></div>
+                <div class="schema-row"><span class="k">review_count</span><span class="t">int</span></div>
+                <div class="schema-row hl"><span class="k">lead_score</span><span class="t">0&ndash;100</span></div>
+                <div class="schema-row"><span class="k">contact_notes</span><span class="t">text</span></div>
+              </div>
+              <div class="schema-bands">
+                <div class="band band-high"><span class="range">80&ndash;100</span><span class="label">send_first</span><span class="desc">top of the outreach queue</span></div>
+                <div class="band band-mid"><span class="range">50&ndash;79</span><span class="label">keep</span><span class="desc">included in your feed</span></div>
+                <div class="band band-low"><span class="range">0&ndash;49</span><span class="label">hold</span><span class="desc">held out of the send queue</span></div>
+              </div>
+              <div class="schema-foot">
+                Every record ships with these fields. <a href="#request">Request a sample</a> to see them filled in for your market.
+              </div>
+            </aside>
           </div>
 
-          <aside class="panel">
-            <h3>What you get</h3>
-            <ul>
-              <li>business name</li>
-              <li>category and niche fit</li>
-              <li>website and phone</li>
-              <li>address and geography</li>
-              <li>rating and review count</li>
-              <li>lead score and contact notes</li>
-              <li>optional follow-up sequence</li>
-            </ul>
-            <div class="panel-cta">
-              <strong>Ready to see it in action?</strong>
-              <span>Request a sample. If it fits, we turn it into a recurring feed.</span>
+          <div class="facts">
+            <div class="reveal">
+              <span class="mono">Cadence</span>
+              <strong>Weekly delivery</strong>
+              <span>Feeds land on schedule, not as one-off spreadsheet dumps.</span>
             </div>
-          </aside>
-        </div>
-      </section>
+            <div class="reveal">
+              <span class="mono">Signal</span>
+              <strong>Ranked, not raw</strong>
+              <span>Deduped, merged, and scored before anything reaches your inbox.</span>
+            </div>
+            <div class="reveal">
+              <span class="mono">Terms</span>
+              <strong>No lock-in</strong>
+              <span>Request a free sample before you subscribe to anything.</span>
+            </div>
+          </div>
+        </section>
 
-      <hr class="rule-gold" />
-
-      <section class="block wrap" id="how-it-works">
-        <h2>How it works</h2>
-        <div class="records">
-          <div class="record">
-            <div class="num">01</div>
-            <div>
+        <section class="block wrap" id="pipeline">
+          <div class="sec-head">
+            <span class="mono"><span class="idx">01</span> / Pipeline</span>
+            <h2>How it works</h2>
+          </div>
+          <div class="stages">
+            <div class="stage reveal">
+              <span class="mono">Stage 01</span>
               <h3>Collect</h3>
-              <p>Tell us a niche and a market, and we pull the public business data behind it.</p>
+              <p>Pick a niche and a city. The pipeline pulls the public business data behind that market, straight from the source.</p>
+              <code>input: niche + market</code>
             </div>
-          </div>
-          <div class="record">
-            <div class="num">02</div>
-            <div>
+            <div class="stage reveal">
+              <span class="mono">Stage 02</span>
               <h3>Rank</h3>
-              <p>Duplicates get merged, junk gets dropped, and what's left is scored by fit.</p>
+              <p>Duplicates merge, junk drops. Every remaining lead gets scored across four weighted dimensions.</p>
+              <code>dedupe &rarr; merge &rarr; score</code>
             </div>
-          </div>
-          <div class="record">
-            <div class="num">03</div>
-            <div>
+            <div class="stage reveal">
+              <span class="mono">Stage 03</span>
               <h3>Deliver</h3>
-              <p>Your feed lands on schedule, ready to hand straight to sales.</p>
+              <p>The ranked feed lands in your inbox on your cadence, ready to hand straight to sales.</p>
+              <code>cadence: weekly | daily | custom</code>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <hr class="rule-gold" />
-
-      <section class="block wrap">
-        <h2>Who it's for</h2>
-        <div class="who-grid">
-          <div><h3>SEO agencies</h3><p>They already buy prospecting lists. We make them better.</p></div>
-          <div><h3>Local service operators</h3><p>Keep pipeline full without manual research.</p></div>
-          <div><h3>Small teams</h3><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
-        </div>
-      </section>
-
-      <hr class="rule-gold" />
-
-      <section class="block wrap">
-        <h2>Pricing</h2>
-        <div class="pricing">
-          <div class="price">
-            <div class="tier">Starter</div>
-            <div class="amount">$49/mo</div>
-            <p>One niche, one geography, weekly feed.</p>
-            <ul>
-              <li>sample feed</li>
-              <li>weekly refresh</li>
-              <li>simple delivery</li>
-            </ul>
+        <section class="block wrap" id="scoring">
+          <div class="sec-head">
+            <span class="mono"><span class="idx">02</span> / Scoring</span>
+            <h2>The scoring model</h2>
           </div>
-          <div class="price featured">
-            <div class="tier">Pro</div>
-            <div class="amount">$149/mo</div>
-            <p>More filters, more volume, tighter ranking.</p>
-            <ul>
-              <li>multi-filter feed</li>
-              <li>enrichment</li>
-              <li>priority updates</li>
-            </ul>
-          </div>
-          <div class="price">
-            <div class="tier">Agency</div>
-            <div class="amount">$399/mo</div>
-            <p>Multiple cities and custom delivery windows.</p>
-            <ul>
-              <li>multi-city delivery</li>
-              <li>custom cadence</li>
-              <li>done-with-you setup</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <hr class="rule-gold" />
-
-      <section class="block wrap" id="request">
-        <h2>Request a sample</h2>
-        <div class="form-wrap">
-          <div class="form-card">
-            <p class="fineprint" style="margin-top:0;">
-              Tell us your niche and city. We'll send a sample feed and start the follow-up sequence automatically.
-            </p>
-            <form id="sample-form">
-              <label>
-                Your name
-                <input name="name" autocomplete="name" placeholder="Alex Rivera" required />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" autocomplete="email" placeholder="you@agency.com" required />
-              </label>
-              <label>
-                Niche
-                <input name="niche" placeholder="roofing, HVAC, dentists, med spas..." required />
-              </label>
-              <label>
-                City / market
-                <input name="city" placeholder="Austin, TX" required />
-              </label>
-              <label>
-                Delivery cadence
-                <select name="cadence" required>
-                  <option value="weekly">Weekly</option>
-                  <option value="daily">Daily</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </label>
-              <label>
-                Notes
-                <textarea name="notes" placeholder="Anything we should know about your ideal sample feed?"></textarea>
-              </label>
-              <button class="btn btn-gold" type="submit">Request a sample</button>
-              <div class="message" id="form-message" aria-live="polite"></div>
-            </form>
-          </div>
-          <div class="form-card">
-            <h3>What happens next</h3>
-            <ul style="padding-left:18px; line-height:1.9; color:var(--charcoal); margin:0;">
-              <li>We save your request and start building your sample feed.</li>
-              <li>Our team reviews your niche and market.</li>
-              <li>You get a confirmation email right away.</li>
-              <li>Your sample feed lands in your inbox once it's ready.</li>
-            </ul>
-            <div class="panel-cta">
-              <strong>No manual busywork on your end</strong>
-              <span>We handle the collection and delivery. You just review the leads.</span>
+          <p class="sec-intro">
+            Every lead gets a 0 to 100 score built from four weighted dimensions. These are the
+            weights and signals that run in production, not marketing copy.
+          </p>
+          <div class="score-table reveal">
+            <div class="score-row">
+              <div class="score-dim">
+                <strong>Fit</strong>
+                <span class="mono">45%</span>
+              </div>
+              <div>
+                <div class="score-bar-track"><div class="score-bar" data-w="45"></div></div>
+                <div class="signals">
+                  <span>has_name</span><span>has_website</span><span>has_phone</span><span>has_email</span><span>matches_niche</span><span>matches_city</span>
+                </div>
+              </div>
             </div>
-            <p class="fineprint" style="margin-top:18px; margin-bottom:0;">
-              Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
-            </p>
+            <div class="score-row">
+              <div class="score-dim">
+                <strong>Intent</strong>
+                <span class="mono">30%</span>
+              </div>
+              <div>
+                <div class="score-bar-track"><div class="score-bar" data-w="30"></div></div>
+                <div class="signals">
+                  <span>hiring_intent</span><span>recent_activity</span><span>review_velocity</span><span>trigger_event</span><span>intent_keywords</span>
+                </div>
+              </div>
+            </div>
+            <div class="score-row">
+              <div class="score-dim">
+                <strong>Quality</strong>
+                <span class="mono">15%</span>
+              </div>
+              <div>
+                <div class="score-bar-track"><div class="score-bar" data-w="15"></div></div>
+                <div class="signals">
+                  <span>field_completeness</span><span>source_confidence</span><span>freshness</span>
+                </div>
+              </div>
+            </div>
+            <div class="score-row">
+              <div class="score-dim">
+                <strong>Engagement</strong>
+                <span class="mono">10%</span>
+              </div>
+              <div>
+                <div class="score-bar-track"><div class="score-bar" data-w="10"></div></div>
+                <div class="signals">
+                  <span>review_volume</span><span>strong_rating</span><span>team_size</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+          <div class="bands-strip">
+            <div class="band-card b-high reveal">
+              <span class="mono">80&ndash;100 &middot; send_first</span>
+              <p>High-fit leads go to the top of the feed so outreach starts where it converts.</p>
+            </div>
+            <div class="band-card b-mid reveal">
+              <span class="mono">50&ndash;79 &middot; keep</span>
+              <p>Usable leads make the feed with full contact fields and scoring context.</p>
+            </div>
+            <div class="band-card b-low reveal">
+              <span class="mono">0&ndash;49 &middot; hold</span>
+              <p>Low scores get held back instead of padding your list with junk.</p>
+            </div>
+          </div>
+        </section>
 
-    <div class="footer">
-      &copy; 2026 Tanta Pulse, a Tanta Holdings company.
+        <section class="block wrap" id="who">
+          <div class="sec-head">
+            <span class="mono"><span class="idx">03</span> / Fit</span>
+            <h2>Who it&rsquo;s for</h2>
+          </div>
+          <div class="who-grid">
+            <div class="reveal">
+              <h3>SEO agencies</h3>
+              <p>You already buy prospecting lists. This one arrives cleaned, scored, and ranked.</p>
+            </div>
+            <div class="reveal">
+              <h3>Local service operators</h3>
+              <p>Keep pipeline full without spending hours on manual research.</p>
+            </div>
+            <div class="reveal">
+              <h3>Small teams</h3>
+              <p>Use the feed as a recurring lead source, not a one-off scrape.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="block wrap" id="pricing">
+          <div class="sec-head">
+            <span class="mono"><span class="idx">04</span> / Pricing</span>
+            <h2>Pricing</h2>
+          </div>
+          <div class="pricing">
+            <div class="price reveal">
+              <span class="tier mono">Starter</span>
+              <div class="amount">$49<small>/mo</small></div>
+              <p>One niche, one geography, weekly feed.</p>
+              <ul>
+                <li>sample feed</li>
+                <li>weekly refresh</li>
+                <li>simple delivery</li>
+              </ul>
+              <a class="btn btn-ghost btn-sm" href="#request">Start with a sample</a>
+            </div>
+            <div class="price featured reveal">
+              <span class="tag">Most popular</span>
+              <span class="tier mono">Pro</span>
+              <div class="amount">$149<small>/mo</small></div>
+              <p>More filters, more volume, tighter ranking.</p>
+              <ul>
+                <li>multi-filter feed</li>
+                <li>enrichment</li>
+                <li>priority updates</li>
+              </ul>
+              <a class="btn btn-solid btn-sm" href="#request">Start with a sample</a>
+            </div>
+            <div class="price reveal">
+              <span class="tier mono">Agency</span>
+              <div class="amount">$399<small>/mo</small></div>
+              <p>Multiple cities and custom delivery windows.</p>
+              <ul>
+                <li>multi-city delivery</li>
+                <li>custom cadence</li>
+                <li>done-with-you setup</li>
+              </ul>
+              <a class="btn btn-ghost btn-sm" href="#request">Start with a sample</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="block wrap" id="request">
+          <div class="sec-head">
+            <span class="mono"><span class="idx">05</span> / Sample</span>
+            <h2>Request a sample</h2>
+          </div>
+          <div class="form-wrap">
+            <div class="form-card reveal">
+              <p class="fineprint form-intro">
+                Name your niche and city. A sample feed gets built for that market and the
+                follow-up sequence starts automatically.
+              </p>
+              <form id="sample-form">
+                <div class="field-row">
+                  <label>
+                    <span class="mono">Your name</span>
+                    <input name="name" type="text" autocomplete="name" placeholder="Alex Rivera" required />
+                  </label>
+                  <label>
+                    <span class="mono">Email</span>
+                    <input name="email" type="email" autocomplete="email" placeholder="you@agency.com" required />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span class="mono">Niche</span>
+                    <input name="niche" type="text" placeholder="roofing, HVAC, dentists, med spas..." required />
+                  </label>
+                  <label>
+                    <span class="mono">City / market</span>
+                    <input name="city" type="text" placeholder="Austin, TX" required />
+                  </label>
+                </div>
+                <label>
+                  <span class="mono">Delivery cadence</span>
+                  <select name="cadence" required>
+                    <option value="weekly">Weekly</option>
+                    <option value="daily">Daily</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </label>
+                <label>
+                  <span class="mono">Notes</span>
+                  <textarea name="notes" placeholder="Anything we should know about your ideal sample feed?"></textarea>
+                </label>
+                <button class="btn btn-solid" type="submit">Request a sample</button>
+                <div class="message" id="form-message" aria-live="polite"></div>
+              </form>
+            </div>
+            <div class="form-card reveal">
+              <h3 class="next-title">What happens next</h3>
+              <ol class="next-steps">
+                <li>Your request is saved and a confirmation email goes out right away.</li>
+                <li>The pipeline queues a collection run for your niche and city.</li>
+                <li>Leads get deduped, scored, and ranked.</li>
+                <li>Your sample feed lands in your inbox.</li>
+              </ol>
+              <p class="fineprint form-contact">
+                Questions? Email <a href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <span>&copy; 2026 Tanta Pulse, a Tanta Holdings company.</span>
+        <a href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>
+      </footer>
     </div>
 
     <script>
+      // Sample request form (unchanged endpoint + payload)
       const form = document.getElementById('sample-form');
       const message = document.getElementById('form-message');
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         message.textContent = 'Sending...';
-        message.style.color = 'var(--gold-text)';
+        message.style.color = 'var(--amber)';
         const data = Object.fromEntries(new FormData(form).entries());
         try {
           const res = await fetch('/api/sample-request', {
@@ -547,13 +854,32 @@
           const json = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(json.error || 'Request failed');
           form.reset();
-          message.textContent = 'Request received. We queued your sample and the follow-up sequence.';
-          message.style.color = 'var(--success)';
+          message.textContent = 'Request received. Your sample and the follow-up sequence are queued.';
+          message.style.color = 'var(--green)';
         } catch (err) {
           message.textContent = err.message || 'Something went wrong.';
-          message.style.color = 'var(--danger)';
+          message.style.color = 'var(--red)';
         }
       });
+
+      // Scroll reveal + scoring bar animation (skipped if reduced motion)
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const bars = document.querySelectorAll('.score-bar');
+      const setBars = () => bars.forEach((b) => { b.style.width = b.dataset.w + '%'; });
+      if (reduced || !('IntersectionObserver' in window)) {
+        document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+        setBars();
+      } else {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('in');
+            if (entry.target.querySelector('.score-bar')) setBars();
+            io.unobserve(entry.target);
+          });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      }
     </script>
   </body>
 </html>
