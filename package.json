@@ -2,5 +2,8 @@
   "name": "tantapulse",
   "private": true,
   "type": "module",
-  "description": "TantaPulse - lead generation and automation backend"
+  "description": "TantaPulse - lead generation and automation backend",
+  "scripts": {
+    "vercel-build": "echo 'No build step required for API-only project'"
+  }
 }
