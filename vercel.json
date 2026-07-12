@@ -1,4 +1,7 @@
 {
+  "buildCommand": "echo 'API-only: no build required'",
+  "outputDirectory": null,
+  "framework": null,
   "crons": [
     {
       "path": "/api/lead-feed/process",
