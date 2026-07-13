@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fdf9f2" />
+    <title>Unsubscribe | Tanta Pulse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+        background: #0b1020;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        background: #101936;
+        border: 1px solid rgba(241, 198, 106, 0.18);
+        border-radius: 16px;
+        padding: 48px 36px;
+        max-width: 480px;
+        width: 90%;
+        text-align: center;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #f1c66a;
+        margin: 0 0 8px;
+      }
+      p {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 28px;
+      }
+      .success-message {
+        color: #6fcf97;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 28px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      input {
+        background: #1b1c30;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 14px 16px;
+        color: #fff;
+        font-size: 15px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        border-color: #f1c66a;
+      }
+      input::placeholder { color: rgba(255, 255, 255, 0.35); }
+      button {
+        background: #f1c66a;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0b1020;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s;
+      }
+      button:hover { background: #f0c96a; }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .error-message {
+        color: #e88a76;
+        font-size: 13px;
+        margin-top: 8px;
+      }
+      .footer {
+        margin-top: 32px;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 11px;
+      }
+      .footer a {
+        color: rgba(241, 198, 106, 0.5);
+        text-decoration: none;
+      }
+      .logo {
+        font-size: 16px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        color: #f1c66a;
+        margin: 0 0 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="logo">TANTA PULSE</div>
+      <h1>Unsubscribe</h1>
+      <p>Enter the email address where you're receiving Tanta Pulse emails and we'll remove you from our list.</p>
+
+      <div id="success" class="success-message" style="display:none">
+        You have been unsubscribed. You will no longer receive emails from this address.
+      </div>
+
+      <form id="unsub-form">
+        <input type="email" id="email" name="email" placeholder="Your email address" required autocomplete="email" />
+        <button type="submit" id="submit-btn">Unsubscribe</button>
+        <div id="error" class="error-message"></div>
+      </form>
+
+      <div class="footer">
+        <a href="https://tantapulse.com">Back to Tanta Pulse</a>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('unsub-form');
+      const emailInput = document.getElementById('email');
+      const submitBtn = document.getElementById('submit-btn');
+      const successDiv = document.getElementById('success');
+      const errorDiv = document.getElementById('error');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        errorDiv.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+
+        try {
+          const res = await fetch('/api/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput.value.trim() }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            form.style.display = 'none';
+            successDiv.style.display = 'block';
+          } else {
+            errorDiv.textContent = data.error || 'Something went wrong. Please try again.';
+          }
+        } catch (err) {
+          errorDiv.textContent = 'Network error. Please try again.';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Unsubscribe';
+        }
+      });
+    </script>
+  </body>
+</html>
