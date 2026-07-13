@@ -1,6 +1,5 @@
 {
   "buildCommand": "echo 'no build' && exit 0",
-  "outputDirectory": "public",
   "framework": null,
   "crons": [
     {
