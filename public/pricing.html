@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fdf9f2" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <title>Pricing | Tanta Pulse</title>
+    <meta
+      name="description"
+      content="Tanta Pulse pricing: free sample, Starter at $97/mo, and Growth at $247/mo. Get ranked local leads delivered weekly."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --cream: #fdf9f2;
+        --beige: #ede4d3;
+        --navy: #0f2044;
+        --charcoal: #3d3d3d;
+        --muted: #6b6558;
+        --gold: #d6a847;
+        --gold-light: #f0c96a;
+        --gold-text: #7a5518;
+        --success: #2f6b48;
+        --danger: #a83f2e;
+        --line: rgba(15, 32, 68, 0.12);
+        --gold-line: rgba(214, 168, 71, 0.35);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #16172a;
+          --beige: #1e2036;
+          --navy: #f3eee1;
+          --charcoal: #d8d3c5;
+          --muted: #a9a294;
+          --gold-text: #f0c96a;
+          --success: #6fcf97;
+          --danger: #e88a76;
+          --line: rgba(243, 238, 225, 0.14);
+          --gold-line: rgba(240, 201, 106, 0.4);
+        }
+        .panel, .tier-card { background: #1b1c30; }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: "Inter Tight", Inter, ui-sans-serif, system-ui, sans-serif;
+        color: var(--charcoal);
+        background: var(--cream);
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+      .display {
+        font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+        color: var(--navy);
+        letter-spacing: -0.02em;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--gold-text);
+        font-weight: 600;
+      }
+      .rule-gold {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-line) 20%, var(--gold-line) 80%, transparent);
+        border: 0;
+        margin: 0;
+      }
+
+      nav.topbar {
+        border-bottom: 1px solid var(--line);
+        background: var(--cream);
+      }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 0;
+      }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand img { height: 34px; width: auto; display: block; }
+      .brand span {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--navy);
+        letter-spacing: -0.01em;
+      }
+      .brand-meta {
+        display: none;
+      }
+      @media (min-width: 640px) {
+        .brand-meta {
+          display: inline-block;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 0.68rem;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--muted);
+          border-left: 1px solid var(--line);
+          padding-left: 14px;
+          margin-left: 2px;
+        }
+      }
+      .nav-links { display: flex; align-items: center; gap: 24px; }
+      .nav-links a {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: color 0.2s;
+      }
+      .nav-links a:hover { color: var(--navy); }
+      .nav-links a.active { color: var(--navy); font-weight: 700; }
+      .nav-links .btn-gold {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+        color: var(--navy);
+      }
+      .nav-links .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+
+      .hero { padding: 64px 0 40px; text-align: center; }
+      .hero h1 {
+        font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+        line-height: 1.05;
+        font-weight: 700;
+        margin: 16px auto 20px;
+        max-width: 18ch;
+      }
+      .hero .lead {
+        font-size: clamp(1rem, 1.3vw, 1.15rem);
+        line-height: 1.65;
+        color: var(--charcoal);
+        max-width: 52ch;
+        margin: 0 auto 32px;
+      }
+
+      .tiers { padding: 40px 0 60px; }
+      .tiers-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+      .tier-card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 28px;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+      }
+      .tier-card.featured {
+        border: 2px solid var(--gold);
+        box-shadow: 0 8px 32px rgba(214, 168, 71, 0.2);
+      }
+      .tier-card.sample-card {
+        border-color: var(--gold-line);
+        background: linear-gradient(to bottom, rgba(253,249,242,0.6), #fff);
+      }
+      .tier-badge {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+      }
+      .badge-sample { background: var(--gold); color: var(--navy); }
+      .badge-starter { background: var(--beige); color: var(--gold-text); }
+      .badge-growth { background: var(--navy); color: var(--cream); }
+      .tier-name {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 8px;
+      }
+      .tier-price {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--navy);
+        line-height: 1;
+        margin: 0 0 6px;
+      }
+      .tier-price .per {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--muted);
+        font-family: "Inter Tight", sans-serif;
+      }
+      .tier-desc {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0 0 20px;
+        line-height: 1.5;
+      }
+      .tier-divider {
+        height: 1px;
+        background: var(--line);
+        margin: 0 0 20px;
+      }
+      .tier-features { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 10px; }
+      .tier-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--charcoal);
+        line-height: 1.4;
+      }
+      .tier-features li::before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23d6a847' opacity='0.2'/%3E%3Cpath d='M5 8l2 2 4-4' stroke='%23d6a847' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: contain;
+        margin-top: 1px;
+      }
+      .tier-cta {
+        margin-top: auto;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 13px 22px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: 0;
+        font-family: inherit;
+        transition: transform 0.25s cubic-bezier(.16,1,.3,1), box-shadow 0.25s cubic-bezier(.16,1,.3,1);
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .btn-gold {
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+        color: var(--navy);
+      }
+      .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(214,168,71,0.35); }
+      .btn-ghost {
+        background: transparent;
+        color: var(--navy);
+        border: 1.5px solid var(--gold);
+      }
+      .btn-ghost:hover { background: var(--gold); color: var(--navy); }
+      .btn-coming {
+        background: var(--beige);
+        color: var(--muted);
+        cursor: default;
+        opacity: 0.8;
+      }
+      .btn-coming:hover { transform: none; box-shadow: none; }
+      .coming-label {
+        display: block;
+        text-align: center;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 8px;
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .faq { padding: 50px 0 70px; }
+      .faq h2 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: clamp(1.4rem, 2.2vw, 2rem);
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 32px;
+        text-align: center;
+      }
+      .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
+      .faq-item h3 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1rem;
+        color: var(--navy);
+        margin: 0 0 8px;
+        font-weight: 700;
+      }
+      .faq-item p { margin: 0; color: var(--charcoal); font-size: 0.9rem; line-height: 1.6; }
+
+      .guarantee {
+        padding: 36px 0 60px;
+      }
+      .guarantee-box {
+        border: 1px solid var(--gold-line);
+        border-radius: 18px;
+        padding: 28px 32px;
+        background: linear-gradient(to right, rgba(253,249,242,0.8), rgba(237,228,211,0.4));
+        text-align: center;
+      }
+      .guarantee-box h3 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1.1rem;
+        color: var(--navy);
+        margin: 0 0 10px;
+        font-weight: 700;
+      }
+      .guarantee-box p { margin: 0; color: var(--charcoal); font-size: 0.92rem; line-height: 1.6; max-width: 56ch; margin: 0 auto; }
+
+      .footer {
+        padding: 30px 0 50px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        text-align: center;
+      }
+
+      @media (max-width: 860px) {
+        .tiers-grid, .faq-grid { grid-template-columns: 1fr; }
+        .nav-links { gap: 14px; }
+        .nav-links a:not(.btn-gold) { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="/">
+          <img src="/logo.png" alt="Tanta Pulse" />
+          <span>Tanta Pulse</span>
+          <span class="brand-meta">A Tanta Holdings company</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">How it works</a>
+          <a class="active" href="/pricing.html">Pricing</a>
+          <a href="/#request">Request a sample</a>
+          <a class="btn btn-gold" href="/#request">Get started</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero wrap">
+        <div class="eyebrow">Simple, transparent pricing</div>
+        <h1 class="display">Pick the plan that fits your pipeline.</h1>
+        <p class="lead">
+          Start with a free sample — no credit card, no commitment. When you're ready to go recurring, choose the volume that matches your outbound capacity.
+        </p>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <section class="tiers wrap">
+        <div class="tiers-grid">
+
+          <!-- Tier 1: Free Sample -->
+          <div class="tier-card sample-card">
+            <span class="tier-badge badge-sample">Free</span>
+            <div class="tier-name">Sample</div>
+            <div class="tier-price">$0</div>
+            <p class="tier-desc">One-time lead feed to preview the data quality before you subscribe.</p>
+            <div class="tier-divider"></div>
+            <ul class="tier-features">
+              <li>Up to 50 scored leads</li>
+              <li>Your choice of niche and geography</li>
+              <li>One-time email delivery</li>
+              <li>Full contact details: name, phone, website, address</li>
+              <li>Lead score and ranking included</li>
+              <li>No ongoing commitment</li>
+            </ul>
+            <div class="tier-cta">
+              <a class="btn btn-gold" href="/#request">Request a sample</a>
+            </div>
+          </div>
+
+          <!-- Tier 2: Starter — Coming Soon -->
+          <div class="tier-card featured">
+            <span class="tier-badge badge-starter">Coming soon</span>
+            <div class="tier-name">Starter</div>
+            <div class="tier-price">$97<span class="per"> / month</span></div>
+            <p class="tier-desc">For solo operators and 1–2 person agencies getting started with outbound.</p>
+            <div class="tier-divider"></div>
+            <ul class="tier-features">
+              <li>Weekly lead feed, your chosen niche</li>
+              <li>Up to 100 fresh leads per delivery</li>
+              <li>Scored and ranked for contact priority</li>
+              <li>Email delivery every Monday morning</li>
+              <li>Cancel anytime — no lock-in</li>
+              <li>Reply to delivery email for support</li>
+            </ul>
+            <div class="tier-cta">
+              <button class="btn btn-coming" disabled>Coming soon</button>
+              <span class="coming-label">Launching soon — join the waitlist</span>
+            </div>
+          </div>
+
+          <!-- Tier 3: Growth — Coming Soon -->
+          <div class="tier-card">
+            <span class="tier-badge badge-growth">Coming soon</span>
+            <div class="tier-name">Growth</div>
+            <div class="tier-price">$247<span class="per"> / month</span></div>
+            <p class="tier-desc">For agencies running active outbound at scale across multiple niches or markets.</p>
+            <div class="tier-divider"></div>
+            <ul class="tier-features">
+              <li>Weekly lead feed, up to 3 niches or metros</li>
+              <li>Up to 300 fresh leads per delivery</li>
+              <li>Scored and ranked for contact priority</li>
+              <li>Priority delivery — earlier in the week</li>
+              <li>Email plus CRM export format</li>
+              <li>Dedicated support reply path</li>
+            </ul>
+            <div class="tier-cta">
+              <button class="btn btn-coming" disabled>Coming soon</button>
+              <span class="coming-label">Launching soon — join the waitlist</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <section class="faq wrap">
+        <h2>Common questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3>What's included in a sample?</h3>
+            <p>You'll receive up to 50 scored leads in your chosen niche and city, delivered as a clean export. It's the same data format as the paid tiers — no watermarked preview, no stripped fields.</p>
+          </div>
+          <div class="faq-item">
+            <h3>How does the weekly delivery work?</h3>
+            <p>Once you're on a paid plan, your feed lands in your inbox every Monday morning. The niche and geography are locked in at signup — just hand the list to your sales team.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I change plans later?</h3>
+            <p>Yes. Upgrades take effect immediately and are prorated. Downgrades apply at the next billing cycle.</p>
+          </div>
+          <div class="faq-item">
+            <h3>What does "scored" mean?</h3>
+            <p>Each lead is ranked by geographic density, category relevance, and online presence signals. Your top contacts are flagged for first outreach.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Is there a contract?</h3>
+            <p>No. Monthly plans are month-to-month. You can cancel from your account portal anytime — no calls, no hassle.</p>
+          </div>
+          <div class="faq-item">
+            <h3>What geography is available?</h3>
+            <p>Currently scoped to U.S. cities. Starter covers one metro per subscription. Growth covers up to three metros or niche combinations.</p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <section class="guarantee wrap">
+        <div class="guarantee-box">
+          <h3>No refunds on monthly plans</h3>
+          <p>Because leads are delivered instantly upon subscription activation, we don't offer refunds on monthly plans. Cancellations take effect at the end of the current billing period. <a href="/#request" style="color: var(--gold-text); font-weight: 600;">Start with a free sample</a> first — it's the best way to evaluate the data before committing.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>&copy; 2026 Tanta Holdings. All rights reserved. &nbsp;&middot;&nbsp; <a href="/">Tanta Pulse</a> &nbsp;&middot;&nbsp; <a href="/#request">Request a sample</a></p>
+      </div>
+    </footer>
+  </body>
+</html>
