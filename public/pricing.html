@@ -8,7 +8,7 @@
     <title>Pricing | Tanta Pulse</title>
     <meta
       name="description"
-      content="Tanta Pulse pricing: free sample, Starter at $97/mo, and Growth at $247/mo. Get ranked local leads delivered weekly."
+      content="Tanta Pulse pricing: free sample, Starter at $49/mo, Pro at $149/mo, and Agency at $399/mo. Get ranked local leads delivered weekly."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -176,7 +176,7 @@
       }
       .tier-badge {
         display: inline-block;
-        font-family: "JetBrains Mono", monospace;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
         font-size: 0.62rem;
         text-transform: uppercase;
         letter-spacing: 0.14em;
@@ -187,7 +187,8 @@
       }
       .badge-sample { background: var(--gold); color: var(--navy); }
       .badge-starter { background: var(--beige); color: var(--gold-text); }
-      .badge-growth { background: var(--navy); color: var(--cream); }
+      .badge-pro { background: var(--navy); color: var(--cream); }
+      .badge-agency { background: var(--gold); color: var(--navy); }
       .tier-name {
         font-family: "Bricolage Grotesque", sans-serif;
         font-size: 1.1rem;
@@ -271,23 +272,6 @@
         border: 1.5px solid var(--gold);
       }
       .btn-ghost:hover { background: var(--gold); color: var(--navy); }
-      .btn-coming {
-        background: var(--beige);
-        color: var(--muted);
-        cursor: default;
-        opacity: 0.8;
-      }
-      .btn-coming:hover { transform: none; box-shadow: none; }
-      .coming-label {
-        display: block;
-        text-align: center;
-        font-size: 0.78rem;
-        color: var(--muted);
-        margin-top: 8px;
-        font-family: "JetBrains Mono", monospace;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-      }
 
       .faq { padding: 50px 0 70px; }
       .faq h2 {
@@ -392,12 +376,12 @@
             </div>
           </div>
 
-          <!-- Tier 2: Starter — Coming Soon -->
-          <div class="tier-card featured">
-            <span class="tier-badge badge-starter">Coming soon</span>
+          <!-- Tier 2: Starter — $49/mo -->
+          <div class="tier-card">
+            <span class="tier-badge badge-starter">Starter</span>
             <div class="tier-name">Starter</div>
-            <div class="tier-price">$97<span class="per"> / month</span></div>
-            <p class="tier-desc">For solo operators and 1–2 person agencies getting started with outbound.</p>
+            <div class="tier-price">$49<span class="per"> / month</span></div>
+            <p class="tier-desc">One niche, one geography, weekly feed. For solo operators and 1–2 person agencies getting started with outbound.</p>
             <div class="tier-divider"></div>
             <ul class="tier-features">
               <li>Weekly lead feed, your chosen niche</li>
@@ -408,32 +392,52 @@
               <li>Reply to delivery email for support</li>
             </ul>
             <div class="tier-cta">
-              <button class="btn btn-coming" disabled>Coming soon</button>
-              <span class="coming-label">Launching soon — join the waitlist</span>
+              <a class="btn btn-ghost" href="https://buy.stripe.com/eVqdR2fBd69Se9RaCT5J601">Subscribe — Starter</a>
             </div>
           </div>
 
-          <!-- Tier 3: Growth — Coming Soon -->
-          <div class="tier-card">
-            <span class="tier-badge badge-growth">Coming soon</span>
-            <div class="tier-name">Growth</div>
-            <div class="tier-price">$247<span class="per"> / month</span></div>
-            <p class="tier-desc">For agencies running active outbound at scale across multiple niches or markets.</p>
+          <!-- Tier 3: Pro — $149/mo -->
+          <div class="tier-card featured">
+            <span class="tier-badge badge-pro">Pro</span>
+            <div class="tier-name">Pro</div>
+            <div class="tier-price">$149<span class="per"> / month</span></div>
+            <p class="tier-desc">More filters, more volume, tighter ranking. For agencies running active outbound at scale.</p>
             <div class="tier-divider"></div>
             <ul class="tier-features">
-              <li>Weekly lead feed, up to 3 niches or metros</li>
+              <li>Multi-filter lead feed</li>
               <li>Up to 300 fresh leads per delivery</li>
               <li>Scored and ranked for contact priority</li>
               <li>Priority delivery — earlier in the week</li>
               <li>Email plus CRM export format</li>
-              <li>Dedicated support reply path</li>
+              <li>Enrichment and priority updates</li>
             </ul>
             <div class="tier-cta">
-              <button class="btn btn-coming" disabled>Coming soon</button>
-              <span class="coming-label">Launching soon — join the waitlist</span>
+              <a class="btn btn-gold" href="https://buy.stripe.com/14A8wI0Gjaq89TB7qH5J602">Subscribe — Pro</a>
             </div>
           </div>
 
+        </div>
+
+        <!-- Agency tier — full width below -->
+        <div style="margin-top: 20px;">
+          <div class="tier-card" style="max-width: 380px; margin: 0 auto;">
+            <span class="tier-badge badge-agency">Agency</span>
+            <div class="tier-name">Agency</div>
+            <div class="tier-price">$399<span class="per"> / month</span></div>
+            <p class="tier-desc">Multiple cities and custom delivery windows. For agencies running outbound across multiple metros or niches.</p>
+            <div class="tier-divider"></div>
+            <ul class="tier-features">
+              <li>Multi-city delivery</li>
+              <li>Custom cadence windows</li>
+              <li>Done-with-you setup included</li>
+              <li>Up to 500+ fresh leads per delivery</li>
+              <li>Dedicated support reply path</li>
+              <li>Priority onboarding call</li>
+            </ul>
+            <div class="tier-cta">
+              <a class="btn btn-gold" href="https://buy.stripe.com/bJe00c60D8i03vdaCT5J603">Subscribe — Agency</a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -464,7 +468,7 @@
           </div>
           <div class="faq-item">
             <h3>What geography is available?</h3>
-            <p>Currently scoped to U.S. cities. Starter covers one metro per subscription. Growth covers up to three metros or niche combinations.</p>
+            <p>Currently scoped to U.S. cities. Starter covers one metro per subscription. Pro and Agency cover up to three metros or niche combinations.</p>
           </div>
         </div>
       </section>
