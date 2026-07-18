@@ -29,12 +29,44 @@ const STEP_COPY = {
       : "Here's your curated sample of Austin TX local SEO agencies.",
 };
 
+const STRIPE_PLANS = [
+  { name: "Starter", price: "$49/mo", url: "https://buy.stripe.com/aFa00c74H8i0ghZ12j5J605" },
+  { name: "Pro", price: "$149/mo", url: "https://buy.stripe.com/4gMdR274HeGo5Dl3ar5J606" },
+  { name: "Agency", price: "$399/mo", url: "https://buy.stripe.com/aFadR2cp1bucghZfXd5J607" },
+];
+
 function esc(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+export function renderUpsellHtml({ name }) {
+  const greeting = name ? `Hi ${esc(name)},` : "Hi there,";
+  const plans = STRIPE_PLANS.map((plan) => `
+    <tr><td style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.08)">
+      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td style="color:#fff;font-size:16px;font-weight:800">${plan.name} <span style="color:rgba(255,255,255,0.58);font-weight:500">${plan.price}</span></td>
+        <td align="right"><a href="${plan.url}" style="display:inline-block;background:#f1c66a;border-radius:6px;color:#101936;font-size:13px;font-weight:800;padding:9px 14px;text-decoration:none">Choose ${plan.name}</a></td>
+      </tr></table>
+    </td></tr>`).join("");
+
+  return `<!doctype html><html><head><meta charset="utf-8"></head>
+<body style="font-family:system-ui,-apple-system,sans-serif;background:#0b1020;margin:0;padding:0">
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#101936;border:1px solid rgba(241,198,106,0.18);border-radius:16px;overflow:hidden;max-width:600px;width:100%">
+      <tr><td style="padding:22px 28px;background:linear-gradient(135deg,#0b1020,#101936);border-bottom:1px solid rgba(241,198,106,0.18)"><span style="color:#f1c66a;font-size:18px;font-weight:900;letter-spacing:0.08em">TANTA PULSE</span><span style="color:rgba(255,255,255,0.45);font-size:12px;margin-left:10px;text-transform:uppercase;letter-spacing:0.18em">Continue your feed</span></td></tr>
+      <tr><td style="padding:28px">
+        <p style="margin:0 0 12px;color:#fff;font-size:22px;font-weight:800">Ready for your recurring lead feed?</p>
+        <p style="margin:0 0 20px;color:rgba(255,255,255,0.78);font-size:15px;line-height:1.7">${greeting} choose the plan that fits your outreach volume. Your paid feed starts with the same scored, deduped leads you just received.</p>
+        <table width="100%" cellpadding="0" cellspacing="0">${plans}</table>
+      </td></tr>
+      <tr><td style="padding:16px 28px 28px;color:rgba(255,255,255,0.48);font-size:12px;line-height:1.6">Tanta Holdings LLC &middot; <a href="https://tantapulse.com/unsubscribe" style="color:rgba(241,198,106,0.7)">Unsubscribe</a> &middot; <a href="mailto:hello@tantapulse.com" style="color:rgba(255,255,255,0.35)">hello@tantapulse.com</a></td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
 }
 
 function scoreBand(score) {
@@ -326,6 +358,32 @@ export default async function handler(req, res) {
     });
   }
 
+  // Send the monetization step only after Resend accepted the sample delivery.
+  const upsellRes = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resendKey}`,
+    },
+    body: JSON.stringify({
+      from: "Tanta Pulse <noreply@tantaholdings.com>",
+      to: toEmail,
+      reply_to: "hello@tantapulse.com",
+      subject: "Ready to subscribe? Choose your Tanta Pulse plan",
+      html: renderUpsellHtml({ name: toName }),
+      headers: {
+        "List-Unsubscribe": "<mailto:hello@tantapulse.com?subject=unsubscribe>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    }),
+  });
+  const upsellText = await upsellRes.text();
+  let upsellJson = {};
+  try { upsellJson = JSON.parse(upsellText); } catch { /* noop */ }
+  if (!upsellRes.ok) {
+    console.error("[Tanta Pulse] sample upsell send failed:", upsellRes.status, upsellText);
+  }
+
   // ── Mark run sample_delivered (unless test mode) ──────────────────────────
   if (!(test === "true" || test === true)) {
     await apiPatch(
@@ -341,5 +399,10 @@ export default async function handler(req, res) {
     sent_to:     toEmail,
     lead_count:  leadList.length,
     email_id:    emailJson.id ?? null,
+    upsell: {
+      sent: upsellRes.ok,
+      email_id: upsellJson.id ?? null,
+      status: upsellRes.status,
+    },
   });
 }
