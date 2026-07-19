@@ -84,5 +84,7 @@ begin
 end;
 $$;
 
-revoke all on function public.persist_finance_signals_atomically(jsonb) from public;
+-- Explicit role revocations complement PUBLIC so existing role-specific grants cannot
+-- expose this privileged RPC through PostgREST.
+revoke all on function public.persist_finance_signals_atomically(jsonb) from public, anon, authenticated;
 grant execute on function public.persist_finance_signals_atomically(jsonb) to service_role;
