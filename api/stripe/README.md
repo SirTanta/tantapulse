@@ -4,13 +4,13 @@
 
 | File | Purpose |
 |------|---------|
-| `api/stripe/checkout.js` | POST `/api/stripe/checkout` — creates a Stripe Checkout session for Starter ($97/mo) or Growth ($247/mo) |
+| `api/stripe/checkout.js` | POST `/api/stripe/checkout` — creates a Stripe Checkout session for Starter ($49/mo, canonical Stripe Price) or Growth ($247/mo) |
 | `api/stripe/webhook.js` | POST `/api/stripe/webhook` — verifies Stripe webhook, updates Supabase, sends cancellation emails |
 | `supabase/stripe-monetization-schema.sql` | Schema migration: adds `monetization_tier`, `stripe_customer_id`, `subscription_status`, `subscription_id` to `lead_feed_leads` |
 
 ## Prerequisites before going live
 
-1. **G1 pricing page** must exist with correct tier names (Starter $97/mo, Growth $247/mo) before checkout is wired to production.
+1. **G1 pricing page** must exist with correct tier names (Starter $49/mo, Growth $247/mo) before checkout is wired to production.
 
 2. **Stripe sandbox keys** in Infisical (route to Vercel env):
    - `STRIPE_SECRET_KEY` — test mode key (`sk_test_...`)

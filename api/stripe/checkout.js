@@ -2,9 +2,8 @@
  * POST /api/stripe/checkout
  *
  * Creates a Stripe Checkout session for Tantapulse paid tiers.
- * Sandbox mode: uses test price IDs set via environment variables.
- * Keys: STRIPE_SECRET_KEY, STRIPE_STARTER_PRICE_ID, STRIPE_GROWTH_PRICE_ID
- *       loaded from Vercel env (injected from Infisical at deploy time).
+ * Starter Checkout always uses the canonical live Stripe Price ID below.
+ * STRIPE_SECRET_KEY is loaded from Vercel environment configuration.
  *
  * Body: { tier: 'starter' | 'growth', email: string, name?: string }
  */
@@ -20,7 +19,8 @@ const TIERS = {
   starter: {
     name: "Tantapulse Starter",
     description: "Weekly lead feed — Austin TX, max 100 leads/send, 1 niche",
-    price: 9700, // $97.00 USD in cents
+    // Canonical $49/month recurring Stripe Price. Do not replace with inline price_data.
+    priceId: "price_1TtGYS5hHkfUnkHQjhNtiobD",
   },
   growth: {
     name: "Tantapulse Growth",
@@ -40,10 +40,11 @@ function originAllowed(req) {
 }
 
 async function postJson(url, body, headers = {}) {
+  const contentType = headers["Content-Type"] || "application/json";
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": contentType, ...headers },
+    body: contentType.includes("application/json") ? JSON.stringify(body) : body,
   });
   const text = await res.text();
   let parsed = null;
@@ -80,11 +81,9 @@ export default async function handler(req, res) {
 
   // Build Stripe Checkout Session payload
   // mode: 'subscription' for recurring billing
-  const sessionPayload = {
-    mode: "subscription",
-    customer_email: email,
-    line_items: [
-      {
+  const lineItem = tierConfig.priceId
+    ? { price: tierConfig.priceId, quantity: 1 }
+    : {
         price_data: {
           currency: "usd",
           product_data: {
@@ -97,8 +96,12 @@ export default async function handler(req, res) {
           },
         },
         quantity: 1,
-      },
-    ],
+      };
+
+  const sessionPayload = {
+    mode: "subscription",
+    customer_email: email,
+    line_items: [lineItem],
     // Stripe automatically sends receipt emails; configure in Stripe dashboard
     allow_promotion_codes: true,
     billing_address_collection: "auto",
