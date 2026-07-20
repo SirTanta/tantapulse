@@ -1,11 +1,11 @@
 /**
  * POST /api/stripe/checkout
  *
- * Creates a Stripe Checkout session for Tantapulse paid tiers.
+ * Creates a Stripe Checkout session for the one authorized Tantapulse purchase target.
  * Starter Checkout always uses the canonical live Stripe Price ID below.
  * STRIPE_SECRET_KEY is loaded from Vercel environment configuration.
  *
- * Body: { tier: 'starter' | 'growth', email: string, name?: string }
+ * Body: { tier: 'starter', email: string, name?: string }
  */
 
 const ALLOWED_ORIGINS = new Set([
@@ -15,19 +15,9 @@ const ALLOWED_ORIGINS = new Set([
   "http://localhost:3001",
 ]);
 
-const TIERS = {
-  starter: {
-    name: "Tantapulse Starter",
-    description: "Weekly lead feed — Austin TX, max 100 leads/send, 1 niche",
-    // Canonical $49/month recurring Stripe Price. Do not replace with inline price_data.
-    priceId: "price_1TtGYS5hHkfUnkHQjhNtiobD",
-  },
-  growth: {
-    name: "Tantapulse Growth",
-    description: "Weekly lead feed — up to 3 niches/metros, max 300 leads/send, priority delivery",
-    price: 24700, // $247.00 USD in cents
-  },
-};
+const STARTER_TIER = "starter";
+// Canonical $49/month recurring Stripe Price. Do not replace with an inline amount.
+const STARTER_PRICE_ID = "price_1TtGYS5hHkfUnkHQjhNtiobD";
 
 function originAllowed(req) {
   const origin = req.headers.origin || req.headers.referer || "";
@@ -61,11 +51,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-  const { tier, email, name } = body;
+  let body;
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+  } catch {
+    return res.status(400).json({ error: "Invalid JSON body." });
+  }
 
-  if (!tier || !TIERS[tier]) {
-    return res.status(400).json({ error: "Invalid tier. Must be 'starter' or 'growth'." });
+  const { tier, email, name } = body;
+  // Only the approved Starter target may reach payment configuration or Stripe.
+  if (tier !== STARTER_TIER) {
+    return res.status(400).json({ error: "Invalid purchase target." });
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: "Valid email is required." });
@@ -77,26 +73,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Payment service not configured." });
   }
 
-  const tierConfig = TIERS[tier];
-
-  // Build Stripe Checkout Session payload
-  // mode: 'subscription' for recurring billing
-  const lineItem = tierConfig.priceId
-    ? { price: tierConfig.priceId, quantity: 1 }
-    : {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: tierConfig.name,
-            description: tierConfig.description,
-          },
-          unit_amount: tierConfig.price,
-          recurring: {
-            interval: "month",
-          },
-        },
-        quantity: 1,
-      };
+  // Always use the canonical recurring Starter Price; inline amounts are prohibited.
+  const lineItem = { price: STARTER_PRICE_ID, quantity: 1 };
 
   const sessionPayload = {
     mode: "subscription",
@@ -151,7 +129,7 @@ function getBaseUrl(req) {
 
 /**
  * Flatten nested objects/arrays into a Stripe-compatible form body.
- * e.g. { line_items: [{ price_data: { ... } }] } → { "line_items[0][price_data][currency]": "usd", ... }
+ * e.g. { line_items: [{ price: "price_..." }] } → { "line_items[0][price]": "price_...", ... }
  */
 function flattenSessionPayload(obj, prefix = "") {
   const result = {};

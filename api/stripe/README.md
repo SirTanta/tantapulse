@@ -4,7 +4,7 @@
 
 | File | Purpose |
 |------|---------|
-| `api/stripe/checkout.js` | POST `/api/stripe/checkout` — creates a Stripe Checkout session for Starter ($49/mo, canonical Stripe Price) or Growth ($247/mo) |
+| `api/stripe/checkout.js` | POST `/api/stripe/checkout` — creates a Stripe Checkout session only for the canonical Starter ($49/mo) Stripe Price; all other targets fail closed |
 | `api/stripe/webhook.js` | POST `/api/stripe/webhook` — verifies Stripe webhook, updates Supabase, sends cancellation emails |
 | `supabase/stripe-monetization-schema.sql` | Schema migration: adds `monetization_tier`, `stripe_customer_id`, `subscription_status`, `subscription_id` to `lead_feed_leads` |
 
