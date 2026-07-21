@@ -413,7 +413,7 @@
               <li>address and geography</li>
               <li>rating and review count</li>
               <li>lead score and contact notes</li>
-              <li>optional follow-up sequence</li>
+              <li>internal review by our team</li>
             </ul>
             <div class="panel-cta">
               <strong>Ready to see it in action?</strong>
@@ -509,7 +509,7 @@
         <div class="form-wrap">
           <div class="form-card">
             <p class="fineprint" style="margin-top:0;">
-              Tell us your niche and city. We'll send a sample feed and start the follow-up sequence automatically.
+              Tell us your niche and city. Your request is recorded for internal review by our team.
             </p>
             <form id="sample-form">
               <label>
@@ -538,7 +538,7 @@
               </label>
               <label>
                 Notes
-                <textarea name="notes" placeholder="Anything we should know about your ideal sample feed?"></textarea>
+                <textarea name="notes" placeholder="Anything our team should know about your request?"></textarea>
               </label>
               <button class="btn btn-gold" type="submit">Request a sample</button>
               <div class="message" id="form-message" aria-live="polite"></div>
@@ -547,14 +547,13 @@
           <div class="form-card">
             <h3>What happens next</h3>
             <ul style="padding-left:18px; line-height:1.9; color:var(--charcoal); margin:0;">
-              <li>We save your request and start building your sample feed.</li>
+              <li>We record your request for internal review.</li>
               <li>Our team reviews your niche and market.</li>
-              <li>You get a confirmation email right away.</li>
-              <li>Your sample feed lands in your inbox once it's ready.</li>
+              <li>We assess the request and contact you only if needed.</li>
             </ul>
             <div class="panel-cta">
-              <strong>No manual busywork on your end</strong>
-              <span>We handle the collection and delivery. You just review the leads.</span>
+              <strong>Internal review first</strong>
+              <span>Each request is reviewed by our team before any next step.</span>
             </div>
             <p class="fineprint" style="margin-top:18px; margin-bottom:0;">
               Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
@@ -585,7 +584,7 @@
           const json = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(json.error || 'Request failed');
           form.reset();
-          message.textContent = 'Request received. We queued your sample and the follow-up sequence.';
+          message.textContent = 'Request received for internal review.';
           message.style.color = 'var(--success)';
         } catch (err) {
           message.textContent = err.message || 'Something went wrong.';
