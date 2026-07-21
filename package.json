@@ -4,6 +4,7 @@
   "type": "module",
   "description": "TantaPulse - lead generation and automation backend",
   "scripts": {
+    "test": "node --test test/*.test.mjs",
     "vercel-build": "echo 'No build step required for API-only project'"
   }
 }
