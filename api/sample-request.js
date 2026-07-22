@@ -25,6 +25,11 @@ function normalize(value) {
   return String(value || "").trim().replace(/\s+/g, " ");
 }
 
+function normalizeOptional(value) {
+  const normalized = normalize(value);
+  return normalized || null;
+}
+
 function normalizedRequest(body) {
   return {
     name: normalize(body.name),
@@ -33,6 +38,13 @@ function normalizedRequest(body) {
     city: normalize(body.city),
     cadence: normalize(body.cadence || "weekly").toLowerCase(),
     notes: normalize(body.notes),
+    utm_source: normalizeOptional(body.utm_source),
+    utm_medium: normalizeOptional(body.utm_medium),
+    utm_campaign: normalizeOptional(body.utm_campaign),
+    utm_content: normalizeOptional(body.utm_content),
+    utm_term: normalizeOptional(body.utm_term),
+    landing_page: normalizeOptional(body.landing_page),
+    referrer: normalizeOptional(body.referrer),
   };
 }
 
@@ -73,6 +85,13 @@ async function persistIntake(request) {
       p_city: request.city,
       p_cadence: request.cadence,
       p_notes: request.notes,
+      p_utm_source: request.utm_source,
+      p_utm_medium: request.utm_medium,
+      p_utm_campaign: request.utm_campaign,
+      p_utm_content: request.utm_content,
+      p_utm_term: request.utm_term,
+      p_landing_page: request.landing_page,
+      p_referrer: request.referrer,
       p_dedupe_key: dedupeKey(request),
     }),
   });

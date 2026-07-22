@@ -84,9 +84,81 @@ test("persists one canonical CRM intake through the atomic RPC before returning 
       p_city: "London",
       p_cadence: "weekly",
       p_notes: "Need a sample",
+      p_utm_source: null,
+      p_utm_medium: null,
+      p_utm_campaign: null,
+      p_utm_content: null,
+      p_utm_term: null,
+      p_landing_page: null,
+      p_referrer: null,
       p_dedupe_key: "dedupe-key",
     });
     assert.match(payload.p_dedupe_key, /^sha256:[a-f0-9]{64}$/);
+  });
+});
+
+test("forwards optional UTM and browser attribution fields to the intake RPC", async (t) => {
+  await withCrmFetch(t, jsonResponse({ body: [{
+    receipt_id: "sir_opaque_utm_123",
+    status: "queued",
+    owner: "sakuya",
+    sla_due_at: "2026-07-22T12:00:00.000Z",
+    duplicate: false,
+  }] }), async (calls) => {
+    const res = response();
+    await handler(request({
+      ...validBody,
+      utm_source: " bluesky ",
+      utm_medium: " social ",
+      utm_campaign: " tantapulse ",
+      utm_content: " bsky-001 ",
+      utm_term: " local seo agencies ",
+      landing_page: "https://tantapulse.com/#request?utm_source=bluesky",
+      referrer: "https://bsky.app/",
+    }), res);
+
+    assert.equal(res.statusCode, 200);
+    const payload = JSON.parse(calls[0].options.body);
+    assert.deepEqual({ ...payload, p_dedupe_key: "dedupe-key" }, {
+      p_name: "Ada Lovelace",
+      p_email: "ada@example.com",
+      p_niche: "Software consulting",
+      p_city: "London",
+      p_cadence: "weekly",
+      p_notes: "Need a sample",
+      p_utm_source: "bluesky",
+      p_utm_medium: "social",
+      p_utm_campaign: "tantapulse",
+      p_utm_content: "bsky-001",
+      p_utm_term: "local seo agencies",
+      p_landing_page: "https://tantapulse.com/#request?utm_source=bluesky",
+      p_referrer: "https://bsky.app/",
+      p_dedupe_key: "dedupe-key",
+    });
+    assert.match(payload.p_dedupe_key, /^sha256:[a-f0-9]{64}$/);
+  });
+});
+
+test("sends null attribution fields when a submission has no UTM parameters", async (t) => {
+  await withCrmFetch(t, jsonResponse({ body: [{
+    receipt_id: "sir_opaque_no_utm_123",
+    status: "queued",
+    owner: "sakuya",
+    sla_due_at: "2026-07-22T12:00:00.000Z",
+    duplicate: false,
+  }] }), async (calls) => {
+    const res = response();
+    await handler(request(validBody), res);
+
+    assert.equal(res.statusCode, 200);
+    const payload = JSON.parse(calls[0].options.body);
+    assert.equal(payload.p_utm_source, null);
+    assert.equal(payload.p_utm_medium, null);
+    assert.equal(payload.p_utm_campaign, null);
+    assert.equal(payload.p_utm_content, null);
+    assert.equal(payload.p_utm_term, null);
+    assert.equal(payload.p_landing_page, null);
+    assert.equal(payload.p_referrer, null);
   });
 });
 
