@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const pages = ["index.html", "pricing.html"];
 const forbiddenClaims = [
   /request\s+(a\s+)?sample/i,
@@ -38,12 +40,12 @@ for (const page of pages) {
 
 const pricing = await readFile(new URL("../pricing.html", import.meta.url), "utf8");
 const expectedLinks = {
-  Starter: "https://buy.stripe.com/aFa00c74H8i0ghZ12j5J605",
-  Pro: "https://buy.stripe.com/4gMdR274HeGo5Dl3ar5J606",
-  Agency: "https://buy.stripe.com/aFadR2cp1bucghZfXd5J607",
+  Starter: "https://buy.stripe.com/aFa00c74H8i0ghZ12j5J605?utm_source=tantapulse&amp;utm_medium=social&amp;utm_campaign=tantapulse&amp;utm_content=web-pricing-starter",
+  Pro: "https://buy.stripe.com/4gMdR274HeGo5Dl3ar5J606?utm_source=tantapulse&amp;utm_medium=social&amp;utm_campaign=tantapulse&amp;utm_content=web-pricing-pro",
+  Agency: "https://buy.stripe.com/aFadR2cp1bucghZfXd5J607?utm_source=tantapulse&amp;utm_medium=social&amp;utm_campaign=tantapulse&amp;utm_content=web-pricing-agency",
 };
 for (const [tier, link] of Object.entries(expectedLinks)) {
-  assert.match(pricing, new RegExp(`>${tier}</div>[\\s\\S]*?href="${link}"`), `${tier} must preserve its PR #12 checkout link`);
+  assert.match(pricing, new RegExp(`>${tier}</div>[\\s\\S]*?href="${escapeRegExp(link)}"`), `${tier} must preserve its PR #12 checkout link`);
 }
 assert.match(pricing, /\$49[\s\S]*?\$149[\s\S]*?\$399/, "pricing must show matched $49/$149/$399 plan prices");
 console.log("public-copy-contract: PASS (internal-review-only copy; source/public parity; PR #12 pricing links)");
