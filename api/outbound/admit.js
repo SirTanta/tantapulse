@@ -37,9 +37,15 @@ export default async function handler(req, res) {
   const candidates = Array.isArray(body.prospects) ? body.prospects : [];
   const results = [];
   let admittedCount = await store.countAdmittedProspects(approval.id);
+  const estimatedCostPerProspect = Number(approval.estimated_variable_cost_per_prospect_cents);
+  const costCap = Number(approval.variable_cost_cap_cents);
   for (const candidate of candidates) {
     if (admittedCount >= approval.prospect_cap) {
       results.push({ admitted: false, reason: "prospect_cap_reached" });
+      continue;
+    }
+    if ((admittedCount + 1) * estimatedCostPerProspect > costCap) {
+      results.push({ admitted: false, reason: "variable_cost_cap_reached", reserved_variable_cost_cents: admittedCount * estimatedCostPerProspect, variable_cost_cap_cents: costCap });
       continue;
     }
     const prospect = normalizeProspect(candidate, approval.campaign_id);
@@ -60,6 +66,6 @@ export default async function handler(req, res) {
     }
     results.push({ prospect_id: prospect.event.prospect_id, admitted: delivery.ok, atlas_status: delivery.status });
   }
-  await store.recordReceipt({ approval_id: approval.id, mode: "read_only_reconciliation", emitted_count: results.filter((row) => row.admitted).length, detail: { admission_count: candidates.length, list_id: approval.approved_list_id } });
+  await store.recordReceipt({ approval_id: approval.id, mode: "read_only_reconciliation", emitted_count: results.filter((row) => row.admitted).length, detail: { admission_count: candidates.length, list_id: approval.approved_list_id, reserved_variable_cost_cents: admittedCount * estimatedCostPerProspect, variable_cost_cap_cents: costCap } });
   return res.status(200).json({ ok: true, results });
 }

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { campaignGate, hmacSignature, listHunterMessages, makeNoSendReceipt, normalizeHunterMessage, normalizeProspect, postAtlasEvent, stableUuid } from "../lib/outbound-lifecycle.mjs";
+import { campaignGate, hmacSignature, listHunterMessages, makeNoSendReceipt, normalizeHunterMessage, normalizeProspect, postAtlasEvent, stableUuid, toSakuyaFollowUpEvent } from "../lib/outbound-lifecycle.mjs";
 import noSendHandler from "../api/outbound/no-send.js";
 import reconcileHandler from "../api/outbound/reconcile.js";
+import legacySendHandler from "../api/lead-feed/send.js";
 
 function responseRecorder() {
   return {
@@ -22,15 +23,33 @@ test("live automation fails closed without every release gate", () => {
   assert.ok(result.missing.includes("approved Atlas campaign record"));
 });
 
+test("campaign gate rejects a prospect plan that would exceed its approved variable-cost cap", () => {
+  const result = campaignGate({
+    mode: "live", liveReleaseApproved: true, campaignId: "tp-test", approvalId: "approval-1", sequenceId: "sequence-1", senderAccountId: "sender-1", listId: "list-1", hunterApiKey: "hunter-key", atlasEndpoint: "https://atlas.test", ingestionSecret: "secret",
+    approval: { status: "approved", campaign_id: "tp-test", sequence_id: "sequence-1", sender_account_id: "sender-1", approved_list_id: "list-1", prospect_cap: 5, variable_cost_cap_cents: 40, estimated_variable_cost_per_prospect_cents: 10 },
+  });
+  assert.equal(result.allowed, false);
+  assert.ok(result.missing.includes("prospect cap within approved variable-cost cap"));
+});
+
 test("no-send fixtures emit sanitized lifecycle plans without calling a provider", () => {
   const receipt = makeNoSendReceipt({ campaignId: "tp-test", fixtures: [
     { kind: "prospect", id: "lead-1", email: "avery@example.com", verification: "valid" },
     { id: "message-1", lead: { id: "lead-1" }, status: "replied", subject: "private", body: "private reply" },
   ] });
   assert.equal(receipt.mode, "no_send");
-  assert.equal(receipt.planned_event_count, 2);
-  assert.deepEqual(receipt.events.map((event) => event.event_type), ["prospect.verified", "prospect.stage_changed"]);
+  assert.equal(receipt.planned_event_count, 3);
+  assert.deepEqual(receipt.events.map((event) => event.event_type), ["prospect.verified", "prospect.stage_changed", "prospect.follow_up_scheduled"]);
   assert.equal(JSON.stringify(receipt).includes("private"), false);
+});
+
+test("only a meaningful reply creates an idempotent Sakuya task with no message content", () => {
+  const reply = normalizeHunterMessage({ id: "m-2", lead: { id: "lead-2" }, status: "replied", body: "sensitive reply" });
+  const task = toSakuyaFollowUpEvent(reply);
+  assert.equal(task.event.event_type, "prospect.follow_up_scheduled");
+  assert.equal(task.event.task.task_key, "tantapulse:reply:m-2");
+  assert.equal(JSON.stringify(task).includes("sensitive reply"), false);
+  assert.equal(toSakuyaFollowUpEvent(normalizeHunterMessage({ id: "m-3", lead: { id: "lead-3" }, status: "bounced" })), null);
 });
 
 test("no-send endpoint has no provider or Atlas fetch path", async () => {
@@ -63,6 +82,27 @@ test("reconciliation rejects an untrusted call before any provider read", async 
     global.fetch = previousFetch;
     if (previousSecret === undefined) delete process.env.CRON_SECRET;
     else process.env.CRON_SECRET = previousSecret;
+  }
+});
+
+test("legacy Resend sender is disabled before any provider read", async () => {
+  const previousFetch = global.fetch;
+  const previousEnabled = process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED;
+  const previousRelease = process.env.TANTAPULSE_LIVE_RELEASE_APPROVED;
+  delete process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED;
+  delete process.env.TANTAPULSE_LIVE_RELEASE_APPROVED;
+  global.fetch = async () => { throw new Error("legacy sender must not fetch while disabled"); };
+  const response = responseRecorder();
+  try {
+    await legacySendHandler({ method: "GET", headers: {} }, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.mode, "disabled");
+  } finally {
+    global.fetch = previousFetch;
+    if (previousEnabled === undefined) delete process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED;
+    else process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED = previousEnabled;
+    if (previousRelease === undefined) delete process.env.TANTAPULSE_LIVE_RELEASE_APPROVED;
+    else process.env.TANTAPULSE_LIVE_RELEASE_APPROVED = previousRelease;
   }
 });
 
