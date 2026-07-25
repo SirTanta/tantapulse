@@ -9,6 +9,7 @@ import salesDiscoveryTriggerHandler from "../api/sales-discovery/trigger.js";
 import lane2TriggerHandler from "../api/lane2/trigger.js";
 import enrollHandler from "../api/outbound/enroll.js";
 import sourceHandler from "../api/outbound/source.js";
+import preflightHandler from "../api/outbound/preflight.js";
 
 function responseRecorder() {
   return {
@@ -133,6 +134,22 @@ test("source verification rejects an untrusted call before any source or provide
   const response = responseRecorder();
   try {
     await sourceHandler({ method: "GET", headers: {} }, response);
+    assert.equal(response.statusCode, 401);
+  } finally {
+    global.fetch = previousFetch;
+    if (previousSecret === undefined) delete process.env.CRON_SECRET;
+    else process.env.CRON_SECRET = previousSecret;
+  }
+});
+
+test("preflight rejects an untrusted call before any state or provider read", async () => {
+  const previousSecret = process.env.CRON_SECRET;
+  const previousFetch = global.fetch;
+  process.env.CRON_SECRET = "test-cron-secret";
+  global.fetch = async () => { throw new Error("untrusted preflight must not fetch"); };
+  const response = responseRecorder();
+  try {
+    await preflightHandler({ method: "GET", headers: {} }, response);
     assert.equal(response.statusCode, 401);
   } finally {
     global.fetch = previousFetch;

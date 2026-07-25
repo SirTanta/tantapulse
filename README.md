@@ -257,6 +257,7 @@ TANTAPULSE_HUNTER_LIST_ID=<hunter-list-id>
 - `POST /api/outbound/admit`: sends an approved, valid Hunter prospect into Atlas once, then admits it to reconciliation. It cannot enroll or send to Hunter.
 - `GET /api/outbound/enroll`: every 30 minutes, enrolls at most 50 admitted prospects in the approved Hunter sequence only after both the runtime and Atlas recipient-enrollment approvals are true.
 - `GET /api/outbound/source`: hourly, reads one approved Apify run, verifies only its approved high/usable email candidates with Hunter, and admits only valid results into Atlas.
+- `GET /api/outbound/preflight`: authenticated read-only release report. It checks campaign, verification, and enrollment gates without calling Hunter or sending email.
 - `GET /api/outbound/reconcile`: every 15 minutes, reads Hunter message state for the configured sequence, ignores unadmitted/suppressed prospects, and writes idempotent Atlas lifecycle events.
 - `GET /api/outbound/health`: daily read-only sender state and capacity health check.
 
