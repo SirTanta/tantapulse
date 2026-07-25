@@ -18,6 +18,14 @@
     {
       "path": "/api/finance/stripe-overnight",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/outbound/reconcile",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/outbound/health",
+      "schedule": "0 14 * * *"
     }
   ],
   "rewrites": [

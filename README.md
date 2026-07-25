@@ -220,3 +220,42 @@ The sales-discovery lane is the unified extension layer for sales signals. Exist
 - the processor returns triage-card payloads for every file-worthy canonical opportunity so downstream routing can file triage-only cards without re-creating duplicates
 - secrets are read only from runtime env vars that are populated by Infisical
 - Apify launches are blocked once the shared account cap reaches $25/month
+
+## Outbound lifecycle automation
+
+The Hunter to Atlas automation is intentionally fail-closed. It never calls a Hunter send, sequence start, resume, recipient-add, DNS, billing, or checkout endpoint. The scheduled reconciliation reads Hunter message and sender-health state only, then posts a signed minimal lifecycle event to Atlas.
+
+### Required deployment order
+
+1. Apply `supabase/migrations/202607260001_outbound_lifecycle_control.sql` to the TantaPulse Supabase project.
+2. Create an approved Atlas campaign row with the exact campaign ID, Hunter sequence, sender account, list ID, cap, stop conditions, and expiry.
+3. Deploy with the runtime variables below from Infisical. Leave `TANTAPULSE_OUTBOUND_MODE` unset or `disabled` until the release record is approved.
+4. Run `POST /api/outbound/no-send` with synthetic fixtures and attach the result to TP-04.
+5. Only after explicit release approval set `TANTAPULSE_OUTBOUND_MODE=live` and `TANTAPULSE_LIVE_RELEASE_APPROVED=true`. The scheduled endpoints remain read-only against Hunter.
+
+### Runtime configuration
+
+```env
+CRON_SECRET=...
+THOS_SUPABASE_URL=https://...
+THOS_SUPABASE_SERVICE_KEY=...
+HUNTER_API_KEY=...
+TANTAPULSE_CRM_ENDPOINT=https://<atlas-host>/api/v1/integrations/tanta-pulse
+HOLDINGS_INGESTION_SECRET=...
+TANTAPULSE_OUTBOUND_MODE=disabled
+TANTAPULSE_LIVE_RELEASE_APPROVED=false
+TANTAPULSE_CAMPAIGN_ID=tp-2026-08-local-seo-agencies-v1
+TANTAPULSE_CAMPAIGN_APPROVAL_ID=<atlas-approval-uuid>
+TANTAPULSE_HUNTER_SEQUENCE_ID=<hunter-sequence-id>
+TANTAPULSE_HUNTER_SENDER_ACCOUNT_ID=<hunter-email-account-id>
+TANTAPULSE_HUNTER_LIST_ID=<hunter-list-id>
+```
+
+### Endpoints
+
+- `POST /api/outbound/no-send`: renders sanitized synthetic lifecycle events. It has no provider or Atlas network path.
+- `POST /api/outbound/admit`: sends an approved, valid Hunter prospect into Atlas once, then admits it to reconciliation. It cannot enroll or send to Hunter.
+- `GET /api/outbound/reconcile`: every 15 minutes, reads Hunter message state for the configured sequence, ignores unadmitted/suppressed prospects, and writes idempotent Atlas lifecycle events.
+- `GET /api/outbound/health`: daily read-only sender state and capacity health check.
+
+Every endpoint requires `Authorization: Bearer $CRON_SECRET`. The no-send suite is part of `npm test`.
