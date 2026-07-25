@@ -24,6 +24,10 @@
       "schedule": "*/30 * * * *"
     },
     {
+      "path": "/api/outbound/source",
+      "schedule": "0 * * * *"
+    },
+    {
       "path": "/api/outbound/health",
       "schedule": "0 14 * * *"
     }
