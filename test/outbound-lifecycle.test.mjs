@@ -5,6 +5,8 @@ import { campaignGate, hmacSignature, listHunterMessages, makeNoSendReceipt, nor
 import noSendHandler from "../api/outbound/no-send.js";
 import reconcileHandler from "../api/outbound/reconcile.js";
 import legacySendHandler from "../api/lead-feed/send.js";
+import salesDiscoveryTriggerHandler from "../api/sales-discovery/trigger.js";
+import lane2TriggerHandler from "../api/lane2/trigger.js";
 
 function responseRecorder() {
   return {
@@ -103,6 +105,24 @@ test("legacy Resend sender is disabled before any provider read", async () => {
     else process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED = previousEnabled;
     if (previousRelease === undefined) delete process.env.TANTAPULSE_LIVE_RELEASE_APPROVED;
     else process.env.TANTAPULSE_LIVE_RELEASE_APPROVED = previousRelease;
+  }
+});
+
+test("Apify launch endpoints reject untrusted calls before any spend check", async () => {
+  const previousSecret = process.env.CRON_SECRET;
+  const previousFetch = global.fetch;
+  process.env.CRON_SECRET = "test-cron-secret";
+  global.fetch = async () => { throw new Error("untrusted Apify trigger must not fetch"); };
+  try {
+    for (const handler of [salesDiscoveryTriggerHandler, lane2TriggerHandler]) {
+      const response = responseRecorder();
+      await handler({ method: "POST", headers: {}, body: {} }, response);
+      assert.equal(response.statusCode, 401);
+    }
+  } finally {
+    global.fetch = previousFetch;
+    if (previousSecret === undefined) delete process.env.CRON_SECRET;
+    else process.env.CRON_SECRET = previousSecret;
   }
 });
 

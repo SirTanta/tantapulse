@@ -258,4 +258,6 @@ TANTAPULSE_HUNTER_LIST_ID=<hunter-list-id>
 - `GET /api/outbound/reconcile`: every 15 minutes, reads Hunter message state for the configured sequence, ignores unadmitted/suppressed prospects, and writes idempotent Atlas lifecycle events.
 - `GET /api/outbound/health`: daily read-only sender state and capacity health check.
 
+`/api/sales-discovery/trigger` and `/api/lane2/trigger` require `Authorization: Bearer $CRON_SECRET` before they can evaluate an Apify spend guard or launch a run. The approved campaign must include `estimated_variable_cost_per_prospect_cents`; admission stops before the prospect cap or variable-cost cap is exceeded. The legacy Resend send endpoints are disabled unless a separate explicit release flag and scheduler credential are present, and are not scheduled by Vercel.
+
 Every endpoint requires `Authorization: Bearer $CRON_SECRET`. The no-send suite is part of `npm test`.
