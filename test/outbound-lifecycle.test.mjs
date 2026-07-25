@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { campaignGate, hmacSignature, listHunterMessages, makeNoSendReceipt, normalizeHunterMessage, normalizeProspect, postAtlasEvent, stableUuid, toSakuyaFollowUpEvent } from "../lib/outbound-lifecycle.mjs";
+import { campaignGate, hmacSignature, listHunterMessages, makeNoSendReceipt, normalizeHunterMessage, normalizeProspect, postAtlasEvent, recipientEnrollmentGate, stableUuid, toSakuyaFollowUpEvent } from "../lib/outbound-lifecycle.mjs";
 import noSendHandler from "../api/outbound/no-send.js";
 import reconcileHandler from "../api/outbound/reconcile.js";
 import legacySendHandler from "../api/lead-feed/send.js";
 import salesDiscoveryTriggerHandler from "../api/sales-discovery/trigger.js";
 import lane2TriggerHandler from "../api/lane2/trigger.js";
+import enrollHandler from "../api/outbound/enroll.js";
 
 function responseRecorder() {
   return {
@@ -32,6 +33,17 @@ test("campaign gate rejects a prospect plan that would exceed its approved varia
   });
   assert.equal(result.allowed, false);
   assert.ok(result.missing.includes("prospect cap within approved variable-cost cap"));
+});
+
+test("Hunter recipient enrollment requires a separate explicit approval", () => {
+  const config = {
+    mode: "live", liveReleaseApproved: true, campaignId: "tp-test", approvalId: "approval-1", sequenceId: "sequence-1", senderAccountId: "sender-1", listId: "list-1", hunterApiKey: "hunter-key", atlasEndpoint: "https://atlas.test", ingestionSecret: "secret",
+    approval: { status: "approved", campaign_id: "tp-test", sequence_id: "sequence-1", sender_account_id: "sender-1", approved_list_id: "list-1", prospect_cap: 5, variable_cost_cap_cents: 50, estimated_variable_cost_per_prospect_cents: 10, recipient_enrollment_approved: false },
+  };
+  const result = recipientEnrollmentGate(config);
+  assert.equal(result.allowed, false);
+  assert.ok(result.missing.includes("TANTAPULSE_HUNTER_RECIPIENT_ENROLLMENT_APPROVED=true"));
+  assert.ok(result.missing.includes("approved Atlas recipient enrollment"));
 });
 
 test("no-send fixtures emit sanitized lifecycle plans without calling a provider", () => {
@@ -79,6 +91,22 @@ test("reconciliation rejects an untrusted call before any provider read", async 
   const response = responseRecorder();
   try {
     await reconcileHandler({ method: "GET", headers: {} }, response);
+    assert.equal(response.statusCode, 401);
+  } finally {
+    global.fetch = previousFetch;
+    if (previousSecret === undefined) delete process.env.CRON_SECRET;
+    else process.env.CRON_SECRET = previousSecret;
+  }
+});
+
+test("recipient enrollment rejects an untrusted call before any provider read", async () => {
+  const previousSecret = process.env.CRON_SECRET;
+  const previousFetch = global.fetch;
+  process.env.CRON_SECRET = "test-cron-secret";
+  global.fetch = async () => { throw new Error("untrusted enrollment must not fetch"); };
+  const response = responseRecorder();
+  try {
+    await enrollHandler({ method: "GET", headers: {} }, response);
     assert.equal(response.statusCode, 401);
   } finally {
     global.fetch = previousFetch;
