@@ -15,6 +15,7 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;
   if (!supabaseUrl || !supabaseKey) return res.status(200).json({ ok: true, mode: "disabled", blocked_by: ["TantaPulse Supabase runtime configuration"] });
   const approvalId = process.env.TANTAPULSE_CAMPAIGN_APPROVAL_ID;
+  const hunterApiKey = process.env.HUNTER_IO_API_KEY || process.env.HUNTER_API_KEY;
   const store = createOutboundStore({ supabaseUrl, supabaseKey });
   const approval = approvalId ? await store.getApproval(approvalId) : null;
   const gate = campaignGate({
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     sequenceId: process.env.TANTAPULSE_HUNTER_SEQUENCE_ID,
     senderAccountId: process.env.TANTAPULSE_HUNTER_SENDER_ACCOUNT_ID,
     listId: process.env.TANTAPULSE_HUNTER_LIST_ID,
-    hunterApiKey: process.env.HUNTER_API_KEY,
+    hunterApiKey,
     atlasEndpoint: process.env.TANTAPULSE_CRM_ENDPOINT,
     ingestionSecret: process.env.HOLDINGS_INGESTION_SECRET,
     approval,
@@ -35,9 +36,9 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, mode: "disabled", blocked_by: gate.missing });
   }
   try {
-    const health = await senderHealth({ senderAccountId: process.env.TANTAPULSE_HUNTER_SENDER_ACCOUNT_ID, apiKey: process.env.HUNTER_API_KEY });
+    const health = await senderHealth({ senderAccountId: process.env.TANTAPULSE_HUNTER_SENDER_ACCOUNT_ID, apiKey: hunterApiKey });
     if (!health.ready) return res.status(409).json({ ok: false, error: "sender_not_ready", health });
-    const messages = await listHunterMessages({ sequenceId: process.env.TANTAPULSE_HUNTER_SEQUENCE_ID, apiKey: process.env.HUNTER_API_KEY });
+    const messages = await listHunterMessages({ sequenceId: process.env.TANTAPULSE_HUNTER_SEQUENCE_ID, apiKey: hunterApiKey });
     const normalized = messages.map(normalizeHunterMessage).filter(Boolean);
     const admitted = await store.listAdmittedProspects(approval.id, [...new Set(normalized.map((message) => message.prospect_id))]);
     const events = normalized.filter((message) => admitted.has(message.prospect_id)).map(toStageChangedEvent);
