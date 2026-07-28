@@ -88,7 +88,7 @@
         gap: 20px;
         padding: 18px 0;
       }
-      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
       .brand img { height: 34px; width: auto; display: block; }
       .brand span {
         font-family: "Bricolage Grotesque", sans-serif;
@@ -112,6 +112,21 @@
           padding-left: 14px;
           margin-left: 2px;
         }
+      }
+      .nav-links { display: flex; align-items: center; gap: 24px; }
+      .nav-links a {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: color 0.2s;
+      }
+      .nav-links a:hover { color: var(--navy); }
+      .nav-links a.active { color: var(--navy); font-weight: 700; }
+      .nav-links .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--navy);
       }
 
       .btn {
@@ -277,45 +292,8 @@
       }
       .who-grid p { margin: 0; color: var(--charcoal); line-height: 1.6; font-size: 0.94rem; }
 
-      .pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-      .price {
-        padding: 24px;
-        border-radius: 18px;
-        border: 1px solid var(--line);
-        background: #fff;
-      }
-      .price.featured { border-color: var(--gold); border-width: 2px; position: relative; }
-      .price.featured::before {
-        content: "Most popular";
-        position: absolute;
-        top: -12px; left: 24px;
-        background: var(--gold);
-        color: var(--navy);
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.62rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 999px;
-      }
-      .price .tier {
-        font-family: "JetBrains Mono", monospace;
-        color: var(--gold-text);
-        font-size: 0.78rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        font-weight: 700;
-      }
-      .price .amount {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--navy);
-        margin: 10px 0 10px;
-      }
-      .price p { color: var(--muted); margin: 0 0 14px; }
-      .price ul { padding-left: 18px; margin: 0; color: var(--charcoal); line-height: 1.8; }
+      .pricing-teaser { margin: 0 0 24px; max-width: 60ch; }
+      .pricing-teaser a { color: var(--gold-text); font-weight: 600; text-decoration: underline; }
 
       .form-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
       .form-card { border: 1px solid var(--line); border-radius: 20px; padding: 26px; background: #fff; }
@@ -347,21 +325,28 @@
 
       @media (max-width: 860px) {
         .hero-grid, .form-wrap { grid-template-columns: 1fr; }
-        .stat-strip, .who-grid, .pricing { grid-template-columns: 1fr; }
+        .stat-strip, .who-grid { grid-template-columns: 1fr; }
         .stat-strip > div, .who-grid > div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 18px; }
         .stat-strip > div:first-child, .who-grid > div:first-child { border-top: 0; padding-top: 0; }
+        .nav-links { gap: 14px; }
+        .nav-links a:not(.btn-ghost) { display: none; }
       }
     </style>
   </head>
   <body>
-    <nav class="topbar">
+    <nav class="topbar" aria-label="Primary navigation">
       <div class="wrap topbar-inner">
-        <div class="brand">
+        <a class="brand" href="/" aria-current="page">
           <img src="/logo.png" alt="Tanta Pulse" />
           <span>Tanta Pulse</span>
           <span class="brand-meta">A Tanta Holdings company</span>
+        </a>
+        <div class="nav-links">
+          <a class="active" href="/" aria-current="page">Overview</a>
+          <a href="/pricing">Pricing</a>
+          <a href="#request">Internal review</a>
+          <a class="btn btn-ghost" href="#request">Request internal review</a>
         </div>
-        <a class="btn btn-ghost" href="#request">Request internal review</a>
       </div>
     </nav>
 
@@ -465,38 +450,10 @@
 
       <section class="block wrap">
         <h2>Pricing</h2>
-        <div class="pricing">
-          <div class="price">
-            <div class="tier">Starter</div>
-            <div class="amount">$49/mo</div>
-            <p>Plan information reviewed separately from the intake form.</p>
-            <ul>
-              <li>internal review required</li>
-              <li>no automatic delivery</li>
-              <li>no automatic follow-up</li>
-            </ul>
-          </div>
-          <div class="price featured">
-            <div class="tier">Pro</div>
-            <div class="amount">$149/mo</div>
-            <p>Plan information reviewed separately from the intake form.</p>
-            <ul>
-              <li>internal review required</li>
-              <li>no automatic delivery</li>
-              <li>no automatic follow-up</li>
-            </ul>
-          </div>
-          <div class="price">
-            <div class="tier">Agency</div>
-            <div class="amount">$399/mo</div>
-            <p>Plan information reviewed separately from the intake form.</p>
-            <ul>
-              <li>internal review required</li>
-              <li>no automatic delivery</li>
-              <li>no automatic follow-up</li>
-            </ul>
-          </div>
-        </div>
+        <p class="pricing-teaser">
+          Starter ($49/mo), Pro ($149/mo), and Agency ($399/mo) plans are reviewed separately from your intake request.
+          See <a href="/pricing">full pricing and plan details</a>.
+        </p>
       </section>
 
       <hr class="rule-gold" />
@@ -560,9 +517,11 @@
       </section>
     </main>
 
-    <div class="footer">
-      &copy; 2026 Tanta Pulse, a Tanta Holdings company.
-    </div>
+    <footer class="footer">
+      <div class="wrap">
+        <p>&copy; 2026 Tanta Pulse, a Tanta Holdings company. &nbsp;&middot;&nbsp; <a href="/pricing">Pricing</a> &nbsp;&middot;&nbsp; <a href="#request">Internal review</a> &nbsp;&middot;&nbsp; <a href="/unsubscribe">Email preferences</a></p>
+      </div>
+    </footer>
 
     <script>
       const form = document.getElementById('sample-form');
