@@ -2,16 +2,22 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const pages = ["index.html", "pricing.html"];
+
+// Launch copy may sell the product. It may not invent social proof, guarantee
+// outcomes, or quote performance numbers we cannot substantiate.
 const forbiddenClaims = [
-  /request\s+(a\s+)?sample/i,
   /free\s+sample/i,
-  /one-time\s+email\s+delivery/i,
-  /fresh\s+local\s+leads,?\s+ranked\s+and\s+delivered\s+weekly/i,
-  /fresh\s+feed\s+cadence/i,
-  /weekly\s+lead\s+feed/i,
-  /email\s+delivery\s+every/i,
-  /follow-up\s+sequence/i,
-  /automatically/i,
+  /guarantee(d|s)?\b/i,
+  /risk[-\s]free/i,
+  /money[-\s]back/i,
+  /no[-\s]questions[-\s]asked/i,
+  /\d+\s*%\s*(more|increase|lift|conversion|close)/i,
+  /\d+\s*x\s+(roi|return|more\s+leads)/i,
+  /\btrusted\s+by\b/i,
+  /\bas\s+seen\s+(in|on)\b/i,
+  /\b\d[\d,]*\+?\s+(agencies|customers|clients|users)\s+(use|trust|rely)/i,
+  /\btestimonial/i,
+  /\bcase\s+stud(y|ies)\b/i,
 ];
 
 function visibleText(html) {
@@ -31,9 +37,10 @@ for (const page of pages) {
   assert.equal(source, deployed, `${page} source must match deployed public artifact`);
   const text = visibleText(source);
   for (const pattern of forbiddenClaims) {
-    assert.doesNotMatch(text, pattern, `${page} must not contain forbidden public claim ${pattern}`);
+    assert.doesNotMatch(text, pattern, `${page} must not contain unsubstantiated claim ${pattern}`);
   }
-  assert.match(text, /internal review/i, `${page} must state the internal-review-only posture`);
+  assert.match(text, /austin/i, `${page} must keep the Austin local-SEO positioning`);
+  assert.match(text, /hello@tantapulse\.com/i, `${page} must expose a contact address`);
 }
 
 const pricing = await readFile(new URL("../pricing.html", import.meta.url), "utf8");
@@ -46,4 +53,4 @@ for (const [tier, link] of Object.entries(expectedLinks)) {
   assert.match(pricing, new RegExp(`>${tier}</div>[\\s\\S]*?href="${link}"`), `${tier} must preserve its PR #12 checkout link`);
 }
 assert.match(pricing, /\$49[\s\S]*?\$149[\s\S]*?\$399/, "pricing must show matched $49/$149/$399 plan prices");
-console.log("public-copy-contract: PASS (internal-review-only copy; source/public parity; PR #12 pricing links)");
+console.log("public-copy-contract: PASS (launch copy; no fabricated proof; source/public parity; PR #12 pricing links)");
