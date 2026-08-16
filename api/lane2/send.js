@@ -196,7 +196,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${resendKey}`,
       },
       body: JSON.stringify({
-        from:    "Tanta Pulse <hello@tantapulse.com>",
+        from:    "Tanta Pulse <noreply@tantaholdings.com>",
         to:      row.email,
         subject: entry.subject,
         html:    renderHtml({ step, name, email: row.email, body }),

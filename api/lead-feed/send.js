@@ -136,7 +136,7 @@ export default async function handler(req, res) {
           : "If you want to turn the sample into a recurring feed, reply and we’ll keep the lane open.";
 
     const emailRes = await apiSend("https://api.resend.com/emails", {
-      from: "Tanta Pulse <hello@tantapulse.com>",
+      from: "Tanta Pulse <noreply@tantaholdings.com>",
       to: row.email,
       reply_to: "hello@tantapulse.com",
       subject: entry.subject,

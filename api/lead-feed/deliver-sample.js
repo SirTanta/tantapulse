@@ -301,7 +301,7 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${resendKey}`,
     },
     body: JSON.stringify({
-      from:    "Tanta Pulse <hello@tantapulse.com>",
+      from:    "Tanta Pulse <noreply@tantaholdings.com>",
       to:      toEmail,
       reply_to: "hello@tantapulse.com",
       subject: STEP_COPY.subject,
