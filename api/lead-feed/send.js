@@ -17,6 +17,13 @@ const STEP_COPY = {
   },
 };
 
+function legacySendEnabled(req) {
+  return process.env.TANTAPULSE_LEGACY_RESEND_SEND_ENABLED === "true"
+    && process.env.TANTAPULSE_LIVE_RELEASE_APPROVED === "true"
+    && Boolean(process.env.CRON_SECRET)
+    && req.headers?.authorization === `Bearer ${process.env.CRON_SECRET}`;
+}
+
 function esc(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -79,6 +86,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ error: "Method not allowed" });
   }
+  if (!legacySendEnabled(req)) return res.status(200).json({ ok: true, sent: 0, mode: "disabled", blocked_by: ["TANTAPULSE_LEGACY_RESEND_SEND_ENABLED=true", "TANTAPULSE_LIVE_RELEASE_APPROVED=true", "valid CRON_SECRET"] });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;

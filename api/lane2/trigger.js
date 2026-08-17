@@ -45,6 +45,10 @@ function originAllowed(req) {
   }
 }
 
+function authorized(req) {
+  return Boolean(process.env.CRON_SECRET) && req.headers?.authorization === `Bearer ${process.env.CRON_SECRET}`;
+}
+
 async function apiGet(url, headers = {}) {
   const res = await fetch(url, { headers });
   const text = await res.text();
@@ -123,6 +127,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
   }
+  if (!authorized(req)) return res.status(401).json({ error: "Unauthorized" });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;

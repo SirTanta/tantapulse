@@ -8,16 +8,28 @@
       "schedule": "10 9 * * *"
     },
     {
-      "path": "/api/lead-feed/send",
-      "schedule": "0 9 * * *"
-    },
-    {
       "path": "/api/sales-discovery/process",
       "schedule": "0 10 * * *"
     },
     {
       "path": "/api/finance/stripe-overnight",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/outbound/reconcile",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/outbound/enroll",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/outbound/source",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/outbound/health",
+      "schedule": "0 14 * * *"
     }
   ],
   "rewrites": [

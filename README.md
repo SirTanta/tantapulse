@@ -220,3 +220,47 @@ The sales-discovery lane is the unified extension layer for sales signals. Exist
 - the processor returns triage-card payloads for every file-worthy canonical opportunity so downstream routing can file triage-only cards without re-creating duplicates
 - secrets are read only from runtime env vars that are populated by Infisical
 - Apify launches are blocked once the shared account cap reaches $25/month
+
+## Outbound lifecycle automation
+
+The Hunter to Atlas automation is intentionally fail-closed. It never calls a Hunter send, sequence start, resume, recipient-add, DNS, billing, or checkout endpoint. The scheduled reconciliation reads Hunter message and sender-health state only, then posts a signed minimal lifecycle event to Atlas.
+
+### Required deployment order
+
+1. Apply `supabase/migrations/202607260001_outbound_lifecycle_control.sql` to the TantaPulse Supabase project.
+2. Create an approved Atlas campaign row with the exact campaign ID, Hunter sequence, sender account, list ID, cap, stop conditions, and expiry.
+3. Deploy with the runtime variables below from Infisical. Leave `TANTAPULSE_OUTBOUND_MODE` unset or `disabled` until the release record is approved.
+4. Run `POST /api/outbound/no-send` with synthetic fixtures and attach the result to TP-04.
+5. Only after explicit release approval set `TANTAPULSE_OUTBOUND_MODE=live` and `TANTAPULSE_LIVE_RELEASE_APPROVED=true`. The scheduled endpoints remain read-only against Hunter.
+
+### Runtime configuration
+
+```env
+CRON_SECRET=...
+THOS_SUPABASE_URL=https://...
+THOS_SUPABASE_SERVICE_KEY=...
+HUNTER_IO_API_KEY=... # existing Infisical key; HUNTER_API_KEY also works
+TANTAPULSE_CRM_ENDPOINT=https://<atlas-host>/api/v1/integrations/tanta-pulse
+HOLDINGS_INGESTION_SECRET=...
+TANTAPULSE_OUTBOUND_MODE=disabled
+TANTAPULSE_LIVE_RELEASE_APPROVED=false
+TANTAPULSE_CAMPAIGN_ID=tp-2026-08-local-seo-agencies-v1
+TANTAPULSE_CAMPAIGN_APPROVAL_ID=<atlas-approval-uuid>
+TANTAPULSE_HUNTER_SEQUENCE_ID=<hunter-sequence-id>
+TANTAPULSE_HUNTER_SENDER_ACCOUNT_ID=<hunter-email-account-id>
+TANTAPULSE_HUNTER_LIST_ID=<hunter-list-id>
+```
+
+### Endpoints
+
+- `POST /api/outbound/no-send`: renders sanitized synthetic lifecycle events. It has no provider or Atlas network path.
+- `POST /api/outbound/admit`: sends an approved, valid Hunter prospect into Atlas once, then admits it to reconciliation. It cannot enroll or send to Hunter.
+- `GET /api/outbound/enroll`: every 30 minutes, enrolls at most 50 admitted prospects in the approved Hunter sequence only after both the runtime and Atlas recipient-enrollment approvals are true.
+- `GET /api/outbound/source`: hourly, reads one approved Apify run, verifies only its approved high/usable email candidates with Hunter, and admits only valid results into Atlas.
+- `GET /api/outbound/preflight`: authenticated read-only release report. It checks campaign, verification, and enrollment gates without calling Hunter or sending email.
+- `GET /api/outbound/reconcile`: every 15 minutes, reads Hunter message state for the configured sequence, ignores unadmitted/suppressed prospects, and writes idempotent Atlas lifecycle events.
+- `GET /api/outbound/health`: daily read-only sender state and capacity health check.
+
+`/api/sales-discovery/trigger` and `/api/lane2/trigger` require `Authorization: Bearer $CRON_SECRET` before they can evaluate an Apify spend guard or launch a run. The approved campaign must include `estimated_variable_cost_per_prospect_cents`; admission stops before the prospect cap or variable-cost cap is exceeded. Source verification additionally requires `TANTAPULSE_HUNTER_VERIFICATION_APPROVED=true`, an exact approved Apify `source_run_id`, source filter, and verification cap. Recipient enrollment additionally requires `TANTAPULSE_HUNTER_RECIPIENT_ENROLLMENT_APPROVED=true` and `recipient_enrollment_approved=true` in the Atlas campaign record. The legacy Resend send endpoints are disabled unless a separate explicit release flag and scheduler credential are present, and are not scheduled by Vercel.
+
+Every endpoint requires `Authorization: Bearer $CRON_SECRET`. The no-send suite is part of `npm test`.
