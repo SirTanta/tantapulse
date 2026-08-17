@@ -14,9 +14,14 @@
     {
       "path": "/api/sales-discovery/process",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/finance/stripe-overnight",
+      "schedule": "0 0 * * *"
     }
   ],
   "rewrites": [
+    { "source": "/sample", "destination": "/index.html" },
     { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/pricing.html", "destination": "/pricing.html" }

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#fdf9f2" />
     <link rel="icon" href="/favicon.png" type="image/png" />
-    <title>Tanta Pulse | Fresh local leads, ranked and delivered weekly</title>
+    <title>Tanta Pulse | Ranked local-business leads for Austin SEO agencies</title>
     <meta
       name="description"
-      content="Tanta Pulse turns public business data into ranked local lead feeds for SEO agencies and service businesses. Request a sample and get a clean feed built for action."
+      content="Tanta Pulse builds a scored, deduped feed of local service businesses for your niche and market, so Austin SEO agencies can work the top of the list instead of building one."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -88,7 +88,7 @@
         gap: 20px;
         padding: 18px 0;
       }
-      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
       .brand img { height: 34px; width: auto; display: block; }
       .brand span {
         font-family: "Bricolage Grotesque", sans-serif;
@@ -112,6 +112,21 @@
           padding-left: 14px;
           margin-left: 2px;
         }
+      }
+      .nav-links { display: flex; align-items: center; gap: 24px; }
+      .nav-links a {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: color 0.2s;
+      }
+      .nav-links a:hover { color: var(--navy); }
+      .nav-links a.active { color: var(--navy); font-weight: 700; }
+      .nav-links .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--navy);
       }
 
       .btn {
@@ -277,45 +292,8 @@
       }
       .who-grid p { margin: 0; color: var(--charcoal); line-height: 1.6; font-size: 0.94rem; }
 
-      .pricing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-      .price {
-        padding: 24px;
-        border-radius: 18px;
-        border: 1px solid var(--line);
-        background: #fff;
-      }
-      .price.featured { border-color: var(--gold); border-width: 2px; position: relative; }
-      .price.featured::before {
-        content: "Most popular";
-        position: absolute;
-        top: -12px; left: 24px;
-        background: var(--gold);
-        color: var(--navy);
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.62rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 999px;
-      }
-      .price .tier {
-        font-family: "JetBrains Mono", monospace;
-        color: var(--gold-text);
-        font-size: 0.78rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        font-weight: 700;
-      }
-      .price .amount {
-        font-family: "Bricolage Grotesque", sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--navy);
-        margin: 10px 0 10px;
-      }
-      .price p { color: var(--muted); margin: 0 0 14px; }
-      .price ul { padding-left: 18px; margin: 0; color: var(--charcoal); line-height: 1.8; }
+      .pricing-teaser { margin: 0 0 24px; max-width: 60ch; }
+      .pricing-teaser a { color: var(--gold-text); font-weight: 600; text-decoration: underline; }
 
       .form-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
       .form-card { border: 1px solid var(--line); border-radius: 20px; padding: 26px; background: #fff; }
@@ -347,21 +325,28 @@
 
       @media (max-width: 860px) {
         .hero-grid, .form-wrap { grid-template-columns: 1fr; }
-        .stat-strip, .who-grid, .pricing { grid-template-columns: 1fr; }
+        .stat-strip, .who-grid { grid-template-columns: 1fr; }
         .stat-strip > div, .who-grid > div { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 18px; }
         .stat-strip > div:first-child, .who-grid > div:first-child { border-top: 0; padding-top: 0; }
+        .nav-links { gap: 14px; }
+        .nav-links a:not(.btn-ghost) { display: none; }
       }
     </style>
   </head>
   <body>
-    <nav class="topbar">
+    <nav class="topbar" aria-label="Primary navigation">
       <div class="wrap topbar-inner">
-        <div class="brand">
+        <a class="brand" href="/" aria-current="page">
           <img src="/logo.png" alt="Tanta Pulse" />
           <span>Tanta Pulse</span>
           <span class="brand-meta">A Tanta Holdings company</span>
+        </a>
+        <div class="nav-links">
+          <a class="active" href="/" aria-current="page">Overview</a>
+          <a href="/pricing">Pricing</a>
+          <a href="#request">Contact</a>
+          <a class="btn btn-ghost" href="/pricing">Get started</a>
         </div>
-        <a class="btn btn-ghost" href="#request">Request a sample</a>
       </div>
     </nav>
 
@@ -369,29 +354,30 @@
       <section class="hero wrap">
         <div class="hero-grid">
           <div>
-            <div class="eyebrow">Built for local SEO agencies</div>
-            <h1 class="display">Fresh local leads, ranked and delivered weekly.</h1>
+            <div class="eyebrow">Built for Austin local SEO agencies</div>
+            <h1 class="display">Ranked local leads, not another scraping project.</h1>
             <p class="lead">
-              Tanta Pulse finds, scores, and delivers local business leads on a weekly cadence, ready for your
-              team to sell against instead of a raw scrape you have to clean up yourself.
+              Tanta Pulse pulls the local service businesses in your niche and market, scores every one of them on
+              fit, intent, quality, and engagement, and hands your team a ranked list to work. Built for the
+              agencies selling local SEO around Austin.
             </p>
             <div class="actions">
-              <a class="btn btn-gold" href="#request">Request a sample</a>
+              <a class="btn btn-gold" href="/pricing">See plans from $49/mo</a>
               <a class="btn btn-ghost" href="#how-it-works">How it works</a>
             </div>
             <hr class="rule-gold" />
             <div class="stat-strip">
               <div>
-                <strong>Weekly delivery</strong>
-                <span>Fresh feed cadence, no stale spreadsheet dumps.</span>
+                <strong>Scored 0&ndash;100</strong>
+                <span>Fit, intent, quality, and engagement roll into one score, banded high, usable, or low.</span>
               </div>
               <div>
-                <strong>Ranked, not raw</strong>
-                <span>Cleaned, deduped, and scored before it hits your inbox.</span>
+                <strong>Your niche, your market</strong>
+                <span>Feeds are built per niche and city &mdash; HVAC in Austin, roofing in Round Rock, dentists in Cedar Park.</span>
               </div>
               <div>
-                <strong>No lock-in</strong>
-                <span>Try a free sample before you subscribe to anything.</span>
+                <strong>Deduped before delivery</strong>
+                <span>Repeat businesses are collapsed on the way in, so your team never pitches the same lead twice.</span>
               </div>
             </div>
           </div>
@@ -405,19 +391,17 @@
             <div class="hero-photo-slide"><img src="/images/hero/photo-5.jpg" alt="Local retail storefront" /></div>
           </div>
           <aside class="panel">
-            <h3>What you get</h3>
+            <h3>What's in a feed</h3>
             <ul>
-              <li>business name</li>
-              <li>category and niche fit</li>
-              <li>website and phone</li>
-              <li>address and geography</li>
-              <li>rating and review count</li>
-              <li>lead score and contact notes</li>
-              <li>optional follow-up sequence</li>
+              <li>business name, phone, and website</li>
+              <li>rating and review volume</li>
+              <li>review velocity as an intent signal</li>
+              <li>a 0&ndash;100 score with its reasons</li>
+              <li>a high, usable, or low band</li>
             </ul>
             <div class="panel-cta">
-              <strong>Ready to see it in action?</strong>
-              <span>Request a sample. If it fits, we turn it into a recurring feed.</span>
+              <strong>Ready to see your market?</strong>
+              <span>Pick a plan and we build the first feed for your niche and city.</span>
             </div>
           </aside>
           </div>
@@ -432,22 +416,22 @@
           <div class="record">
             <div class="num">01</div>
             <div>
-              <h3>Collect</h3>
-              <p>Tell us a niche and a market, and we pull the public business data behind it.</p>
+              <h3>Pick your niche and market</h3>
+              <p>Tell us the niche and city you sell into &mdash; HVAC in Austin, roofing in Round Rock, whatever your book looks like. That pair defines your feed.</p>
             </div>
           </div>
           <div class="record">
             <div class="num">02</div>
             <div>
-              <h3>Rank</h3>
-              <p>Duplicates get merged, junk gets dropped, and what's left is scored by fit.</p>
+              <h3>We build and score it</h3>
+              <p>We pull the local businesses in that market from public listing data, score each one on fit, intent, quality, and engagement, and collapse duplicates before anything reaches you.</p>
             </div>
           </div>
           <div class="record">
             <div class="num">03</div>
             <div>
-              <h3>Deliver</h3>
-              <p>Your feed lands on schedule, ready to hand straight to sales.</p>
+              <h3>You work the top of the list</h3>
+              <p>Leads arrive ranked and banded high, usable, or low, with the signals behind every score. Your team starts at the top instead of starting from scratch.</p>
             </div>
           </div>
         </div>
@@ -458,9 +442,9 @@
       <section class="block wrap">
         <h2>Who it's for</h2>
         <div class="who-grid">
-          <div><h3>SEO agencies</h3><p>They already buy prospecting lists. We make them better.</p></div>
-          <div><h3>Local service operators</h3><p>Keep pipeline full without manual research.</p></div>
-          <div><h3>Small teams</h3><p>Use the feed as your recurring lead source, not a one-off scrape.</p></div>
+          <div><h3>Austin SEO agencies</h3><p>Agencies selling local SEO, Google Business Profile, and web work to service businesses around Austin. This is who Tanta Pulse is built for.</p></div>
+          <div><h3>Local service operators</h3><p>HVAC, roofing, dental, med spa, and home service owners who want to see who is winning in their market and where the demand sits.</p></div>
+          <div><h3>Small sales teams</h3><p>Two-to-ten person teams that need a working list every cycle, not another scraper to babysit.</p></div>
         </div>
       </section>
 
@@ -468,48 +452,21 @@
 
       <section class="block wrap">
         <h2>Pricing</h2>
-        <div class="pricing">
-          <div class="price">
-            <div class="tier">Starter</div>
-            <div class="amount">$49/mo</div>
-            <p>One niche, one geography, weekly feed.</p>
-            <ul>
-              <li>sample feed</li>
-              <li>weekly refresh</li>
-              <li>simple delivery</li>
-            </ul>
-          </div>
-          <div class="price featured">
-            <div class="tier">Pro</div>
-            <div class="amount">$149/mo</div>
-            <p>More filters, more volume, tighter ranking.</p>
-            <ul>
-              <li>multi-filter feed</li>
-              <li>enrichment</li>
-              <li>priority updates</li>
-            </ul>
-          </div>
-          <div class="price">
-            <div class="tier">Agency</div>
-            <div class="amount">$399/mo</div>
-            <p>Multiple cities and custom delivery windows.</p>
-            <ul>
-              <li>multi-city delivery</li>
-              <li>custom cadence</li>
-              <li>done-with-you setup</li>
-            </ul>
-          </div>
-        </div>
+        <p class="pricing-teaser">
+          Starter is $49/mo for one niche and market. Pro is $149/mo and Agency is $399/mo as you add markets.
+          Every plan is scored, banded, and deduped the same way. See <a href="/pricing">full pricing and plan details</a>.
+        </p>
       </section>
 
       <hr class="rule-gold" />
 
       <section class="block wrap" id="request">
-        <h2>Request a sample</h2>
+        <h2>Tell us your market</h2>
         <div class="form-wrap">
           <div class="form-card">
             <p class="fineprint" style="margin-top:0;">
-              Tell us your niche and city. We'll send a sample feed and start the follow-up sequence automatically.
+              Not sure which plan fits? Send us the niche and city you sell into and we'll come back with what we
+              can build for it. You'll get a receipt ID and a reply within one business day.
             </p>
             <form id="sample-form">
               <label>
@@ -538,23 +495,22 @@
               </label>
               <label>
                 Notes
-                <textarea name="notes" placeholder="Anything we should know about your ideal sample feed?"></textarea>
+                <textarea name="notes" placeholder="How many clients are you working, and what have you tried so far?"></textarea>
               </label>
-              <button class="btn btn-gold" type="submit">Request a sample</button>
+              <button class="btn btn-gold" type="submit">Send my market</button>
               <div class="message" id="form-message" aria-live="polite"></div>
             </form>
           </div>
           <div class="form-card">
             <h3>What happens next</h3>
             <ul style="padding-left:18px; line-height:1.9; color:var(--charcoal); margin:0;">
-              <li>We save your request and start building your sample feed.</li>
-              <li>Our team reviews your niche and market.</li>
-              <li>You get a confirmation email right away.</li>
-              <li>Your sample feed lands in your inbox once it's ready.</li>
+              <li>Your request is logged with a receipt ID.</li>
+              <li>We check coverage for your niche and market.</li>
+              <li>We reply within one business day with what we can build and what it costs.</li>
             </ul>
             <div class="panel-cta">
-              <strong>No manual busywork on your end</strong>
-              <span>We handle the collection and delivery. You just review the leads.</span>
+              <strong>Rather just start?</strong>
+              <span>Starter is $49/mo and you can subscribe now from the <a href="/pricing">pricing page</a>.</span>
             </div>
             <p class="fineprint" style="margin-top:18px; margin-bottom:0;">
               Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
@@ -564,9 +520,12 @@
       </section>
     </main>
 
-    <div class="footer">
-      &copy; 2026 Tanta Pulse, a Tanta Holdings company.
-    </div>
+    <footer class="footer">
+      <div class="wrap">
+        <p>&copy; 2026 Tanta Pulse, a Tanta Holdings company. &nbsp;&middot;&nbsp; <a href="/pricing">Pricing</a> &nbsp;&middot;&nbsp; <a href="#request">Contact</a> &nbsp;&middot;&nbsp; <a href="/unsubscribe">Email preferences</a></p>
+        <p class="fineprint">Tanta Holdings, 5325 Caprock Ct, Rio Rancho, NM 87144</p>
+      </div>
+    </footer>
 
     <script>
       const form = document.getElementById('sample-form');
@@ -585,7 +544,7 @@
           const json = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(json.error || 'Request failed');
           form.reset();
-          message.textContent = 'Request received. We queued your sample and the follow-up sequence.';
+          message.textContent = "Got it. We'll reply within one business day.";
           message.style.color = 'var(--success)';
         } catch (err) {
           message.textContent = err.message || 'Something went wrong.';

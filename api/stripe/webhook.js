@@ -16,6 +16,7 @@
  */
 
 import { createHmac } from "crypto";
+import { recordPulseConversion } from "../../lib/pulse-crm-conversion-sender.js";
 
 const ALLOWED_ORIGINS = new Set([
   "https://tantapulse.com",
@@ -343,6 +344,26 @@ export default async function handler(req, res) {
             status: "active",
           });
           console.log(`[Stripe webhook] Activated ${tier} subscription for ${email}`);
+        }
+
+        // Record the purchase in Atlas CRM. This is the plumbing that turns a
+        // Stripe payment into a tracked deal — without it, a real purchase
+        // never shows up anywhere a human would look for it.
+        const crmResult = await recordPulseConversion({
+          email,
+          name,
+          tier,
+          amountCents: session.amount_total ?? 0,
+          currency: session.currency ?? "usd",
+          sessionId: session.id,
+          occurredAt: new Date().toISOString(),
+        });
+        if (crmResult.reason === "not_configured") {
+          console.error("[Stripe webhook] Atlas CRM ingestion is not configured — purchase was NOT recorded in the CRM.");
+        } else if (!crmResult.verified?.delivered || !crmResult.conversion?.delivered) {
+          console.error(`[Stripe webhook] Atlas CRM ingestion incomplete for session ${session.id}:`, crmResult);
+        } else {
+          console.log(`[Stripe webhook] Recorded ${tier} conversion in Atlas CRM for ${email} (session ${session.id})`);
         }
         break;
       }
