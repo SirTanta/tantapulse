@@ -1,0 +1,61 @@
+{
+  "$schema": "HERMES_GOVERNED_WIKI_ASSIGNMENT_MANIFEST_V1",
+  "version": 1,
+  "purpose": "lexi-janice-tvp-academy-intake",
+  "adapter": "wiki-read-adapter",
+  "scope": "read-only",
+  "transport": "private-backend-api-only",
+  "fallback_forbidden": [
+    "browser-automation",
+    "browser-credentials",
+    "human-user-login",
+    "front-end-fetch",
+    "local-worktree-read"
+  ],
+  "authorized_profile": "lexi",
+  "authorized_paths": [
+    "/agents/lexi",
+    "/agents/nanao",
+    "/agents/janice",
+    "/agents/tvp",
+    "/agents/mikasa",
+    "/docs/contracts/backend-only-wiki-access",
+    "/docs/contracts/atlas-hermes-execution-contract",
+    "/docs/agents/lexi",
+    "/docs/agents/nanao"
+  ],
+  "forbidden_paths": [
+    "/agents/*",
+    "/docs/contracts/wiki-write-service",
+    "/docs/incidents/*",
+    "/docs/engineering-use-cases/*",
+    "/docs/procedures/AI-OPS-SOP",
+    "/docs/SOP-MASTER-PLAYBOOK"
+  ],
+  "pinned_revision_required": true,
+  "pinned_revision_default": "da9336f6d3ad456f5b8065e6b8fc53ce7a6ba989",
+  "response_required_fields": [
+    "canonical_url",
+    "revision_id",
+    "revision_sha256"
+  ],
+  "audit_receipt_required": true,
+  "audit_receipt_redactions": [
+    "source-content",
+    "secrets",
+    "tokens",
+    "credentials"
+  ],
+  "credential_resolution": "infisical-central-only",
+  "credential_env_keys": [
+    "WIKI_READ_ADAPTER_BASE_URL",
+    "WIKI_READ_ADAPTER_API_TOKEN"
+  ],
+  "write_capability": "none",
+  "atlas_write_capability": "none",
+  "ticket_creation_capability": "none",
+  "gateway_control_capability": "none",
+  "public_access_capability": "none",
+  "issued_by": "jon-via-deed",
+  "issued_at": "2026-08-21T02:00:00Z"
+}

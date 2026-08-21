@@ -1,10 +1,18 @@
 {
-  "name": "tantapulse",
+  "name": "wiki-read-adapter-lexi",
+  "version": "0.1.0",
   "private": true,
-  "type": "module",
-  "description": "TantaPulse - lead generation and automation backend",
+  "description": "Role-scoped, read-only Hermes extension that lets Lexi fetch pinned-revision canonical Wiki pages through the private backend API.",
+  "main": "src/cli.js",
+  "bin": {
+    "wiki-read-adapter": "src/cli.js"
+  },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "vercel-build": "echo 'No build step required for API-only project'"
-  }
+    "start": "node src/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
 }
