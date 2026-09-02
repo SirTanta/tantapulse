@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#fdf9f2" />
     <link rel="icon" href="/favicon.png" type="image/png" />
+    <!-- Google Analytics 4 (Tanta Holdings property G-44MNCME40P, sourced from thos-wiki/docs/platforms/websites.md) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44MNCME40P"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-44MNCME40P', { 'custom_map': { 'dimension1': 'tanta-pulse' } });
+      // dimension1 = business_unit; 'tanta-pulse' lets us split this property's traffic by BU
+      // in GA4 reports. See thos-wiki/docs/platforms/websites.md for the property-level filter setup.
+    </script>
     <title>Pricing | Tanta Pulse</title>
     <meta
       name="description"

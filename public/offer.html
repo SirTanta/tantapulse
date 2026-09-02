@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fdf9f2" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <!-- Google Analytics 4 (Tanta Holdings property G-44MNCME40P, sourced from thos-wiki/docs/platforms/websites.md) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44MNCME40P"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-44MNCME40P', { 'custom_map': { 'dimension1': 'tanta-pulse' } });
+      // dimension1 = business_unit; 'tanta-pulse' lets us split this property's traffic by BU
+      // in GA4 reports. See thos-wiki/docs/platforms/websites.md for the property-level filter setup.
+    </script>
+    <title>Offer | Tanta Pulse</title>
+    <meta
+      name="description"
+      content="Tanta Pulse offer terms and engagement model. Scored, deduped local-business lead feeds delivered on your cadence."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --cream: #fdf9f2;
+        --beige: #ede4d3;
+        --navy: #0f2044;
+        --charcoal: #3d3d3d;
+        --muted: #6b6558;
+        --gold: #d6a847;
+        --gold-light: #f0c96c;
+        --gold-text: #7a5518;
+        --success: #2f6b48;
+        --danger: #a83f2e;
+        --line: rgba(15, 32, 68, 0.12);
+        --gold-line: rgba(214, 168, 71, 0.35);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --cream: #16172a;
+          --beige: #1e2036;
+          --navy: #f3eee1;
+          --charcoal: #d8d3c5;
+          --muted: #a9a294;
+          --gold-text: #f0c96c;
+          --success: #6fcf97;
+          --danger: #e88a76;
+          --line: rgba(243, 238, 225, 0.14);
+          --gold-line: rgba(240, 201, 106, 0.4);
+        }
+        .panel { background: #1b1c30; }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: "Inter Tight", Inter, ui-sans-serif, system-ui, sans-serif;
+        color: var(--charcoal);
+        background: var(--cream);
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+      .display {
+        font-family: "Bricolage Grotesque", "Inter Tight", sans-serif;
+        color: var(--navy);
+        letter-spacing: -0.02em;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--gold-text);
+        font-weight: 600;
+      }
+      .rule-gold {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-line) 20%, var(--gold-line) 80%, transparent);
+        border: 0;
+        margin: 0;
+      }
+
+      nav.topbar {
+        border-bottom: 1px solid var(--line);
+        background: var(--cream);
+      }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 0;
+      }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+      .brand img { height: 34px; width: auto; display: block; }
+      .brand span {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--navy);
+        letter-spacing: -0.01em;
+      }
+      .brand-meta { display: none; }
+      @media (min-width: 640px) {
+        .brand-meta {
+          display: inline-block;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 0.68rem;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: var(--muted);
+          border-left: 1px solid var(--line);
+          padding-left: 14px;
+          margin-left: 2px;
+        }
+      }
+      .nav-links { display: flex; align-items: center; gap: 24px; }
+      .nav-links a {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--muted);
+        transition: color 0.2s;
+      }
+      .nav-links a:hover { color: var(--navy); }
+      .nav-links a.active { color: var(--navy); font-weight: 700; }
+
+      .hero { padding: 64px 0 40px; text-align: center; }
+      .hero h1 {
+        font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+        line-height: 1.05;
+        font-weight: 700;
+        margin: 16px auto 20px;
+        max-width: 22ch;
+      }
+      .hero .lead {
+        font-size: clamp(1rem, 1.3vw, 1.15rem);
+        line-height: 1.65;
+        color: var(--charcoal);
+        max-width: 56ch;
+        margin: 0 auto 32px;
+      }
+
+      .sections { padding: 32px 0 48px; display: flex; flex-direction: column; gap: 28px; }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 32px;
+        background: #fff;
+      }
+      .panel h2 {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+      .panel .toc {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--gold-text);
+        margin-bottom: 12px;
+      }
+      .panel p { color: var(--charcoal); line-height: 1.65; margin: 0 0 12px; }
+      .panel p:last-child { margin-bottom: 0; }
+      .panel ul { padding-left: 22px; color: var(--charcoal); line-height: 1.65; margin: 0; }
+      .panel .placeholder {
+        margin-top: 14px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--muted);
+        background: var(--cream);
+        border: 1px dashed var(--gold-line);
+        border-radius: 10px;
+        padding: 10px 14px;
+      }
+
+      .cta-wrap { padding: 48px 0 64px; text-align: center; }
+      .cta-wrap .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 14px 28px;
+        font-weight: 700;
+        font-size: 1rem;
+        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+        color: var(--navy);
+      }
+      .cta-wrap .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+      .footer {
+        border-top: 1px solid var(--line);
+        padding: 28px 0 36px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .footer .fineprint { margin-top: 8px; font-size: 0.8rem; }
+    </style>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="/">
+          <img src="/logo.png" alt="Tanta Pulse" />
+          <span>Tanta Pulse</span>
+          <span class="brand-meta">A Tanta Holdings company</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">Overview</a>
+          <a href="/pricing.html">Pricing</a>
+          <a class="active" href="/offer.html">Offer</a>
+          <a href="/#request">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero wrap">
+        <div class="eyebrow">Offer terms &middot; v2 draft</div>
+        <h1 class="display">What Tanta Pulse delivers, how the engagement works, and what you sign for.</h1>
+        <p class="lead">
+          This page is the long-form source of truth that accompanies the pricing page. Below are the eight
+          sections from the v2 offer PDF, restructured as readable web copy. Holo owns the final wording.
+        </p>
+      </section>
+
+      <hr class="rule-gold" />
+
+      <div class="wrap sections">
+        <!-- Section 1 -->
+        <article class="panel" id="section-1">
+          <div class="toc">Section 1 &middot; What we deliver</div>
+          <h2>What we deliver</h2>
+          <p>TODO (Holo): paste section 1 of v2 offer PDF here. One short paragraph that names the deliverable in
+            plain language: scored, deduped local-business leads for your niche and market.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 1</div>
+        </article>
+
+        <!-- Section 2 -->
+        <article class="panel" id="section-2">
+          <div class="toc">Section 2 &middot; How scoring works</div>
+          <h2>How scoring works</h2>
+          <p>TODO (Holo): paste section 2 of v2 offer PDF here. Explain the 0-100 score and the band thresholds
+            (high &ge; 80, usable 50-80).</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 2</div>
+        </article>
+
+        <!-- Section 3 -->
+        <article class="panel" id="section-3">
+          <div class="toc">Section 3 &middot; Cadence &amp; delivery</div>
+          <h2>Cadence and delivery</h2>
+          <p>TODO (Holo): paste section 3 of v2 offer PDF here. Cadence means how often you receive the feed:
+            weekly, biweekly, or your custom schedule. Delivery is by email.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 3</div>
+        </article>
+
+        <!-- Section 4 -->
+        <article class="panel" id="section-4">
+          <div class="toc">Section 4 &middot; Coverage &amp; markets</div>
+          <h2>Coverage and markets</h2>
+          <p>TODO (Holo): paste section 4 of v2 offer PDF here. Tanta Pulse coverage is deepest in Austin; other
+            markets scoped on request.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 4</div>
+        </article>
+
+        <!-- Section 5 -->
+        <article class="panel" id="section-5">
+          <div class="toc">Section 5 &middot; What we don't do</div>
+          <h2>What we don't do</h2>
+          <p>TODO (Holo): paste section 5 of v2 offer PDF here. The engagement is a feed, not an outbound
+            service. We don't claim or convert leads on your behalf.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 5</div>
+        </article>
+
+        <!-- Section 6 -->
+        <article class="panel" id="section-6">
+          <div class="toc">Section 6 &middot; Pricing &amp; billing</div>
+          <h2>Pricing and billing</h2>
+          <p>TODO (Holo): paste section 6 of v2 offer PDF here. Three tiers: Starter $49/mo, Pro $149/mo,
+            Agency $399/mo. Billed month to month via Stripe; cancel any time.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 6</div>
+        </article>
+
+        <!-- Section 7 -->
+        <article class="panel" id="section-7">
+          <div class="toc">Section 7 &middot; Cancellation &amp; refunds</div>
+          <h2>Cancellation and refunds</h2>
+          <p>TODO (Holo): paste section 7 of v2 offer PDF here. Month-to-month, no annual contract; cancel
+            before the next billing cycle.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 7</div>
+        </article>
+
+        <!-- Section 8 -->
+        <article class="panel" id="section-8">
+          <div class="toc">Section 8 &middot; Contact &amp; next step</div>
+          <h2>Contact and next step</h2>
+          <p>TODO (Holo): paste section 8 of v2 offer PDF here. Email hello@tantapulse.com, or send your niche
+            and city through the market check on the home page.</p>
+          <div class="placeholder">// TODO (Holo) — paste v2 PDF section 8</div>
+        </article>
+      </div>
+
+      <hr class="rule-gold" />
+
+      <section class="cta-wrap wrap">
+        <a class="btn" href="/pricing.html">See plans</a>
+        <p style="margin-top: 18px; color: var(--muted); font-size: 0.9rem;">
+          Questions before you sign? Email <a href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>&copy; 2026 Tanta Holdings. All rights reserved. &nbsp;&middot;&nbsp; <a href="/">Tanta Pulse</a> &nbsp;&middot;&nbsp; <a href="/pricing.html">Pricing</a> &nbsp;&middot;&nbsp; <a href="/offer.html">Offer</a> &nbsp;&middot;&nbsp; <a href="/unsubscribe">Email preferences</a></p>
+        <p class="fineprint">Tanta Holdings, 5325 Caprock Ct, Rio Rancho, NM 87144</p>
+      </div>
+    </footer>
+  </body>
+</html>
