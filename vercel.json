@@ -2,6 +2,9 @@
   "buildCommand": "echo 'no build' && exit 0",
   "outputDirectory": "public",
   "framework": null,
+  "functions": {
+    "api/sample-intake/fulfill.js": { "maxDuration": 60 }
+  },
   "crons": [
     {
       "path": "/api/lead-feed/process",
@@ -18,6 +21,10 @@
     {
       "path": "/api/finance/stripe-overnight",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/sample-intake/fulfill",
+      "schedule": "30 14 * * *"
     }
   ],
   "rewrites": [

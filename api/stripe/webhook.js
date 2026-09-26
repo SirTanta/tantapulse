@@ -17,6 +17,7 @@
 
 import { createHmac } from "crypto";
 import { recordPulseConversion } from "../../lib/pulse-crm-conversion-sender.js";
+import { FROM, OPS_EMAIL, REPLY_TO, renderOnboarding } from "../../lib/pulse-fulfillment.mjs";
 
 const ALLOWED_ORIGINS = new Set([
   "https://tantapulse.com",
@@ -119,7 +120,8 @@ function mapSubscriptionStatus(stripeStatus) {
  * Upsert a paid subscriber record in Supabase paid_subscribers table.
  * Also tags any matching lead_feed_leads record (by email) if one exists.
  */
-async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, stripeCustomerId, tier, subscriptionId, status }) {
+async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, stripeCustomerId, tier, subscriptionId, status, allowInsert = false }) {
+  if (!email) return { ok: false, status: 0 };
   const headers = {
     apikey: supabaseKey,
     Authorization: `Bearer ${supabaseKey}`,
@@ -140,6 +142,11 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
     updated_at: now,
     tier_changed_at: now,
   };
+  if (!tier) {
+    delete subscriberPayload.monetization_tier;
+    delete subscriberPayload.tier_changed_at;
+  }
+  if (!name) delete subscriberPayload.name;
 
   // upsert by email (on_conflict) — update all fields
   const upsertRes = await fetch(
@@ -157,12 +164,8 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
     return { ok: false, status: upsertRes.status };
   }
 
-  // If no existing row (PATCH returned 200 with 0 rows), insert instead
-  if (upsertRes.status === 200) {
-    const contentLen = Number(upsertRes.headers.get("content-length") || 0);
-    // Supabase returns empty body {} for PATCH with return=minimal
-    // We can detect "no rows matched" by checking if the update found anything
-    // Use a select query to check; if PATCH affected 0 rows, insert
+  // PATCH with return=minimal answers 204 whether or not a row matched.
+  if (allowInsert) {
     const checkRes = await fetch(
       `${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}&select=id`,
       { headers }
@@ -255,6 +258,55 @@ export const config = {
   },
 };
 
+export async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  if (chunks.length) return Buffer.concat(chunks).toString("utf8");
+  if (typeof req.body === "string") return req.body;
+  if (Buffer.isBuffer(req.body)) return req.body.toString("utf8");
+  return JSON.stringify(req.body ?? {});
+}
+
+// The Stripe account is shared across products; only these links are Pulse sales.
+const PULSE_PAYMENT_LINKS = new Set([
+  "plink_1TtIav5hHkfUnkHQG2FZSyiX",
+  "plink_1TtIav5hHkfUnkHQJydDLWQU",
+  "plink_1TtIaw5hHkfUnkHQ1jMuLIGo",
+]);
+
+export function isPulseSession(session) {
+  return PULSE_PAYMENT_LINKS.has(session.payment_link) || session.metadata?.product === "tantapulse";
+}
+
+async function onboardSubscriber({ supabaseUrl, supabaseKey, resendKey, email, name, tier }) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" };
+  const intakeRes = await fetch(
+    `${supabaseUrl}/rest/v1/sample_intake_requests?request_email=eq.${encodeURIComponent(email.toLowerCase())}&order=created_at.desc&limit=1&select=niche,city`,
+    { headers }
+  );
+  const [intake] = intakeRes.ok ? await intakeRes.json() : [];
+  const niche = intake?.niche || null;
+  const city = intake?.city || null;
+  await fetch(`${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}`, {
+    method: "PATCH",
+    headers: { ...headers, Prefer: "return=minimal" },
+    body: JSON.stringify({ niche, city, onboarded_at: new Date().toISOString() }),
+  });
+  const welcome = renderOnboarding({ name, email, tier, niche, city });
+  const send = (payload) => fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: FROM, reply_to: REPLY_TO, ...payload }),
+  });
+  await send({ to: email, subject: welcome.subject, html: welcome.html });
+  await send({
+    to: OPS_EMAIL,
+    subject: `[Pulse ops] NEW ${String(tier).toUpperCase()} SUBSCRIBER ${email}`,
+    html: `<p>New paid Tanta Pulse subscriber: ${email} (${tier}).</p><p>Feed: ${niche && city ? `${niche} in ${city}; first delivery is automatic.` : "niche/city unknown; welcome email asked them to reply with it. Set paid_subscribers.niche/city when they do."}</p>`,
+  });
+  return { niche, city };
+}
+
 // ─── Handler ────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -279,13 +331,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Webhook not configured." });
   }
 
-  // Get raw body — Vercel provides req.body as string or Buffer
-  const rawBody =
-    typeof req.body === "string"
-      ? req.body
-      : Buffer.isBuffer(req.body)
-      ? req.body.toString("utf8")
-      : JSON.stringify(req.body);
+  // Stripe signs the exact bytes; a re-serialized parsed body never matches.
+  const rawBody = await readRawBody(req);
 
   const signature = req.headers["stripe-signature"];
 
@@ -315,7 +362,7 @@ export default async function handler(req, res) {
     switch (eventType) {
       case "checkout.session.completed": {
         const session = eventData;
-        if (session.mode !== "subscription") break;
+        if (session.mode !== "subscription" || !isPulseSession(session)) break;
 
         const email = session.customer_email || session.customer_details?.email;
         const name = session.customer_details?.name || session.metadata?.name || null;
@@ -342,8 +389,16 @@ export default async function handler(req, res) {
             tier,
             subscriptionId,
             status: "active",
+            allowInsert: true,
           });
           console.log(`[Stripe webhook] Activated ${tier} subscription for ${email}`);
+          if (resendKey) {
+            try {
+              await onboardSubscriber({ supabaseUrl, supabaseKey, resendKey, email, name, tier });
+            } catch (err) {
+              console.error("[Stripe webhook] onboarding failed:", err.message);
+            }
+          }
         }
 
         // Record the purchase in Atlas CRM. This is the plumbing that turns a
