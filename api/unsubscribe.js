@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  const { email } = req.body || {};
+  const email = (req.body && req.body.email) || (req.query && req.query.email);
   if (!email || typeof email !== "string" || !email.includes("@")) {
     return res.status(200).json({ ok: true });
   }

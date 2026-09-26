@@ -246,13 +246,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const secret    = process.env.RESEND_WEBHOOK_SECRET ?? "";
+  const secret    = process.env.RESEND_WEBHOOK_SECRET || process.env.CRON_SECRET || "";
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
   const supabaseKey  = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;
   const resendKey    = process.env.RESEND_API_KEY;
 
   // ── Auth ──────────────────────────────────────────────────────────────────
-  if (secret && req.headers.get("x-webhook-secret") !== secret) {
+  if (!secret || req.headers["x-webhook-secret"] !== secret) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

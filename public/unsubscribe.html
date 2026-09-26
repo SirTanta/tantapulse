@@ -132,6 +132,8 @@
     <script>
       const form = document.getElementById('unsub-form');
       const emailInput = document.getElementById('email');
+      const prefill = new URLSearchParams(location.search).get('email');
+      if (prefill) emailInput.value = prefill;
       const submitBtn = document.getElementById('submit-btn');
       const successDiv = document.getElementById('success');
       const errorDiv = document.getElementById('error');
