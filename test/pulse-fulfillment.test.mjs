@@ -76,3 +76,16 @@ test("webhook reads the exact raw bytes Stripe signed", async () => {
   const req = Readable.from([Buffer.from(raw)]);
   assert.equal(await readRawBody(req), raw);
 });
+
+test("outreach only sends in the weekday US business window and carries opt-out + address", async () => {
+  const { inOutreachWindow, renderOutreach } = await import("../lib/pulse-fulfillment.mjs");
+  assert.equal(inOutreachWindow(new Date("2026-09-28T15:00:00Z")), true);
+  assert.equal(inOutreachWindow(new Date("2026-09-26T15:00:00Z")), false);
+  assert.equal(inOutreachWindow(new Date("2026-09-28T23:30:00Z")), false);
+  const { subject, html } = renderOutreach({ company: "<Acme> SEO", email: "a@acme.com" });
+  assert.match(subject, /market check/i);
+  assert.doesNotMatch(html, /<Acme>/);
+  assert.match(html, /5325 Caprock Ct/);
+  assert.match(html, /unsubscribe\?email=a%40acme\.com/);
+  assert.match(html, /utm_campaign=seo_market_check/);
+});
