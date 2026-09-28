@@ -17,7 +17,12 @@
 
 import { createHmac } from "crypto";
 import { recordPulseConversion } from "../../lib/pulse-crm-conversion-sender.js";
-import { FROM, OPS_EMAIL, REPLY_TO, renderOnboarding } from "../../lib/pulse-fulfillment.mjs";
+import {
+  FROM,
+  OPS_EMAIL,
+  REPLY_TO,
+  renderOnboarding,
+} from "../../lib/pulse-fulfillment.mjs";
 
 const ALLOWED_ORIGINS = new Set([
   "https://tantapulse.com",
@@ -53,7 +58,7 @@ function verifySignature(rawBody, signatureHeader, webhookSecret) {
       signatureHeader.split(",").map((p) => {
         const [k, v] = p.split("=");
         return [k.trim(), v.trim()];
-      })
+      }),
     );
     const timestamp = parts["t"];
     const sig = parts["v1"];
@@ -84,7 +89,9 @@ async function postJson(url, body, headers = {}) {
   });
   const text = await res.text();
   let parsed = null;
-  try { parsed = text ? JSON.parse(text) : null; } catch {}
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch {}
   return { ok: res.ok, status: res.status, text, json: parsed };
 }
 
@@ -97,7 +104,9 @@ async function stripeGet(path, stripeKey) {
   });
   const text = await res.text();
   let json = null;
-  try { json = text ? JSON.parse(text) : null; } catch {}
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {}
   return { ok: res.ok, status: res.status, text, json };
 }
 
@@ -120,7 +129,17 @@ function mapSubscriptionStatus(stripeStatus) {
  * Upsert a paid subscriber record in Supabase paid_subscribers table.
  * Also tags any matching lead_feed_leads record (by email) if one exists.
  */
-async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, stripeCustomerId, tier, subscriptionId, status, allowInsert = false }) {
+async function upsertLeadSubscription({
+  supabaseUrl,
+  supabaseKey,
+  email,
+  name,
+  stripeCustomerId,
+  tier,
+  subscriptionId,
+  status,
+  allowInsert = false,
+}) {
   if (!email) return { ok: false, status: 0 };
   const headers = {
     apikey: supabaseKey,
@@ -155,12 +174,16 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
       method: "PATCH",
       headers,
       body: JSON.stringify(subscriberPayload),
-    }
+    },
   );
 
   if (!upsertRes.ok) {
     const text = await upsertRes.text();
-    console.error("[Stripe webhook] paid_subscribers upsert failed:", upsertRes.status, text);
+    console.error(
+      "[Stripe webhook] paid_subscribers upsert failed:",
+      upsertRes.status,
+      text,
+    );
     return { ok: false, status: upsertRes.status };
   }
 
@@ -168,7 +191,7 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
   if (allowInsert) {
     const checkRes = await fetch(
       `${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}&select=id`,
-      { headers }
+      { headers },
     );
     const checkJson = await checkRes.json();
     if (!Array.isArray(checkJson) || checkJson.length === 0) {
@@ -180,7 +203,11 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
       });
       if (!insertRes.ok) {
         const text = await insertRes.text();
-        console.error("[Stripe webhook] paid_subscribers insert failed:", insertRes.status, text);
+        console.error(
+          "[Stripe webhook] paid_subscribers insert failed:",
+          insertRes.status,
+          text,
+        );
         return { ok: false, status: insertRes.status };
       }
     }
@@ -200,8 +227,13 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
           subscription_id: subscriptionId,
           updated_at: now,
         }),
-      }
-    ).catch((err) => console.warn("[Stripe webhook] lead_feed_leads tag failed (non-fatal):", err));
+      },
+    ).catch((err) =>
+      console.warn(
+        "[Stripe webhook] lead_feed_leads tag failed (non-fatal):",
+        err,
+      ),
+    );
   }
 
   return { ok: true, status: 200 };
@@ -210,7 +242,13 @@ async function upsertLeadSubscription({ supabaseUrl, supabaseKey, email, name, s
 /**
  * Send cancellation notification email to Ryoko/Holo via Resend.
  */
-async function sendCancellationEmail({ resendKey, email, tier, customerId, subscriptionId }) {
+async function sendCancellationEmail({
+  resendKey,
+  email,
+  tier,
+  customerId,
+  subscriptionId,
+}) {
   const subject = `[Tantapulse] Cancellation — ${tier} (${email})`;
   const html = `<!doctype html>
 <html>
@@ -244,8 +282,8 @@ async function sendCancellationEmail({ resendKey, email, tier, customerId, subsc
 
   return postJson("https://api.resend.com/emails", {
     from: "Tantapulse <noreply@tantaholdings.com>",
-    to: CANCELLATION_RECIPIENTS,
-    reply_to: "hello@tantapulse.com",
+    to: [...CANCELLATION_RECIPIENTS, OPS_EMAIL],
+    reply_to: REPLY_TO,
     subject,
     html,
   });
@@ -260,7 +298,8 @@ export const config = {
 
 export async function readRawBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  for await (const chunk of req)
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
   if (chunks.length) return Buffer.concat(chunks).toString("utf8");
   if (typeof req.body === "string") return req.body;
   if (Buffer.isBuffer(req.body)) return req.body.toString("utf8");
@@ -275,29 +314,54 @@ const PULSE_PAYMENT_LINKS = new Set([
 ]);
 
 export function isPulseSession(session) {
-  return PULSE_PAYMENT_LINKS.has(session.payment_link) || session.metadata?.product === "tantapulse";
+  return (
+    PULSE_PAYMENT_LINKS.has(session.payment_link) ||
+    session.metadata?.product === "tantapulse"
+  );
 }
 
-async function onboardSubscriber({ supabaseUrl, supabaseKey, resendKey, email, name, tier }) {
-  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" };
+async function onboardSubscriber({
+  supabaseUrl,
+  supabaseKey,
+  resendKey,
+  email,
+  name,
+  tier,
+}) {
+  const headers = {
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    "Content-Type": "application/json",
+  };
   const intakeRes = await fetch(
     `${supabaseUrl}/rest/v1/sample_intake_requests?request_email=eq.${encodeURIComponent(email.toLowerCase())}&order=created_at.desc&limit=1&select=niche,city`,
-    { headers }
+    { headers },
   );
   const [intake] = intakeRes.ok ? await intakeRes.json() : [];
   const niche = intake?.niche || null;
   const city = intake?.city || null;
-  await fetch(`${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}`, {
-    method: "PATCH",
-    headers: { ...headers, Prefer: "return=minimal" },
-    body: JSON.stringify({ niche, city, onboarded_at: new Date().toISOString() }),
-  });
+  await fetch(
+    `${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}`,
+    {
+      method: "PATCH",
+      headers: { ...headers, Prefer: "return=minimal" },
+      body: JSON.stringify({
+        niche,
+        city,
+        onboarded_at: new Date().toISOString(),
+      }),
+    },
+  );
   const welcome = renderOnboarding({ name, email, tier, niche, city });
-  const send = (payload) => fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, reply_to: REPLY_TO, ...payload }),
-  });
+  const send = (payload) =>
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ from: FROM, reply_to: REPLY_TO, ...payload }),
+    });
   await send({ to: email, subject: welcome.subject, html: welcome.html });
   await send({
     to: OPS_EMAIL,
@@ -323,8 +387,11 @@ export default async function handler(req, res) {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const resendKey = process.env.RESEND_API_KEY;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.THOS_SUPABASE_SERVICE_KEY;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.THOS_SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.THOS_SUPABASE_SERVICE_KEY;
 
   if (!webhookSecret) {
     console.error("[Stripe webhook] STRIPE_WEBHOOK_SECRET not set");
@@ -350,13 +417,17 @@ export default async function handler(req, res) {
 
   // Only process test-mode events in sandbox
   if (!stripeKey.startsWith("sk_test")) {
-    console.warn("[Stripe webhook] Non-test key in use — skipping live events in sandbox build");
+    console.warn(
+      "[Stripe webhook] Non-test key in use — skipping live events in sandbox build",
+    );
   }
 
   const eventType = event.type;
   const eventData = event.data?.object || {};
 
-  console.log(`[Stripe webhook] Received event: ${eventType} (ID: ${event.id})`);
+  console.log(
+    `[Stripe webhook] Received event: ${eventType} (ID: ${event.id})`,
+  );
 
   try {
     switch (eventType) {
@@ -365,17 +436,21 @@ export default async function handler(req, res) {
         if (session.mode !== "subscription" || !isPulseSession(session)) break;
 
         const email = session.customer_email || session.customer_details?.email;
-        const name = session.customer_details?.name || session.metadata?.name || null;
+        const name =
+          session.customer_details?.name || session.metadata?.name || null;
         const stripeCustomerId = session.customer;
         const tier = session.metadata?.tier || null;
         const subscriptionId = session.subscription;
 
         if (!email || !tier) {
-          console.warn("[Stripe webhook] checkout.session.completed missing email or tier:", {
-            email,
-            tier,
-            sessionId: session.id,
-          });
+          console.warn(
+            "[Stripe webhook] checkout.session.completed missing email or tier:",
+            {
+              email,
+              tier,
+              sessionId: session.id,
+            },
+          );
           break;
         }
 
@@ -391,10 +466,19 @@ export default async function handler(req, res) {
             status: "active",
             allowInsert: true,
           });
-          console.log(`[Stripe webhook] Activated ${tier} subscription for ${email}`);
+          console.log(
+            `[Stripe webhook] Activated ${tier} subscription for ${email}`,
+          );
           if (resendKey) {
             try {
-              await onboardSubscriber({ supabaseUrl, supabaseKey, resendKey, email, name, tier });
+              await onboardSubscriber({
+                supabaseUrl,
+                supabaseKey,
+                resendKey,
+                email,
+                name,
+                tier,
+              });
             } catch (err) {
               console.error("[Stripe webhook] onboarding failed:", err.message);
             }
@@ -414,11 +498,21 @@ export default async function handler(req, res) {
           occurredAt: new Date().toISOString(),
         });
         if (crmResult.reason === "not_configured") {
-          console.error("[Stripe webhook] Atlas CRM ingestion is not configured — purchase was NOT recorded in the CRM.");
-        } else if (!crmResult.verified?.delivered || !crmResult.conversion?.delivered) {
-          console.error(`[Stripe webhook] Atlas CRM ingestion incomplete for session ${session.id}:`, crmResult);
+          console.error(
+            "[Stripe webhook] Atlas CRM ingestion is not configured — purchase was NOT recorded in the CRM.",
+          );
+        } else if (
+          !crmResult.verified?.delivered ||
+          !crmResult.conversion?.delivered
+        ) {
+          console.error(
+            `[Stripe webhook] Atlas CRM ingestion incomplete for session ${session.id}:`,
+            crmResult,
+          );
         } else {
-          console.log(`[Stripe webhook] Recorded ${tier} conversion in Atlas CRM for ${email} (session ${session.id})`);
+          console.log(
+            `[Stripe webhook] Recorded ${tier} conversion in Atlas CRM for ${email} (session ${session.id})`,
+          );
         }
         break;
       }
@@ -435,7 +529,10 @@ export default async function handler(req, res) {
         // Get customer email from Stripe
         let email = null;
         if (stripeKey) {
-          const customerRes = await stripeGet(`/customers/${stripeCustomerId}`, stripeKey);
+          const customerRes = await stripeGet(
+            `/customers/${stripeCustomerId}`,
+            stripeKey,
+          );
           email = customerRes.json?.email || null;
         }
 
@@ -449,7 +546,9 @@ export default async function handler(req, res) {
             subscriptionId,
             status,
           });
-          console.log(`[Stripe webhook] Updated subscription status to '${status}' for ${stripeCustomerId}`);
+          console.log(
+            `[Stripe webhook] Updated subscription status to '${status}' for ${stripeCustomerId}`,
+          );
         }
         break;
       }
@@ -463,7 +562,10 @@ export default async function handler(req, res) {
         // Get customer email from Stripe
         let email = null;
         if (stripeKey) {
-          const customerRes = await stripeGet(`/customers/${stripeCustomerId}`, stripeKey);
+          const customerRes = await stripeGet(
+            `/customers/${stripeCustomerId}`,
+            stripeKey,
+          );
           email = customerRes.json?.email || null;
         }
 
@@ -477,12 +579,20 @@ export default async function handler(req, res) {
             subscriptionId,
             status: "cancelled",
           });
-          console.log(`[Stripe webhook] Cancelled subscription for ${stripeCustomerId}`);
+          console.log(
+            `[Stripe webhook] Cancelled subscription for ${stripeCustomerId}`,
+          );
         }
 
         // Send cancellation notification
         if (resendKey && email) {
-          await sendCancellationEmail({ resendKey, email, tier: tier || "unknown", customerId: stripeCustomerId, subscriptionId });
+          await sendCancellationEmail({
+            resendKey,
+            email,
+            tier: tier || "unknown",
+            customerId: stripeCustomerId,
+            subscriptionId,
+          });
         }
         break;
       }
