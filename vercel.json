@@ -27,6 +27,30 @@
       "schedule": "30 14 * * *"
     }
   ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tantapulse.com"
+        }
+      ],
+      "destination": "https://tantapulse.com/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "tantapulse.vercel.app"
+        }
+      ],
+      "destination": "https://tantapulse.com/:path*",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
     { "source": "/sample", "destination": "/index.html" },
     { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
