@@ -29,7 +29,18 @@
   ],
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tantapulse.com"
+        }
+      ],
+      "destination": "https://tantapulse.com/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path+",
       "has": [
         {
           "type": "host",
@@ -40,7 +51,18 @@
       "statusCode": 301
     },
     {
-      "source": "/:path*",
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "tantapulse.vercel.app"
+        }
+      ],
+      "destination": "https://tantapulse.com/",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path+",
       "has": [
         {
           "type": "host",
