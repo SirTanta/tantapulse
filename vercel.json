@@ -27,10 +27,12 @@
       "schedule": "30 14 * * *"
     }
   ],
+  "redirects": [
+    { "source": "/pricing.html", "destination": "/pricing", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/sample", "destination": "/index.html" },
     { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
-    { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/pricing.html", "destination": "/pricing.html" }
+    { "source": "/pricing", "destination": "/pricing.html" }
   ]
 }
