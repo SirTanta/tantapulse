@@ -28,6 +28,28 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tantapulse.com"
+        }
+      ],
+      "destination": "https://tantapulse.com/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "tantapulse.vercel.app"
+        }
+      ],
+      "destination": "https://tantapulse.com/:path*",
+      "statusCode": 301
+    },
     { "source": "/pricing.html", "destination": "/pricing", "statusCode": 301 }
   ],
   "rewrites": [
