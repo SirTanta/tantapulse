@@ -330,14 +330,43 @@ async function eligibleFollowUps(d, limit, now = new Date()) {
   return eligible;
 }
 
-async function sendOutreachTouch(d, log, lead, { sequence, render, label }) {
+function markOutreachTouched(d, lead, sequence) {
+  return d.patch(`leads?id=eq.${lead.id}`, {
+    outreach_status: sequence === 1 ? "emailed" : "followed_up",
+    outreach_sequence: sequence,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+// pulse_outreach_sends has a unique (lead_id, sequence). A run cut off after the claim INSERT but
+// before the lead PATCH leaves an orphan claim; the lead is then re-selected every pass and the 409
+// aborts the outreach step (and emails an ops alert) on every run. Report the conflict instead of throwing.
+async function claimOutreachSend(d, lead, email, sequence) {
+  try {
+    const [claim] = await d.insert("pulse_outreach_sends", { lead_id: lead.id, email, sequence });
+    return { claim };
+  } catch (err) {
+    if (!/ 409: .*23505/.test(err.message)) throw err;
+    const [existing] = await d.get(`pulse_outreach_sends?lead_id=eq.${lead.id}&sequence=eq.${sequence}&select=id,resend_id&limit=1`);
+    return { existing: existing || {} };
+  }
+}
+
+export async function sendOutreachTouch(d, log, lead, { sequence, render, label }) {
   const email = lead.contact.email.toLowerCase();
   const block = await outreachBlockReason(d, email);
   if (block) {
     await d.patch(`leads?id=eq.${lead.id}`, { outreach_status: block === "bounced" ? "bounced" : "suppressed", updated_at: new Date().toISOString() });
     return false;
   }
-  const [claim] = await d.insert("pulse_outreach_sends", { lead_id: lead.id, email, sequence });
+  const claimed = await claimOutreachSend(d, lead, email, sequence);
+  if (claimed.existing) {
+    // Never resend on an existing claim; reconcile the lead so it stops being selected.
+    await markOutreachTouched(d, lead, sequence);
+    log.push(`${label} -> ${lead.domain} already claimed (${claimed.existing.resend_id || "no resend_id, delivery unverified"}), lead reconciled`);
+    return false;
+  }
+  const claim = claimed.claim;
   let id;
   try {
     const msg = render({ company: lead.company, email });
@@ -347,11 +376,7 @@ async function sendOutreachTouch(d, log, lead, { sequence, render, label }) {
     throw err;
   }
   await d.patch(`pulse_outreach_sends?id=eq.${claim.id}`, { resend_id: id });
-  await d.patch(`leads?id=eq.${lead.id}`, {
-    outreach_status: sequence === 1 ? "emailed" : "followed_up",
-    outreach_sequence: sequence,
-    updated_at: new Date().toISOString(),
-  });
+  await markOutreachTouched(d, lead, sequence);
   log.push(`${label} -> ${lead.domain} (${id})`);
   return true;
 }
