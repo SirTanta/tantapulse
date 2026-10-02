@@ -332,7 +332,8 @@ async function eligibleFollowUps(d, limit, now = new Date()) {
 
 function markOutreachTouched(d, lead, sequence) {
   return d.patch(`leads?id=eq.${lead.id}`, {
-    outreach_status: sequence === 1 ? "emailed" : "followed_up",
+    // leads_outreach_status_check has no "followed_up"; the follow-up is tracked by outreach_sequence.
+    outreach_status: "emailed",
     outreach_sequence: sequence,
     updated_at: new Date().toISOString(),
   });
