@@ -11,10 +11,13 @@ import {
   scorePlace,
   unsubHeaders,
   isChain,
+  isOutreachFollowUpDue,
   MONITORED_INBOX,
   OPS_EMAIL,
   OUTREACH_REPLY_TO,
   REPLY_TO,
+  renderOutreach,
+  renderOutreachFollowUp,
 } from "../lib/pulse-fulfillment.mjs";
 import { isPulseSession, readRawBody } from "../api/stripe/webhook.js";
 
@@ -203,7 +206,7 @@ test("webhook reads the exact raw bytes Stripe signed", async () => {
 });
 
 test("outreach only sends in the weekday US business window and carries opt-out + address", async () => {
-  const { inOutreachWindow, renderOutreach } =
+  const { inOutreachWindow } =
     await import("../lib/pulse-fulfillment.mjs");
   assert.equal(inOutreachWindow(new Date("2026-09-28T15:00:00Z")), true);
   assert.equal(inOutreachWindow(new Date("2026-09-26T15:00:00Z")), false);
@@ -213,6 +216,31 @@ test("outreach only sends in the weekday US business window and carries opt-out 
     email: "a@acme.com",
   });
   assert.match(subject, /market check/i);
+  assert.doesNotMatch(html, /<Acme>/);
+  assert.match(html, /5325 Caprock Ct/);
+  assert.match(html, /unsubscribe\?email=a%40acme\.com/);
+  assert.match(html, /utm_campaign=seo_market_check/);
+  assert.match(html, /only follow up once/i);
+});
+
+test("outreach follow-up is due after four business days and keeps compliance copy", () => {
+  assert.equal(
+    isOutreachFollowUpDue("2026-09-28T14:00:00Z", new Date("2026-10-02T13:59:59Z")),
+    false,
+  );
+  assert.equal(
+    isOutreachFollowUpDue("2026-09-28T14:00:00Z", new Date("2026-10-02T14:00:00Z")),
+    true,
+  );
+  assert.equal(
+    isOutreachFollowUpDue("2026-09-25T14:00:00Z", new Date("2026-10-01T14:00:00Z")),
+    true,
+  );
+  const { subject, html } = renderOutreachFollowUp({
+    company: "<Acme> SEO",
+    email: "a@acme.com",
+  });
+  assert.match(subject, /follow-up/i);
   assert.doesNotMatch(html, /<Acme>/);
   assert.match(html, /5325 Caprock Ct/);
   assert.match(html, /unsubscribe\?email=a%40acme\.com/);

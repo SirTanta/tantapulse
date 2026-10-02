@@ -12,7 +12,8 @@
 import {
   APIFY_ACTOR, FROM, OPS_EMAIL, PAID_DELIVERY_COUNT, PLACES_PER_SCRAPE, REPLY_TO, SAMPLE_PREVIEW_COUNT,
   isStale, isTestRequest, rankLeads, renderMarketCheck, renderPaidDelivery, searchString, unsubHeaders,
-  OUTREACH_DAILY_CAP, OUTREACH_FROM, OUTREACH_PASS_CAP, OUTREACH_REPLY_TO, SEO_DISCOVERY_CUTOVER, inOutreachWindow, renderOutreach,
+  OUTREACH_DAILY_CAP, OUTREACH_FROM, OUTREACH_PASS_CAP, OUTREACH_REPLY_TO, SEO_DISCOVERY_CUTOVER,
+  inOutreachWindow, isOutreachFollowUpDue, renderOutreach, renderOutreachFollowUp,
 } from "../../lib/pulse-fulfillment.mjs";
 
 const MAX_STARTS_PER_PASS = 5;
@@ -74,6 +75,28 @@ async function sendEmail({ to, subject, html, unsub = true, from = FROM, replyTo
   return json.id;
 }
 
+function isBadResendEvent(event) {
+  return /bounc|complain/.test(String(event || "").toLowerCase());
+}
+
+async function resendLastEvent(resendId) {
+  if (!resendId) return null;
+  try {
+    const res = await fetch(`https://api.resend.com/emails/${encodeURIComponent(resendId)}`, {
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.warn(`[fulfill] resend read failed for ${resendId}: ${res.status}`);
+      return null;
+    }
+    return json.last_event || json.lastEvent || json.event || null;
+  } catch (err) {
+    console.warn(`[fulfill] resend read failed for ${resendId}: ${err.message}`);
+    return null;
+  }
+}
+
 async function opsAlert(subject, lines) {
   try {
     await sendEmail({ to: OPS_EMAIL, subject: `[Pulse ops] ${subject}`, html: `<pre style="font-family:monospace">${lines.join("\n").replace(/</g, "&lt;")}</pre>`, unsub: false });
@@ -85,6 +108,28 @@ async function opsAlert(subject, lines) {
 async function isUnsubscribed(d, email) {
   const rows = await d.get(`lead_feed_unsubscribes?email=eq.${encodeURIComponent(email.toLowerCase())}&select=email`);
   return rows.length > 0;
+}
+
+async function resendBlockReason(d, email) {
+  const normalized = email.toLowerCase();
+  const [runs, sends] = await Promise.all([
+    d.get(`lead_feed_runs?request_email=eq.${encodeURIComponent(normalized)}&select=summary&order=created_at.desc&limit=5`),
+    d.get(`pulse_outreach_sends?email=eq.${encodeURIComponent(normalized)}&resend_id=not.is.null&select=resend_id&order=sent_at.desc&limit=5`),
+  ]);
+  const resendIds = [
+    ...runs.map((r) => r.summary?.resend_id).filter(Boolean),
+    ...sends.map((s) => s.resend_id).filter(Boolean),
+  ];
+  for (const resendId of resendIds) {
+    const event = await resendLastEvent(resendId);
+    if (isBadResendEvent(event)) return `resend_${String(event).toLowerCase()}`;
+  }
+  return null;
+}
+
+async function deliveryBlockReason(d, email) {
+  if (await isUnsubscribed(d, email)) return "unsubscribed";
+  return resendBlockReason(d, email);
 }
 
 async function startScrape(d, { source, name, email, niche, city, cadence, notes }) {
@@ -116,7 +161,11 @@ async function startIntakes(d, log, budget) {
     let status = null;
     if (isTestRequest(r)) status = "skipped_test";
     else if (isStale(r.created_at)) status = "expired_backlog";
-    else if (await isUnsubscribed(d, r.request_email)) status = "skipped_unsubscribed";
+    else {
+      const block = await deliveryBlockReason(d, r.request_email);
+      if (block === "unsubscribed") status = "skipped_unsubscribed";
+      else if (block) status = "bounced";
+    }
     if (status) {
       await d.patch(`sample_intake_requests?id=eq.${r.id}`, { status, updated_at: new Date().toISOString() });
       log.push(`intake ${r.receipt_id.slice(0, 8)} -> ${status}`);
@@ -194,9 +243,16 @@ async function deliver(d, log) {
   const runs = await d.get(`lead_feed_runs?status=eq.processed&source=in.${LOOP_SOURCES}&select=*`);
   for (const run of runs) {
     const leads = await d.get(`lead_feed_leads?run_id=eq.${run.id}&order=lead_score.desc&select=business_name,phone,website,lead_score,score_band,score_reasons`);
-    if (await isUnsubscribed(d, run.request_email)) {
+    const block = await deliveryBlockReason(d, run.request_email);
+    if (block === "unsubscribed") {
       await d.patch(`lead_feed_runs?id=eq.${run.id}`, { status: "skipped_unsubscribed" });
       await markIntake(d, run, "skipped_unsubscribed");
+      continue;
+    }
+    if (block) {
+      await d.patch(`lead_feed_runs?id=eq.${run.id}`, { status: "bounced" });
+      await markIntake(d, run, "bounced");
+      log.push(`run ${run.id} -> bounced`);
       continue;
     }
     if (!leads.length) {
@@ -226,10 +282,16 @@ async function deliver(d, log) {
 
 
 async function isSuppressed(d, email) {
+  return Boolean(await outreachBlockReason(d, email));
+}
+
+async function outreachBlockReason(d, email) {
   const domain = email.split("@")[1] || "";
-  if (await isUnsubscribed(d, email)) return true;
+  if (await isUnsubscribed(d, email)) return "unsubscribed";
+  const resendReason = await resendBlockReason(d, email);
+  if (resendReason) return "bounced";
   const rows = await d.get(`tanta_pulse_suppressions?or=(email.ilike.${encodeURIComponent(email)},domain.ilike.${encodeURIComponent(domain)})&select=id&limit=1`);
-  return rows.length > 0;
+  return rows.length > 0 ? "suppressed" : null;
 }
 
 async function eligibleOutreach(d, limit) {
@@ -240,6 +302,58 @@ async function eligibleOutreach(d, limit) {
     `&order=created_at.asc&limit=${limit}`
   );
   return rows.filter((r) => r.contact?.email);
+}
+
+async function hasSameDomainIntake(d, domain) {
+  if (!domain) return false;
+  const rows = await d.get(`sample_intake_requests?request_email=ilike.${encodeURIComponent(`*@${domain}`)}&select=id&limit=1`);
+  return rows.length > 0;
+}
+
+async function eligibleFollowUps(d, limit, now = new Date()) {
+  const sends = await d.get("pulse_outreach_sends?sequence=eq.1&select=lead_id,email,sent_at&order=sent_at.asc&limit=50");
+  const due = sends.filter((s) => isOutreachFollowUpDue(s.sent_at, now)).slice(0, Math.max(limit * 4, limit));
+  if (!due.length) return [];
+  const leads = await d.get(
+    `leads?id=in.(${due.map((s) => s.lead_id).join(",")})` +
+    "&select=id,company,domain,outreach_status,outreach_sequence,contact:contacts!inner(email)"
+  );
+  const byId = new Map(leads.map((l) => [l.id, l]));
+  const eligible = [];
+  for (const sent of due) {
+    const lead = byId.get(sent.lead_id);
+    if (!lead || lead.outreach_status !== "emailed" || lead.outreach_sequence !== 1 || !lead.contact?.email) continue;
+    if (await hasSameDomainIntake(d, lead.domain || sent.email.split("@")[1] || "")) continue;
+    eligible.push(lead);
+    if (eligible.length >= limit) break;
+  }
+  return eligible;
+}
+
+async function sendOutreachTouch(d, log, lead, { sequence, render, label }) {
+  const email = lead.contact.email.toLowerCase();
+  const block = await outreachBlockReason(d, email);
+  if (block) {
+    await d.patch(`leads?id=eq.${lead.id}`, { outreach_status: block === "bounced" ? "bounced" : "suppressed", updated_at: new Date().toISOString() });
+    return false;
+  }
+  const [claim] = await d.insert("pulse_outreach_sends", { lead_id: lead.id, email, sequence });
+  let id;
+  try {
+    const msg = render({ company: lead.company, email });
+    id = await sendEmail({ to: email, ...msg, from: OUTREACH_FROM, replyTo: OUTREACH_REPLY_TO });
+  } catch (err) {
+    await d.del(`pulse_outreach_sends?id=eq.${claim.id}`);
+    throw err;
+  }
+  await d.patch(`pulse_outreach_sends?id=eq.${claim.id}`, { resend_id: id });
+  await d.patch(`leads?id=eq.${lead.id}`, {
+    outreach_status: sequence === 1 ? "emailed" : "followed_up",
+    outreach_sequence: sequence,
+    updated_at: new Date().toISOString(),
+  });
+  log.push(`${label} -> ${lead.domain} (${id})`);
+  return true;
 }
 
 async function outreach(d, log, { preview = false } = {}) {
@@ -254,26 +368,15 @@ async function outreach(d, log, { preview = false } = {}) {
   if (!inOutreachWindow()) return;
   const since = new Date(); since.setUTCHours(0, 0, 0, 0);
   const today = await d.get(`pulse_outreach_sends?sent_at=gte.${since.toISOString()}&select=id`);
-  const room = Math.min(OUTREACH_PASS_CAP, OUTREACH_DAILY_CAP - today.length);
+  let room = Math.min(OUTREACH_PASS_CAP, OUTREACH_DAILY_CAP - today.length);
   if (room <= 0) return;
+  for (const lead of await eligibleFollowUps(d, room)) {
+    if (await sendOutreachTouch(d, log, lead, { sequence: 2, render: renderOutreachFollowUp, label: "outreach follow-up" })) room--;
+    if (room <= 0) return;
+  }
   for (const lead of await eligibleOutreach(d, room)) {
-    const email = lead.contact.email.toLowerCase();
-    if (await isSuppressed(d, email)) {
-      await d.patch(`leads?id=eq.${lead.id}`, { outreach_status: "suppressed", updated_at: new Date().toISOString() });
-      continue;
-    }
-    const [claim] = await d.insert("pulse_outreach_sends", { lead_id: lead.id, email });
-    let id;
-    try {
-      const msg = renderOutreach({ company: lead.company, email });
-      id = await sendEmail({ to: email, ...msg, from: OUTREACH_FROM, replyTo: OUTREACH_REPLY_TO });
-    } catch (err) {
-      await d.del(`pulse_outreach_sends?id=eq.${claim.id}`);
-      throw err;
-    }
-    await d.patch(`pulse_outreach_sends?id=eq.${claim.id}`, { resend_id: id });
-    await d.patch(`leads?id=eq.${lead.id}`, { outreach_status: "emailed", outreach_sequence: 1, updated_at: new Date().toISOString() });
-    log.push(`outreach -> ${lead.domain} (${id})`);
+    if (await sendOutreachTouch(d, log, lead, { sequence: 1, render: renderOutreach, label: "outreach" })) room--;
+    if (room <= 0) return;
   }
 }
 
