@@ -9,6 +9,7 @@
  *
  * Auth: Authorization: Bearer $CRON_SECRET (Vercel cron sends this). Fails closed.
  */
+import { createHash } from "node:crypto";
 import {
   APIFY_ACTOR, FROM, OPS_EMAIL, PAID_DELIVERY_COUNT, PLACES_PER_SCRAPE, REPLY_TO, SAMPLE_PREVIEW_COUNT,
   isStale, isTestRequest, rankLeads, renderMarketCheck, renderPaidDelivery, searchString, unsubHeaders,
@@ -97,9 +98,29 @@ async function resendLastEvent(resendId) {
   }
 }
 
-async function opsAlert(subject, lines) {
+const OPS_ALERT_COOLDOWN_MS = 6 * 3600000;
+
+// Same failure alerts once per cooldown, not once per cron run (a stuck lead sent 53 identical emails in 8 hours).
+export function opsAlertSignature(lines) {
+  return createHash("sha1").update(lines.join("\n").toLowerCase().replace(/\d+/g, "#")).digest("hex").slice(0, 6);
+}
+
+async function recentlyAlerted(subject, now = Date.now()) {
   try {
-    await sendEmail({ to: OPS_EMAIL, subject: `[Pulse ops] ${subject}`, html: `<pre style="font-family:monospace">${lines.join("\n").replace(/</g, "&lt;")}</pre>`, unsub: false });
+    const res = await fetch("https://api.resend.com/emails?limit=50", { headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` } });
+    if (!res.ok) return false;
+    const { data = [] } = await res.json();
+    return data.some((e) => e.subject === subject && now - Date.parse(e.created_at) < OPS_ALERT_COOLDOWN_MS);
+  } catch {
+    return false; // fail open: a missed dedupe is better than a missed alert
+  }
+}
+
+export async function opsAlert(subject, lines, { cooldown = false } = {}) {
+  const full = cooldown ? `[Pulse ops] ${subject} [${opsAlertSignature(lines)}]` : `[Pulse ops] ${subject}`;
+  if (cooldown && (await recentlyAlerted(full))) return;
+  try {
+    await sendEmail({ to: OPS_EMAIL, subject: full, html: `<pre style="font-family:monospace">${lines.join("\n").replace(/</g, "&lt;")}</pre>`, unsub: false });
   } catch (err) {
     console.error("[fulfill] ops alert failed", err.message);
   }
@@ -429,6 +450,6 @@ export default async function handler(req, res) {
   await step("collect", () => collect(d, log));
   await step("deliver", () => deliver(d, log));
   await step("outreach", () => outreach(d, log, { preview: req.query?.outreach_preview === "1" }));
-  if (errors.length) await opsAlert("fulfill errors", errors);
+  if (errors.length) await opsAlert("fulfill errors", errors, { cooldown: true });
   return res.status(errors.length ? 500 : 200).json({ ok: !errors.length, log, errors });
 }
