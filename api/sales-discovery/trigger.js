@@ -1,4 +1,5 @@
 import { checkAndReserveApifyRun, buildSpendCheckRecord } from "../../lib/lane2-spend-guard.mjs";
+import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
 
 function normalizeText(value) { return String(value ?? "").replace(/[\x00-\x1f\x7f]/g, " ").replace(/\s+/g, " ").trim(); }
 function safeJson(text) { try { return text ? JSON.parse(text) : null; } catch { return null; } }
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
   const budgetCap = Number(process.env.SALES_DISCOVERY_APIFY_BUDGET || process.env.APIFY_MONTHLY_BUDGET_USD || "25");
   const estRunCost = Number(process.env.SALES_DISCOVERY_APIFY_EST_RUN_COST || "0.10");
   const overheadPct = Number(process.env.SALES_DISCOVERY_APIFY_OVERHEAD_PCT || "0.05");
-  if (!apifyToken) return res.status(200).json({ ok: false, allowed: false, reason: "APIFY_TOKEN not configured" });
+  if (!apifyToken) { await recordHeartbeat("sales_discovery_trigger", false, { reason: "APIFY_TOKEN not configured" }); return res.status(200).json({ ok: false, allowed: false, reason: "APIFY_TOKEN not configured" }); }
 
   const body = typeof req.body === "string" ? safeJson(req.body) || {} : (req.body || {});
   const hasExplicitRequest = req.method === "POST" && (body.actor_id || body.actorId || (typeof body.actor_input === "object" && body.actor_input));
@@ -78,6 +79,8 @@ export default async function handler(req, res) {
       results.push({ city, ...result });
       if (!result.allowed) break; // budget capped -- stop sweeping, don't keep hammering a blocked guard
     }
+    const sweepFailed = results.some((r) => r.ok === false);
+    await recordHeartbeat("sales_discovery_trigger", !sweepFailed, { markets: results.map((r) => ({ city: r.city, ok: r.ok, allowed: r.allowed, reason: r.reason })) });
     return res.status(200).json({ ok: true, mode: "scheduled_sweep", markets: DEFAULT_MARKETS, results });
   }
 

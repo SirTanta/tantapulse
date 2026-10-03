@@ -17,6 +17,8 @@
  *   TANTAPULSE_ZOHO_OAUTH_REFRESH_TOKEN_READONLY  (mail.READ scope only; the
  *     handler refuses to run if the token it gets back carries any non-.READ scope)
  */
+import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
+
 const INBOX_WINDOW_DAYS = 14;
 const SYSTEM_SENDER =
   /mailer-daemon|postmaster|no-?reply|notifications?@|updates@|@zohocorp\.com|@zoho\.com/i;
@@ -130,6 +132,7 @@ export default async function handler(req, res) {
     !process.env.TANTAPULSE_ZOHO_OAUTH_CLIENT_ID ||
     !process.env.TANTAPULSE_ZOHO_OAUTH_CLIENT_SECRET
   ) {
+    await recordHeartbeat("pulse_check_replies", false, { reason: "missing_configuration" });
     return res.status(500).json({ error: "Missing configuration" });
   }
 
@@ -169,6 +172,11 @@ export default async function handler(req, res) {
       }
     }
 
+    await recordHeartbeat("pulse_check_replies", true, {
+      inbox_messages_scanned: inbox.length,
+      pending_sends_checked: pending.length,
+      replies_matched: matched,
+    });
     return res.status(200).json({
       ok: true,
       inbox_messages_scanned: inbox.length,
@@ -178,6 +186,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error(`[check-replies] ${err.message}`);
+    await recordHeartbeat("pulse_check_replies", false, { error: err.message });
     return res.status(500).json({ error: err.message });
   }
 }
