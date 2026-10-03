@@ -3,7 +3,12 @@
   "outputDirectory": "public",
   "framework": null,
   "functions": {
-    "api/sample-intake/fulfill.js": { "maxDuration": 60 }
+    "api/sample-intake/fulfill.js": {
+      "maxDuration": 60
+    },
+    "api/sales-discovery/trigger.js": {
+      "maxDuration": 60
+    }
   },
   "crons": [
     {
@@ -13,6 +18,10 @@
     {
       "path": "/api/lead-feed/send",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/sales-discovery/trigger",
+      "schedule": "0 7 * * 1"
     },
     {
       "path": "/api/sales-discovery/process",
@@ -72,11 +81,24 @@
       "destination": "https://tantapulse.com/:path*",
       "statusCode": 301
     },
-    { "source": "/pricing.html", "destination": "/pricing", "statusCode": 301 }
+    {
+      "source": "/pricing.html",
+      "destination": "/pricing",
+      "statusCode": 301
+    }
   ],
   "rewrites": [
-    { "source": "/sample", "destination": "/index.html" },
-    { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
-    { "source": "/pricing", "destination": "/pricing.html" }
+    {
+      "source": "/sample",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/unsubscribe",
+      "destination": "/unsubscribe.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    }
   ]
 }

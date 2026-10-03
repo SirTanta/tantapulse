@@ -1,2 +1,6 @@
-# Exclude sales-discovery from Vercel deployment to stay under Hobby 12-function limit
-api/sales-discovery
+# 2026-10-03: sales-discovery exclusion removed (Jon-approved lead-discovery expansion).
+# The 2026-07-14 Hobby 12-function-limit rationale is stale: the project already deploys
+# 15 functions today (lane2 x4, lane3 x2, lane4 x2, lead-feed x3, finance, stripe x2,
+# sample-request, unsubscribe) with no cap issue, so excluding these 2 was no longer
+# doing anything except silently 404ing /api/sales-discovery/* in production and making
+# its already-scheduled vercel.json cron (sales-discovery/process) fail every day.
