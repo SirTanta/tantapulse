@@ -16,6 +16,7 @@ import {
   OUTREACH_DAILY_CAP, OUTREACH_FROM, OUTREACH_PASS_CAP, OUTREACH_REPLY_TO, SEO_DISCOVERY_CUTOVER,
   inOutreachWindow, isOutreachFollowUpDue, renderOutreach, renderOutreachFollowUp,
 } from "../../lib/pulse-fulfillment.mjs";
+import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
 
 const MAX_STARTS_PER_PASS = 5;
 const WEEK_MS = 6.5 * 86400000;
@@ -434,6 +435,7 @@ export default async function handler(req, res) {
   }
   const d = db();
   if (!d.ok || !process.env.APIFY_TOKEN || !process.env.RESEND_API_KEY) {
+    await recordHeartbeat("pulse_fulfill", false, { reason: "missing_configuration" });
     return res.status(500).json({ error: "Missing configuration" });
   }
   const log = [];
@@ -451,5 +453,7 @@ export default async function handler(req, res) {
   await step("deliver", () => deliver(d, log));
   await step("outreach", () => outreach(d, log, { preview: req.query?.outreach_preview === "1" }));
   if (errors.length) await opsAlert("fulfill errors", errors, { cooldown: true });
+  const sentCount = log.filter((l) => /^(run \S+ -> delivered|outreach)/.test(l)).length;
+  await recordHeartbeat("pulse_fulfill", !errors.length, { sent: sentCount, log_lines: log.length, errors });
   return res.status(errors.length ? 500 : 200).json({ ok: !errors.length, log, errors });
 }

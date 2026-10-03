@@ -10,6 +10,7 @@
  * Auth: Authorization: Bearer $CRON_SECRET (Vercel cron sends this). Fails closed.
  */
 import { runBridge, BRIDGE_BATCH_SIZE } from "../../lib/lead-feed-bridge.mjs";
+import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
 
 function db() {
   const url =
@@ -57,14 +58,21 @@ export default async function handler(req, res) {
   const d = db();
   const hunterKey = process.env.HUNTER_IO_API_KEY;
   if (!d.ok || !hunterKey) {
+    await recordHeartbeat("lead_feed_bridge", false, { reason: "missing_configuration" });
     return res.status(500).json({ error: "Missing configuration" });
   }
   const limit = Number(req.query?.limit || BRIDGE_BATCH_SIZE);
   const log = [];
   try {
     const result = await runBridge(d, hunterKey, log, limit);
+    // Dry-run signal for the Hunter.io enrichment leg specifically: checked
+    // candidates but bridged zero and every outcome was no_email/error (not
+    // just low_confidence, which is an expected, healthy outcome).
+    const starved = result.checked > 0 && result.counts.bridged === 0 && (result.counts.no_email + result.counts.error) >= result.checked;
+    await recordHeartbeat("lead_feed_bridge", true, { ...result, hunter_dry_run: starved });
     return res.status(200).json({ ok: true, ...result, log });
   } catch (err) {
+    await recordHeartbeat("lead_feed_bridge", false, { error: err.message });
     return res.status(500).json({ ok: false, error: err.message, log });
   }
 }
