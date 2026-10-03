@@ -8,6 +8,9 @@
     },
     "api/sales-discovery/trigger.js": {
       "maxDuration": 60
+    },
+    "api/lead-feed/bridge.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
@@ -38,6 +41,10 @@
     {
       "path": "/api/pulse/check-replies",
       "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/lead-feed/bridge",
+      "schedule": "15 */2 * * *"
     }
   ],
   "redirects": [
