@@ -34,6 +34,10 @@
     {
       "path": "/api/sample-intake/fulfill",
       "schedule": "30 14 * * *"
+    },
+    {
+      "path": "/api/pulse/check-replies",
+      "schedule": "0 */2 * * *"
     }
   ],
   "redirects": [
