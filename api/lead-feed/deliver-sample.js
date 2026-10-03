@@ -19,6 +19,7 @@
  *   THOS_SUPABASE_URL, THOS_SUPABASE_SERVICE_KEY
  *   RESEND_WEBHOOK_SECRET  (optional; empty = open for internal use)
  */
+import { isTantaOwnedEmail } from "../../lib/pulse-fulfillment.mjs";
 
 const STEP_COPY = {
   subject: "Your Tanta Pulse sample is ready — Austin TX local SEO agencies",
@@ -314,13 +315,23 @@ export default async function handler(req, res) {
   let toEmail = runRow.request_email;
   let toName  = runRow.request_name;
 
-  if (test === "true" || test === true) {
+  const isTest = test === "true" || test === true;
+
+  if (isTest) {
     toEmail = "hello@tantapulse.com";
     toName  = "QA Preview";
   }
 
   if (!toEmail) {
     return res.status(400).json({ error: "No request_email found for this run" });
+  }
+
+  if (!isTest && isTantaOwnedEmail(toEmail)) {
+    return res.status(409).json({
+      error: "Refusing sample delivery to sender-owned probe address",
+      run_id: runId,
+      recipient_domain: String(toEmail).split("@")[1]?.toLowerCase() ?? "",
+    });
   }
 
   // ── Render & send ─────────────────────────────────────────────────────────
@@ -385,7 +396,7 @@ export default async function handler(req, res) {
   }
 
   // ── Mark run sample_delivered (unless test mode) ──────────────────────────
-  if (!(test === "true" || test === true)) {
+  if (!isTest) {
     await apiPatch(
       `${supabaseUrl}/rest/v1/lead_feed_runs?id=eq.${runId}`,
       { status: "sample_delivered" },

@@ -12,6 +12,7 @@ import {
   unsubHeaders,
   isChain,
   isOutreachFollowUpDue,
+  isTantaOwnedEmail,
   MONITORED_INBOX,
   OPS_EMAIL,
   OUTREACH_REPLY_TO,
@@ -76,6 +77,12 @@ test("test and junk intake rows are never fulfilled", () => {
     }),
     false,
   );
+});
+
+test("sender-owned probe recipients are recognized before Resend delivery", () => {
+  assert.equal(isTantaOwnedEmail("holo-probe+tvp@tantaholdings.com"), true);
+  assert.equal(isTantaOwnedEmail("qa@tanta-holdings.com"), true);
+  assert.equal(isTantaOwnedEmail("buyer@example-agency.com"), false);
 });
 
 test("backlog older than the window is expired, fresh requests are not", () => {
