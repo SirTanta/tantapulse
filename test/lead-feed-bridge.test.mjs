@@ -125,6 +125,10 @@ test("bridgeOne creates contacts+leads and marks bridged when Hunter clears the 
   assert.equal(d.inserts.leads[0].hunter_verifier_status, "valid");
   assert.equal(d.inserts.leads[0].outreach_status, "pending");
   assert.equal(d.inserts.leads[0].outreach_sequence, 0);
+  assert.ok(
+    d.inserts.leads[0].first_seen_at,
+    "first_seen_at must be set -- leads.first_seen_at is NOT NULL with no DB default",
+  );
   const finalPatch = d.patches[d.patches.length - 1];
   assert.equal(finalPatch.body.bridge_status, "bridged");
   assert.equal(finalPatch.body.bridged_lead_id, "lead-uuid-1");
@@ -156,6 +160,41 @@ test("bridgeOne marks low_confidence when an email exists but never clears the b
   );
   assert.equal(outcome, "low_confidence");
   assert.equal(d.patches[0].body.bridge_status, "low_confidence");
+});
+
+test("bridgeOne marks error (not an unhandled throw) when creating the lead/contact fails", async (t) => {
+  const d = fakeDb();
+  d.insert = async (table) => {
+    if (table === "contacts") return [{ id: "contact-uuid-1" }];
+    throw new Error(
+      'db POST leads 400: {"code":"23502","message":"null value in column \\"first_seen_at\\" violates not-null constraint"}',
+    );
+  };
+  t.mock.method(globalThis, "fetch", async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({
+      data: {
+        emails: [
+          {
+            value: "owner@acme.com",
+            confidence: 92,
+            verification: { status: "valid" },
+          },
+        ],
+      },
+    }),
+  }));
+  const log = [];
+  const outcome = await bridgeOne(
+    d,
+    { id: 5, business_name: "Acme", website: "https://acme.com" },
+    "key",
+    log,
+  );
+  assert.equal(outcome, "error");
+  assert.equal(d.patches[0].body.bridge_status, "error");
+  assert.ok(d.patches[0].body.bridge_checked_at);
 });
 
 test("bridgeOne marks error (and still records bridge_checked_at) when Hunter call fails", async (t) => {
