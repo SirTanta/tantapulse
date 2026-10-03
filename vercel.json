@@ -110,6 +110,22 @@
     {
       "source": "/pricing",
       "destination": "/pricing.html"
+    },
+    {
+      "source": "/austin-seo-agency-leads",
+      "destination": "/austin-seo-agency-leads.html"
+    },
+    {
+      "source": "/local-seo-agency-leads",
+      "destination": "/local-seo-agency-leads.html"
+    },
+    {
+      "source": "/hvac-leads",
+      "destination": "/hvac-leads.html"
+    },
+    {
+      "source": "/roofing-leads",
+      "destination": "/roofing-leads.html"
     }
   ]
 }

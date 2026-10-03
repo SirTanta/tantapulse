@@ -26,6 +26,14 @@ const visibleText = (html) =>
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ");
 
+const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+for (const slug of slugs) {
+  assert.ok(
+    vercel.rewrites.some((r) => r.source === `/${slug}` && r.destination === `/${slug}.html`),
+    `${slug}: vercel.json needs a clean-URL rewrite to its .html file`,
+  );
+}
+
 const sitemap = await readFile(pub("sitemap.xml"), "utf8");
 const home = await readFile(pub("index.html"), "utf8");
 const titles = new Set();
