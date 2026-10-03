@@ -53,4 +53,13 @@ for (const [tier, link] of Object.entries(expectedLinks)) {
   assert.match(pricing, new RegExp(`>${tier}</div>[\\s\\S]*?href="${link}"`), `${tier} must preserve its PR #12 checkout link`);
 }
 assert.match(pricing, /\$49[\s\S]*?\$149[\s\S]*?\$399/, "pricing must show matched $49/$149/$399 plan prices");
+const publicPricing = await readFile(new URL("../public/pricing.html", import.meta.url), "utf8");
+for (const [name, html] of [["pricing.html", pricing], ["public/pricing.html", publicPricing]]) {
+  assert.match(html, /45 or higher is banded high, 25 to 44 is usable, and below 25 is low/, `${name} FAQ must state the real score bands (scorePlace: 45/25)`);
+  assert.doesNotMatch(html, /Above 80|50 to 80/, `${name} must not state the retired 80/50 bands`);
+}
+for (const page of pages) {
+  const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+  assert.doesNotMatch(html, /fit, intent, quality, and engagement/, `${page} must not describe the retired scoring model`);
+}
 console.log("public-copy-contract: PASS (launch copy; no fabricated proof; source/public parity; PR #12 pricing links)");

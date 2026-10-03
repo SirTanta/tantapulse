@@ -246,3 +246,16 @@ test("outreach follow-up is due after four business days and keeps compliance co
   assert.match(html, /unsubscribe\?email=a%40acme\.com/);
   assert.match(html, /utm_campaign=seo_market_check/);
 });
+
+test("outreach promises one business day, not minutes (SLA is now()+1 day; fulfill cron is not guaranteed instant)", () => {
+  const { html } = renderOutreach({ company: "Acme", email: "a@b.co" });
+  assert.match(html, /within one business day/);
+  assert.doesNotMatch(html, /within minutes|instantly|right away/i);
+});
+
+test("score bands: high >= 45, usable 25-44, low < 25 (matches public FAQ copy)", () => {
+  const mk = (extra) => scorePlace({ website: "x.com", reviewsCount: 500, totalScore: 4.8, ...extra }, { medianReviews: 50 });
+  assert.equal(scorePlace({ website: "", reviewsCount: 0, totalScore: 0 }, { medianReviews: 50 }).band, "high"); // 30+30
+  assert.equal(mk({ claimThisBusiness: true, rank: 12 }).band, "usable"); // 15+12 = 27
+  assert.equal(mk({ claimThisBusiness: true }).band, "low"); // 15
+});
