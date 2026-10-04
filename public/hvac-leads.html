@@ -53,8 +53,7 @@
         <h1 class="display">HVAC leads for SEO agencies: scored HVAC companies in your market</h1>
         <p class="lead">These are HVAC businesses for an agency to sell marketing to, not homeowners who need a repair. Tanta Pulse collects the HVAC companies in a city, scores each on the gaps an SEO agency can fix, and ranks them so you start with the strongest fits.</p>
         <div class="actions">
-          <a class="btn btn-gold" href="#request">Get my free HVAC market check</a>
-          <a class="btn btn-ghost" href="/pricing">See plans from $49/mo</a>
+          <a class="btn btn-gold" href="/pricing">See plans from $49/mo</a>
         </div>
       </section>
       <hr class="rule-gold" />
@@ -91,29 +90,20 @@
       <hr class="rule-gold" />
       <section class="block wrap">
         <h2>Cost</h2>
-        <p>The market check for one niche and city is free, with no card. A recurring feed starts at $49/mo on Starter, with Pro at $149/mo and Agency at $399/mo, all billed month to month. The <a href="/pricing">pricing page</a> has the details.</p>
+        <p>The free market check is temporarily unavailable. A recurring feed starts at $49/mo on Starter, with Pro at $149/mo and Agency at $399/mo, all billed month to month. The <a href="/pricing">pricing page</a> has the details.</p>
       </section>
       <hr class="rule-gold" />
       <section class="block wrap">
         <h2>HVAC feed questions</h2>
         <div class="faq-item"><h3>Do you sell homeowner leads?</h3><p>No. Tanta Pulse provides scored lists of local businesses, here HVAC companies, for agencies and sales teams. It does not generate service calls for HVAC contractors.</p></div>
-        <div class="faq-item"><h3>Can I get HVAC in a city other than Austin?</h3><p>Yes, request it through the form. Feeds are defined by niche and city, and we check coverage for your pair before you pay.</p></div>
+        <div class="faq-item"><h3>Can I get HVAC in a city other than Austin?</h3><p>Yes. Feeds are defined by niche and city. Email hello@tantapulse.com with your pair and we will tell you what we can build before you pay.</p></div>
         <div class="faq-item"><h3>What else can I request?</h3><p>Any local-business niche. <a href="/roofing-leads">Roofing companies</a> are a common pairing for agencies that sell to home service trades. You can also read about <a href="/local-seo-agency-leads">prospecting for any local niche</a>.</p></div>
       </section>
       <hr class="rule-gold" />
       <section class="block wrap" id="request">
-        <h2>Request your free market check</h2>
-        <p>Tell us the niche and city. We will reply within one business day with the top 10 businesses we found, each with its score and the reasons behind it.</p>
-        <div class="form-card">
-          <form id="sample-form">
-            <label>Your name<input name="name" autocomplete="name" placeholder="Alex Rivera" required /></label>
-            <label>Email<input name="email" type="email" autocomplete="email" placeholder="you@agency.com" required /></label>
-            <label>Niche<input name="niche" placeholder="HVAC" value="HVAC" required /></label>
-            <label>City / market<input name="city" placeholder="Austin, TX" value="Austin, TX" required /></label>
-            <button class="btn btn-gold" type="submit">Get my free HVAC market check</button>
-            <p class="fineprint">By submitting this request, you ask Tanta Pulse to use the information you provide to assess your niche and market, respond to your request, and send service-related follow-up. See the <a href="https://www.tantaholdings.com/privacy">Privacy Policy</a>.</p>
-            <div class="message" id="form-message" aria-live="polite"></div>
-          </form>
+        <h2>Free market check temporarily unavailable</h2>
+        <div class="note" id="market-check-notice">
+          <p>The free market check is temporarily unavailable while we move to a new data source. To be told when it returns, email <a href="mailto:hello@tantapulse.com?subject=Notify%20me%20when%20the%20market%20check%20returns">hello@tantapulse.com</a>.</p>
         </div>
       </section>
 
@@ -130,30 +120,5 @@
       </div>
     </footer>
 
-    <script>
-      const form = document.getElementById('sample-form');
-      const message = document.getElementById('form-message');
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        message.textContent = 'Sending...';
-        message.style.color = 'var(--gold-text)';
-        const data = Object.fromEntries(new FormData(form).entries());
-        try {
-          const res = await fetch('/api/sample-request', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          const json = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(json.error || 'Request failed');
-          form.reset();
-          message.textContent = "Got it. We'll reply within one business day.";
-          message.style.color = 'var(--success)';
-        } catch (err) {
-          message.textContent = err.message || 'Something went wrong.';
-          message.style.color = 'var(--danger)';
-        }
-      });
-    </script>
   </body>
 </html>

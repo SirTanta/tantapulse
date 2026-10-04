@@ -490,62 +490,10 @@
       <hr class="rule-gold" />
 
       <section class="block wrap" id="request">
-        <h2>Tell us your market</h2>
-        <div class="form-wrap">
-          <div class="form-card">
-            <p class="fineprint" style="margin-top:0;">
-              Not sure which plan fits? Send us the niche and city you sell into and we'll come back with what we
-              can build for it. You'll get a receipt ID and a reply within one business day.
-            </p>
-            <form id="sample-form">
-              <label>
-                Your name
-                <input name="name" autocomplete="name" placeholder="Alex Rivera" required />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" autocomplete="email" placeholder="you@agency.com" required />
-              </label>
-              <label>
-                Niche
-                <input name="niche" placeholder="roofing, HVAC, dentists, med spas..." required />
-              </label>
-              <label>
-                City / market
-                <input name="city" placeholder="Austin, TX" required />
-              </label>
-              <label>
-                Delivery cadence
-                <select name="cadence" required>
-                  <option value="weekly">Weekly</option>
-                  <option value="daily">Daily</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </label>
-              <label>
-                Notes
-                <textarea name="notes" placeholder="How many clients are you working, and what have you tried so far?"></textarea>
-              </label>
-              <button class="btn btn-gold" type="submit">Send my market</button>
-              <p class="fineprint" style="margin:0;">By submitting this request, you ask Tanta Pulse to use the information you provide to assess your niche and market, respond to your request, and send service-related follow-up. See the <a href="https://www.tantaholdings.com/privacy" style="text-decoration:underline;">Privacy Policy</a>.</p>
-              <div class="message" id="form-message" aria-live="polite"></div>
-            </form>
-          </div>
-          <div class="form-card">
-            <h3>What happens next</h3>
-            <ul style="padding-left:18px; line-height:1.9; color:var(--charcoal); margin:0;">
-              <li>Your request is logged with a receipt ID.</li>
-              <li>We check coverage for your niche and market.</li>
-              <li>We reply within one business day with what we can build and what it costs.</li>
-            </ul>
-            <div class="panel-cta">
-              <strong>Rather just start?</strong>
-              <span>Starter is $49/mo and you can subscribe now from the <a href="/pricing">pricing page</a>.</span>
-            </div>
-            <p class="fineprint" style="margin-top:18px; margin-bottom:0;">
-              Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.
-            </p>
-          </div>
+        <h2>Free market check temporarily unavailable</h2>
+        <div class="form-card" id="market-check-notice">
+          <p style="margin-top:0;">The free market check is temporarily unavailable while we move to a new data source. To be told when it returns, email <a href="mailto:hello@tantapulse.com?subject=Notify%20me%20when%20the%20market%20check%20returns">hello@tantapulse.com</a>.</p>
+          <p class="fineprint" style="margin-bottom:0;">Ready to start now? See the <a href="/pricing">pricing page</a>. Questions? Email <a class="nowrap" href="mailto:hello@tantapulse.com">hello@tantapulse.com</a>.</p>
         </div>
       </section>
     </main>
@@ -557,30 +505,5 @@
       </div>
     </footer>
 
-    <script>
-      const form = document.getElementById('sample-form');
-      const message = document.getElementById('form-message');
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        message.textContent = 'Sending...';
-        message.style.color = 'var(--gold-text)';
-        const data = Object.fromEntries(new FormData(form).entries());
-        try {
-          const res = await fetch('/api/sample-request', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          const json = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(json.error || 'Request failed');
-          form.reset();
-          message.textContent = "Got it. We'll reply within one business day.";
-          message.style.color = 'var(--success)';
-        } catch (err) {
-          message.textContent = err.message || 'Something went wrong.';
-          message.style.color = 'var(--danger)';
-        }
-      });
-    </script>
   </body>
 </html>

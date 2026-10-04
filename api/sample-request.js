@@ -91,7 +91,19 @@ async function persistIntake(request) {
   return record;
 }
 
+// Jon decision 2026-10-05: the free market check is paused until we have
+// compliant data. Fail closed unless explicitly re-enabled with the env flag.
+function marketCheckEnabled() {
+  return ["1", "true", "yes", "on"].includes(String(process.env.PULSE_MARKET_CHECK_ENABLED || "").trim().toLowerCase());
+}
+
 export default async function handler(req, res) {
+  if (!marketCheckEnabled()) {
+    return res.status(503).json({
+      error: "The free market check is temporarily unavailable while we move to a new data source. Email hello@tantapulse.com to be told when it returns.",
+      code: "market_check_unavailable",
+    });
+  }
   if (!originAllowed(req)) return res.status(403).json({ error: "Forbidden" });
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
