@@ -8,7 +8,7 @@
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="canonical" href="https://tantapulse.com/austin-seo-agency-leads" />
     <title>Austin SEO Agency Leads | Ranked Local Prospect Lists</title>
-    <meta name="description" content="Tanta Pulse builds ranked local-business prospect lists for Austin SEO agencies. Pick a niche and market, get the top 10 scored for free, then work the top." />
+    <meta name="description" content="Tanta Pulse builds ranked local-business prospect lists for Austin SEO agencies. Pick a niche and market, get a ranked, scored list, then work the top." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tanta Pulse" />
     <meta property="og:title" content="Austin SEO Agency Leads | Ranked Local Prospect Lists" />
@@ -51,10 +51,9 @@
       <section class="hero wrap">
         <div class="eyebrow">For Austin SEO agencies</div>
         <h1 class="display">Ranked local-business leads for Austin SEO agencies</h1>
-        <p class="lead">Tanta Pulse builds a prospect list for the niche and market you sell into, scores every business on how much an SEO agency has to offer it, and hands your team the ranked result. Start with a free market check for one niche in one Austin-area city.</p>
+        <p class="lead">Tanta Pulse builds a prospect list for the niche and market you sell into, scores every business on how much an SEO agency has to offer it, and hands your team the ranked result.</p>
         <div class="actions">
-          <a class="btn btn-gold" href="#request">Get my free market check</a>
-          <a class="btn btn-ghost" href="/pricing">See plans from $49/mo</a>
+          <a class="btn btn-gold" href="/pricing">See plans from $49/mo</a>
         </div>
       </section>
       <hr class="rule-gold" />
@@ -81,7 +80,7 @@
         <h2>How a feed works in the Austin area</h2>
         <ol>
           <li><strong>Choose a niche and a market.</strong> Austin proper, or a surrounding city such as Round Rock or Cedar Park. One niche in one market is one feed.</li>
-          <li><strong>Run the free market check.</strong> You send us the pair through the form below. We reply with the top 10 businesses we found, each with its score and reasons. There is no card and no call.</li>
+          <li><strong>Tell us the pair.</strong> The free market check is paused while we move to a new data source. Email hello@tantapulse.com to be told when it returns, or see the plans.</li>
           <li><strong>Decide whether a recurring feed is worth it.</strong> If it is, a plan turns that market into a feed delivered by email on your cadence. Businesses already sent to you are left out of later deliveries, so you do not pitch the same lead twice.</li>
         </ol>
         <div class="note"><p><strong>An example, not a customer story.</strong> Say your agency sells Google Business Profile and web work to service companies. You might pick HVAC in Austin for one feed and dentists in Cedar Park for another. They would be scored and ranked separately, because the local median that reviews are measured against is different in each.</p></div>
@@ -97,22 +96,13 @@
         <div class="faq-item"><h3>Are these exclusive leads?</h3><p>No. They come from public Google listings, so other people can see the same businesses. Treat them as researched prospects that are ranked for you, not as leads only you will ever receive.</p></div>
         <div class="faq-item"><h3>Will every lead have a phone number and a website?</h3><p>No. Each lead shows the phone and website from its listing. If a listing has neither, the lead says so rather than hiding the gap, and a missing website is itself one of the signals the score rewards.</p></div>
         <div class="faq-item"><h3>Do I have to be in Austin?</h3><p>No. Tanta Pulse is built around the Austin local SEO market, and feeds are defined by niche and city. If you sell elsewhere, send your market and we will tell you what we can build. There is also a page for <a href="/local-seo-agency-leads">local SEO agencies in any city</a>.</p></div>
-        <div class="faq-item"><h3>Can I look at a specific niche first?</h3><p>Yes, that is what the free market check is for. See how it looks for <a href="/hvac-leads">HVAC companies</a> or <a href="/roofing-leads">roofing companies</a>, or name your own niche in the form.</p></div>
+        <div class="faq-item"><h3>Can I look at a specific niche first?</h3><p>The free market check is temporarily unavailable. In the meantime, see how a feed looks for <a href="/hvac-leads">HVAC companies</a> or <a href="/roofing-leads">roofing companies</a>, or email hello@tantapulse.com with your niche.</p></div>
       </section>
       <hr class="rule-gold" />
       <section class="block wrap" id="request">
-        <h2>Request your free market check</h2>
-        <p>Tell us the niche and city. We will reply within one business day with the top 10 businesses we found, each with its score and the reasons behind it.</p>
-        <div class="form-card">
-          <form id="sample-form">
-            <label>Your name<input name="name" autocomplete="name" placeholder="Alex Rivera" required /></label>
-            <label>Email<input name="email" type="email" autocomplete="email" placeholder="you@agency.com" required /></label>
-            <label>Niche<input name="niche" placeholder="HVAC, roofing, dentists, med spas..." value="" required /></label>
-            <label>City / market<input name="city" placeholder="Austin, TX" value="Austin, TX" required /></label>
-            <button class="btn btn-gold" type="submit">Get my free market check</button>
-            <p class="fineprint">By submitting this request, you ask Tanta Pulse to use the information you provide to assess your niche and market, respond to your request, and send service-related follow-up. See the <a href="https://www.tantaholdings.com/privacy">Privacy Policy</a>.</p>
-            <div class="message" id="form-message" aria-live="polite"></div>
-          </form>
+        <h2>Free market check temporarily unavailable</h2>
+        <div class="note" id="market-check-notice">
+          <p>The free market check is temporarily unavailable while we move to a new data source. To be told when it returns, email <a href="mailto:hello@tantapulse.com?subject=Notify%20me%20when%20the%20market%20check%20returns">hello@tantapulse.com</a>.</p>
         </div>
       </section>
 
@@ -129,30 +119,5 @@
       </div>
     </footer>
 
-    <script>
-      const form = document.getElementById('sample-form');
-      const message = document.getElementById('form-message');
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        message.textContent = 'Sending...';
-        message.style.color = 'var(--gold-text)';
-        const data = Object.fromEntries(new FormData(form).entries());
-        try {
-          const res = await fetch('/api/sample-request', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          const json = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(json.error || 'Request failed');
-          form.reset();
-          message.textContent = "Got it. We'll reply within one business day.";
-          message.style.color = 'var(--success)';
-        } catch (err) {
-          message.textContent = err.message || 'Something went wrong.';
-          message.style.color = 'var(--danger)';
-        }
-      });
-    </script>
   </body>
 </html>

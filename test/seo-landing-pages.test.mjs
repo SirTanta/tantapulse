@@ -62,9 +62,12 @@ for (const slug of slugs) {
   }
   assert.ok(sitemap.includes(`<loc>${url}</loc>`), `${slug}: in sitemap.xml`);
   assert.ok(home.includes(`href="/${slug}"`), `${slug}: linked from homepage`);
-  assert.match(html, /<form id="sample-form">/, `${slug}: has market-check form`);
-  assert.match(html, /\/api\/sample-request/, `${slug}: form posts to sample-request`);
-  assert.match(html, /tantaholdings\.com\/privacy/, `${slug}: privacy disclosure`);
+  // Market check paused 2026-10-05 (Maps-sourcing terms): no form, notice + mailto only.
+  assert.doesNotMatch(html, /<form[ >]/, `${slug}: no form while market check is paused`);
+  assert.doesNotMatch(html, /sample-form|api.sample-request/, `${slug}: no sample-request wiring`);
+  assert.match(html, /id="market-check-notice"/, `${slug}: paused notice present`);
+  assert.match(html, /temporarily unavailable while we move to a new data source/, `${slug}: notice copy`);
+  assert.match(html, /href="mailto:hello@tantapulse.com/, `${slug}: mailto link`);
   const text = visibleText(html);
   for (const re of forbidden) assert.doesNotMatch(text, re, `${slug}: forbidden claim ${re}`);
   assert.match(text, /\$49[\s\S]*\$149[\s\S]*\$399/, `${slug}: states $49/$149/$399`);
