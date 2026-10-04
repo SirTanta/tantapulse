@@ -15,20 +15,8 @@
   },
   "crons": [
     {
-      "path": "/api/lead-feed/process",
-      "schedule": "10 9 * * *"
-    },
-    {
       "path": "/api/lead-feed/send",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/sales-discovery/trigger",
-      "schedule": "0 7 * * 1"
-    },
-    {
-      "path": "/api/sales-discovery/process",
-      "schedule": "0 10 * * *"
     },
     {
       "path": "/api/finance/stripe-overnight",
@@ -41,10 +29,6 @@
     {
       "path": "/api/pulse/check-replies",
       "schedule": "0 */2 * * *"
-    },
-    {
-      "path": "/api/lead-feed/bridge",
-      "schedule": "15 */2 * * *"
     }
   ],
   "redirects": [
