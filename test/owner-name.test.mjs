@@ -226,6 +226,11 @@ test("website: testimonials, vice titles, co-owners and 'owner of <other company
   assert.deepEqual(extractOwnerNames("Contact Us | Owner | Strategy", "Acme"), []);
 });
 
+test("website: job titles and slogans next to a title are not names (Founder | Transaction Coordinator, Founder, Your Biz Rules)", () => {
+  assert.deepEqual(extractOwnerNames("Founder | Transaction Coordinator", "The Real Estate Assistant"), []);
+  assert.deepEqual(extractOwnerNames("Founder, Your Biz Rules", "Bloom Communications"), []);
+});
+
 test("website: title-adjacent single words need a first and last name", () => {
   assert.deepEqual(extractOwnerNames("President, Cielo", "Launch Marketing"), []);
   assert.deepEqual(
