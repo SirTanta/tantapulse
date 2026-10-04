@@ -27,10 +27,43 @@ for (const page of pages) {
   assert.match(html, /_vercel\/insights\/script\.js/, `${page}: analytics script`);
 }
 
-// Paid plan links stay untouched.
-const pricing = await readFile(new URL("../public/pricing.html", import.meta.url), "utf8");
-for (const id of ["aFa00c74H8i0ghZ12j5J605", "4gMdR274HeGo5Dl3ar5J606", "aFadR2cp1bucghZfXd5J607"]) {
-  assert.ok(pricing.includes(`https://buy.stripe.com/${id}`), `stripe link ${id} intact`);
+// Jon decision 2026-10-05 (follow-up): paid plans are paused too. The three Stripe
+// payment links are deactivated; no page may link to buy.stripe.com or claim a
+// Google/Maps data source.
+const visible = (html) =>
+  html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<(style|script)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
+const bannedSource = [
+  /buy\.stripe\.com/i,
+  /plink_/i,
+  /Google listing/i,
+  /public map/i,
+  /Map position/i,
+  /Unclaimed Google/i,
+  /Google (profile|reviews|Maps)/i,
+  /\bmap results\b|\bmap listings\b|\bpublic listing/i,
+  /\bGoogle Places\b/i,
+  /Subscribe\s*(—|-|&mdash;)/i,
+  /See plans from/i,
+];
+for (const page of pages) {
+  const html = await readFile(new URL(`../public/${page}`, import.meta.url), "utf8");
+  const text = visible(html);
+  for (const re of bannedSource) {
+    assert.doesNotMatch(html.replace(/<link[^>]*fonts\.googleapis[^>]*>/g, ""), re, `${page}: banned ${re}`);
+  }
+  assert.doesNotMatch(text, /\blisting/i, `${page}: no listing-source wording`);
+  assert.match(
+    text,
+    /(Paid plans|plans) (are|and the free market check are) temporarily unavailable while we move to a new data source|Paid plans (are )?paused/i,
+    `${page}: paid plans paused notice`,
+  );
 }
+const pricing = await readFile(new URL("../public/pricing.html", import.meta.url), "utf8");
+assert.match(pricing, /Paid plans are temporarily unavailable while we move to a new data source/, "pricing: plans notice");
+assert.equal((pricing.match(/Paused/g) || []).length >= 4, true, "pricing: every plan card labeled Paused");
 
 console.log("market-check-paused: PASS");
