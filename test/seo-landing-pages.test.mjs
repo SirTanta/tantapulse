@@ -70,7 +70,9 @@ for (const slug of slugs) {
   assert.match(html, /href="mailto:hello@tantapulse.com/, `${slug}: mailto link`);
   const text = visibleText(html);
   for (const re of forbidden) assert.doesNotMatch(text, re, `${slug}: forbidden claim ${re}`);
-  assert.match(text, /\$49[\s\S]*\$149[\s\S]*\$399/, `${slug}: states $49/$149/$399`);
+  assert.doesNotMatch(html, /buy\.stripe\.com/, `${slug}: no payment links while plans are paused`);
+  assert.match(text, /Paid plans are temporarily unavailable while we move to a new data source|plans are temporarily unavailable/i, `${slug}: paid plans paused notice`);
+  assert.doesNotMatch(text, /Google listing|public map|Map position|Unclaimed Google|public listing|map results/i, `${slug}: no Maps-source claims`);
   bodies.push(visibleText(html.replace(/<section[^>]*id="request"[\s\S]*?<\/section>/, "")));
 }
 
@@ -81,7 +83,7 @@ function shingles(text) {
   for (let i = 0; i + 12 <= w.length; i++) out.add(w.slice(i, i + 12).join(" "));
   return out;
 }
-const boiler = /form|privacy policy|tanta holdings|email preferences|market check/;
+const boiler = /form|privacy policy|tanta holdings|email preferences|market check|new data source|paid plans|hello@tantapulse/;
 for (let i = 0; i < bodies.length; i++) {
   for (let j = i + 1; j < bodies.length; j++) {
     const a = shingles(bodies[i]);
