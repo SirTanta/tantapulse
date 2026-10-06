@@ -14,8 +14,9 @@ import {
   APIFY_ACTOR, FROM, OPS_EMAIL, PAID_DELIVERY_COUNT, PLACES_PER_SCRAPE, REPLY_TO, SAMPLE_PREVIEW_COUNT,
   isStale, isTestRequest, rankLeads, renderMarketCheck, renderPaidDelivery, searchString, unsubHeaders,
   OUTREACH_DAILY_CAP, OUTREACH_FROM, OUTREACH_PASS_CAP, OUTREACH_REPLY_TO, SEO_DISCOVERY_CUTOVER,
-  inOutreachWindow, isOutreachFollowUpDue, isTantaOwnedEmail, renderOutreach, renderOutreachFollowUp,
+  inOutreachWindow, isOutreachFollowUpDue, isTantaOwnedEmail, renderOutreach, renderOutreachFollowUp, leadOwnerName,
 } from "../../lib/pulse-fulfillment.mjs";
+import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
 
 const MAX_STARTS_PER_PASS = 5;
 const WEEK_MS = 6.5 * 86400000;
@@ -319,7 +320,7 @@ async function outreachBlockReason(d, email) {
 
 async function eligibleOutreach(d, limit) {
   const rows = await d.get(
-    "leads?select=id,company,domain,contact:contacts!inner(email)" +
+    "leads?select=id,company,domain,owner_first_name,owner_name_confidence,contact:contacts!inner(email)" +
     "&outreach_status=in.(pending,eligible)&outreach_sequence=eq.0&hunter_confidence=gte.80&hunter_verifier_status=ilike.valid" +
     `&or=(source.eq.tantapulse_seo_agency,and(source.eq.apify,created_at.gte.${SEO_DISCOVERY_CUTOVER}))` +
     `&order=created_at.asc&limit=${limit}`
@@ -339,7 +340,7 @@ async function eligibleFollowUps(d, limit, now = new Date()) {
   if (!due.length) return [];
   const leads = await d.get(
     `leads?id=in.(${due.map((s) => s.lead_id).join(",")})` +
-    "&select=id,company,domain,outreach_status,outreach_sequence,contact:contacts!inner(email)"
+    "&select=id,company,domain,owner_first_name,owner_name_confidence,outreach_status,outreach_sequence,contact:contacts!inner(email)"
   );
   const byId = new Map(leads.map((l) => [l.id, l]));
   const eligible = [];
@@ -393,7 +394,7 @@ export async function sendOutreachTouch(d, log, lead, { sequence, render, label 
   const claim = claimed.claim;
   let id;
   try {
-    const msg = render({ company: lead.company, email });
+    const msg = render({ company: lead.company, email, ownerFirstName: leadOwnerName(lead) });
     id = await sendEmail({ to: email, ...msg, from: OUTREACH_FROM, replyTo: OUTREACH_REPLY_TO });
   } catch (err) {
     await d.del(`pulse_outreach_sends?id=eq.${claim.id}`);
@@ -405,11 +406,21 @@ export async function sendOutreachTouch(d, log, lead, { sequence, render, label 
   return true;
 }
 
-async function outreach(d, log, { preview = false } = {}) {
+// Preview-only helper: fetch one specific lead (by uuid) so a named and an unnamed lead can both be
+// rendered. The preview email goes to OUTREACH_REPLY_TO (Jon) only, never to the lead.
+async function previewLeadById(d, id) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id || ""))) return null;
+  const rows = await d.get(
+    `leads?id=eq.${id}&select=id,company,domain,owner_first_name,owner_name_confidence,contact:contacts!inner(email)&limit=1`
+  );
+  return rows[0]?.contact?.email ? rows[0] : null;
+}
+
+async function outreach(d, log, { preview = false, previewLead = null } = {}) {
   if (preview) {
-    const [lead] = await eligibleOutreach(d, 1);
+    const lead = previewLead ? await previewLeadById(d, previewLead) : (await eligibleOutreach(d, 1))[0];
     if (!lead) { log.push("outreach preview: no eligible lead yet"); return; }
-    const msg = renderOutreach({ company: lead.company, email: lead.contact.email });
+    const msg = renderOutreach({ company: lead.company, email: lead.contact.email, ownerFirstName: leadOwnerName(lead) });
     const id = await sendEmail({ to: OUTREACH_REPLY_TO, subject: `[PREVIEW to ${lead.contact.email.split("@")[1]}] ${msg.subject}`, html: msg.html, from: OUTREACH_FROM, replyTo: OUTREACH_REPLY_TO, unsub: false });
     log.push(`outreach preview sent to Jon (${id})`);
     return;
@@ -435,7 +446,9 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const d = db();
-  if (!d.ok || !process.env.APIFY_TOKEN || !process.env.RESEND_API_KEY) {
+  const previewOnly = req.query?.outreach_preview === "1" && req.query?.outreach_preview_only === "1";
+  if (!d.ok || (!previewOnly && !process.env.APIFY_TOKEN) || !process.env.RESEND_API_KEY) {
+    await recordHeartbeat("pulse_fulfill", false, { reason: "missing_configuration" });
     return res.status(500).json({ error: "Missing configuration" });
   }
   const log = [];
@@ -443,6 +456,12 @@ export default async function handler(req, res) {
   const step = async (name, fn) => {
     try { await fn(); } catch (err) { errors.push(`${name}: ${err.message}`); }
   };
+  // Outreach preview only (sends to Jon, never a prospect): skips intake/paid/collect/deliver so a
+  // preview can never start an Apify scrape or deliver a feed.
+  if (req.query?.outreach_preview === "1" && req.query?.outreach_preview_only === "1") {
+    await step("outreach", () => outreach(d, log, { preview: true, previewLead: req.query?.outreach_preview_lead || null }));
+    return res.status(errors.length ? 500 : 200).json({ ok: !errors.length, log, errors, preview_only: true });
+  }
   let budget = { ok: false };
   await step("budget", async () => { budget = await apifyBudgetOk(); });
   if (!budget.ok && budget.used !== undefined) log.push(`apify budget hold: $${budget.used.toFixed(2)} of $${budget.cap}`);
@@ -451,7 +470,9 @@ export default async function handler(req, res) {
   await step("paid", () => startPaid(d, log, budget, started));
   await step("collect", () => collect(d, log));
   await step("deliver", () => deliver(d, log));
-  await step("outreach", () => outreach(d, log, { preview: req.query?.outreach_preview === "1" }));
+  await step("outreach", () => outreach(d, log, { preview: req.query?.outreach_preview === "1", previewLead: req.query?.outreach_preview_lead || null }));
   if (errors.length) await opsAlert("fulfill errors", errors, { cooldown: true });
+  const sentCount = log.filter((l) => /^(run \S+ -> delivered|outreach)/.test(l)).length;
+  await recordHeartbeat("pulse_fulfill", !errors.length, { sent: sentCount, log_lines: log.length, errors });
   return res.status(errors.length ? 500 : 200).json({ ok: !errors.length, log, errors });
 }

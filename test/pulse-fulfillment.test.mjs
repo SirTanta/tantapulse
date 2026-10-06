@@ -253,3 +253,78 @@ test("outreach follow-up is due after four business days and keeps compliance co
   assert.match(html, /unsubscribe\?email=a%40acme\.com/);
   assert.match(html, /utm_campaign=seo_market_check/);
 });
+
+test("outreach promises one business day, not minutes (SLA is now()+1 day; fulfill cron is not guaranteed instant)", () => {
+  const { html } = renderOutreach({ company: "Acme", email: "a@b.co" });
+  assert.match(html, /within one business day/);
+  assert.doesNotMatch(html, /within minutes|instantly|right away/i);
+});
+
+test("score bands: high >= 45, usable 25-44, low < 25 (matches public FAQ copy)", () => {
+  const mk = (extra) => scorePlace({ website: "x.com", reviewsCount: 500, totalScore: 4.8, ...extra }, { medianReviews: 50 });
+  assert.equal(scorePlace({ website: "", reviewsCount: 0, totalScore: 0 }, { medianReviews: 50 }).band, "high"); // 30+30
+  assert.equal(mk({ claimThisBusiness: true, rank: 12 }).band, "usable"); // 15+12 = 27
+  assert.equal(mk({ claimThisBusiness: true }).band, "low"); // 15
+});
+
+test("outreach greets the owner by first name only when a high-confidence name is set (flag on)", () => {
+  process.env.PULSE_OWNER_GREETING = "on";
+  try {
+    const named = renderOutreach({ company: "Acme SEO", email: "a@acme.com", ownerFirstName: "jane" });
+    assert.match(named.html, /<p style="margin:0 0 12px">Hi Jane,<\/p>/);
+    assert.doesNotMatch(named.html, /Hi Acme SEO/);
+    const plain = renderOutreach({ company: "Acme SEO", email: "a@acme.com" });
+    assert.equal(named.subject, plain.subject, "subject unchanged");
+    assert.match(plain.html, /Hi Acme SEO,/);
+    // everything after the greeting is identical
+    const rest = (h) => h.slice(h.indexOf("</p>"));
+    assert.equal(rest(named.html), rest(plain.html));
+    const fu = renderOutreachFollowUp({ company: "Acme SEO", email: "a@acme.com", ownerFirstName: "Jane" });
+    assert.match(fu.html, /Hi Jane,/);
+  } finally {
+    delete process.env.PULSE_OWNER_GREETING;
+  }
+});
+
+test("outreach fallback greeting is exactly the old company greeting (no name, flag off, bad name)", () => {
+  const old = renderOutreach({ company: "Acme SEO", email: "a@acme.com" }).html;
+  assert.match(old, /Hi Acme SEO,/);
+  assert.match(renderOutreach({ email: "a@acme.com" }).html, /Hi your team,/);
+  process.env.PULSE_OWNER_GREETING = "off";
+  try {
+    assert.equal(renderOutreach({ company: "Acme SEO", email: "a@acme.com", ownerFirstName: "Jane" }).html, old);
+  } finally {
+    delete process.env.PULSE_OWNER_GREETING;
+  }
+  process.env.PULSE_OWNER_GREETING = "on";
+  try {
+    for (const bad of [null, "", "J", "ACME", "Owner", "Jane Doe"]) {
+      assert.equal(renderOutreach({ company: "Acme SEO", email: "a@acme.com", ownerFirstName: bad }).html, old, String(bad));
+    }
+  } finally {
+    delete process.env.PULSE_OWNER_GREETING;
+  }
+});
+
+test("outreach owner name is sanitized: HTML/injection characters never reach the email", () => {
+  process.env.PULSE_OWNER_GREETING = "on";
+  try {
+    for (const evil of ["<script>alert(1)</script>", 'Jane"><img src=x onerror=1>', "Jane&amp;", "Ja<b>ne"]) {
+      const { html } = renderOutreach({ company: "Acme", email: "a@acme.com", ownerFirstName: evil });
+      assert.doesNotMatch(html, /<script|<img|onerror|<b>ne/i, evil);
+      assert.match(html, /Hi Acme,/, "falls back to the company greeting");
+    }
+    assert.match(renderOutreach({ company: "Acme", email: "a@acme.com", ownerFirstName: "mary-ann" }).html, /Hi Mary-Ann,/);
+    assert.match(renderOutreach({ company: "Acme", email: "a@acme.com", ownerFirstName: "o'brien" }).html, /Hi O(&#39;|')Brien,/);
+  } finally {
+    delete process.env.PULSE_OWNER_GREETING;
+  }
+});
+
+test("leadOwnerName only honours owner_name_confidence = high", async () => {
+  const { leadOwnerName } = await import("../lib/pulse-fulfillment.mjs");
+  assert.equal(leadOwnerName({ owner_first_name: "Jane", owner_name_confidence: "high" }), "Jane");
+  assert.equal(leadOwnerName({ owner_first_name: "Jane", owner_name_confidence: null }), null);
+  assert.equal(leadOwnerName({ owner_first_name: "Jane", owner_name_confidence: "low" }), null);
+  assert.equal(leadOwnerName({}), null);
+});

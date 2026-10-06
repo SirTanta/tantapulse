@@ -8,24 +8,15 @@
     },
     "api/sales-discovery/trigger.js": {
       "maxDuration": 60
+    },
+    "api/lead-feed/bridge.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
     {
-      "path": "/api/lead-feed/process",
-      "schedule": "10 9 * * *"
-    },
-    {
       "path": "/api/lead-feed/send",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/sales-discovery/trigger",
-      "schedule": "0 7 * * 1"
-    },
-    {
-      "path": "/api/sales-discovery/process",
-      "schedule": "0 10 * * *"
     },
     {
       "path": "/api/finance/stripe-overnight",
@@ -34,6 +25,10 @@
     {
       "path": "/api/sample-intake/fulfill",
       "schedule": "30 14 * * *"
+    },
+    {
+      "path": "/api/pulse/check-replies",
+      "schedule": "0 */2 * * *"
     }
   ],
   "redirects": [
@@ -99,6 +94,22 @@
     {
       "source": "/pricing",
       "destination": "/pricing.html"
+    },
+    {
+      "source": "/austin-seo-agency-leads",
+      "destination": "/austin-seo-agency-leads.html"
+    },
+    {
+      "source": "/local-seo-agency-leads",
+      "destination": "/local-seo-agency-leads.html"
+    },
+    {
+      "source": "/hvac-leads",
+      "destination": "/hvac-leads.html"
+    },
+    {
+      "source": "/roofing-leads",
+      "destination": "/roofing-leads.html"
     }
   ]
 }

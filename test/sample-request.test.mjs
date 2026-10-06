@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+// Existing behavior tests run with the market check explicitly enabled.
+process.env.PULSE_MARKET_CHECK_ENABLED = "true";
 const moduleUrl = new URL("../api/sample-request.js", import.meta.url);
 const { default: handler } = await import(moduleUrl);
 
@@ -141,5 +143,42 @@ test("never calls Apify, Resend, Stripe, checkout, delivery, or lead-feed servic
     for (const call of calls) {
       assert.doesNotMatch(call.url, /(apify|resend|stripe|checkout|delivery|lead_feed)/i);
     }
+  });
+});
+
+async function withFlag(value, run) {
+  const original = process.env.PULSE_MARKET_CHECK_ENABLED;
+  if (value === undefined) delete process.env.PULSE_MARKET_CHECK_ENABLED;
+  else process.env.PULSE_MARKET_CHECK_ENABLED = value;
+  try { await run(); } finally {
+    if (original === undefined) delete process.env.PULSE_MARKET_CHECK_ENABLED;
+    else process.env.PULSE_MARKET_CHECK_ENABLED = original;
+  }
+}
+
+for (const [label, value] of [["unset", undefined], ["empty", ""], ["false", "false"], ["0", "0"]]) {
+  test(`flag ${label}: returns 503 market_check_unavailable and performs no network or database call`, async (t) => {
+    await withFlag(value, async () => {
+      await withCrmFetch(t, jsonResponse({ body: [] }), async (calls) => {
+        const res = response();
+        await handler(request(validBody), res);
+        assert.equal(res.statusCode, 503);
+        assert.equal(res.payload.code, "market_check_unavailable");
+        assert.match(res.payload.error, /temporarily unavailable/);
+        assert.equal(calls.length, 0, "no fetch (no CRM write, no email, no scraping)");
+      });
+    });
+  });
+}
+
+test("flag on: code path preserved, request reaches CRM persistence", async (t) => {
+  await withFlag("true", async () => {
+    await withCrmFetch(t, jsonResponse({ ok: false, status: 500 }), async (calls) => {
+      const res = response();
+      await handler(request(validBody), res);
+      assert.equal(calls.length, 1);
+      assert.equal(res.statusCode, 503);
+      assert.equal(res.payload.error, "Unable to process request");
+    });
   });
 });

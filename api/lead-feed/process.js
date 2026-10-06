@@ -1,6 +1,10 @@
 import { persistSalesDiscoverySignals } from "../../lib/sales-discovery-core.mjs";
 
 function normalizeText(value) {
+  // Guards against objects (e.g. Apify's {lat,lng} location, or a nested place object) being
+  // coerced by String() into the literal text "[object Object]". Only strings/numbers/booleans
+  // are real display text; anything else has no safe generic text representation here.
+  if (value && typeof value === "object") return "";
   return String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
 }
 
@@ -52,7 +56,9 @@ function scoreItem(item = {}, context = {}) {
   const website = normalizeText(item.website || item.domain || item.url || item.source_url);
   const phone = normalizeText(item.phone || item.phone_number || item.contact_phone);
   const email = normalizeText(item.email || item.contact_email).toLowerCase();
-  const city = normalizeText(item.city || item.location || context.city || "");
+  // item.location is Apify's {lat,lng} coordinate object, not a place name.
+  // Fall back to the run's own requested city (e.g. "Denver, CO") instead of stringifying it.
+  const city = normalizeText(item.city || context.city || "");
   const niche = normalizeText(item.niche || item.category || context.niche || "");
   const signals = [businessName, website, phone, email, city, niche].filter(Boolean).length;
   const leadScore = Math.min(100, signals * 14 + (item.hiring_intent ? 12 : 0) + (item.recent_activity ? 8 : 0));

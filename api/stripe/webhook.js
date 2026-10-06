@@ -340,6 +340,22 @@ async function onboardSubscriber({
   const [intake] = intakeRes.ok ? await intakeRes.json() : [];
   const niche = intake?.niche || null;
   const city = intake?.city || null;
+
+  // Conversion tracing: if this subscriber's email domain matches a cold-outreach
+  // lead's domain, link paid_subscribers.lead_id so the funnel (sent -> opened ->
+  // clicked -> sample requested -> paid) can be traced end-to-end. No match is a
+  // normal, expected outcome for organic/non-outreach-driven subscribers.
+  const domain = email.toLowerCase().split("@")[1] || "";
+  let leadId = null;
+  if (domain) {
+    const leadRes = await fetch(
+      `${supabaseUrl}/rest/v1/leads?domain=eq.${encodeURIComponent(domain)}&order=created_at.desc&limit=1&select=id`,
+      { headers },
+    );
+    const [lead] = leadRes.ok ? await leadRes.json() : [];
+    leadId = lead?.id || null;
+  }
+
   await fetch(
     `${supabaseUrl}/rest/v1/paid_subscribers?email=eq.${encodeURIComponent(email)}`,
     {
@@ -349,6 +365,7 @@ async function onboardSubscriber({
         niche,
         city,
         onboarded_at: new Date().toISOString(),
+        ...(leadId ? { lead_id: leadId } : {}),
       }),
     },
   );
