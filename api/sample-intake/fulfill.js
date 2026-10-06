@@ -14,7 +14,7 @@ import {
   APIFY_ACTOR, FROM, OPS_EMAIL, PAID_DELIVERY_COUNT, PLACES_PER_SCRAPE, REPLY_TO, SAMPLE_PREVIEW_COUNT,
   isStale, isTestRequest, rankLeads, renderMarketCheck, renderPaidDelivery, searchString, unsubHeaders,
   OUTREACH_DAILY_CAP, OUTREACH_FROM, OUTREACH_PASS_CAP, OUTREACH_REPLY_TO, SEO_DISCOVERY_CUTOVER,
-  inOutreachWindow, isOutreachFollowUpDue, renderOutreach, renderOutreachFollowUp, leadOwnerName,
+  inOutreachWindow, isOutreachFollowUpDue, isTantaOwnedEmail, renderOutreach, renderOutreachFollowUp, leadOwnerName,
 } from "../../lib/pulse-fulfillment.mjs";
 import { recordHeartbeat } from "../../lib/pulse-heartbeat.mjs";
 
@@ -150,6 +150,7 @@ async function resendBlockReason(d, email) {
 }
 
 async function deliveryBlockReason(d, email) {
+  if (isTantaOwnedEmail(email)) return "internal_probe";
   if (await isUnsubscribed(d, email)) return "unsubscribed";
   return resendBlockReason(d, email);
 }
@@ -309,6 +310,7 @@ async function isSuppressed(d, email) {
 
 async function outreachBlockReason(d, email) {
   const domain = email.split("@")[1] || "";
+  if (isTantaOwnedEmail(email)) return "internal_probe";
   if (await isUnsubscribed(d, email)) return "unsubscribed";
   const resendReason = await resendBlockReason(d, email);
   if (resendReason) return "bounced";
